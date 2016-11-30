@@ -1,0 +1,66 @@
+Display headlines from Google News
+	Conditions:
+		- List displays on "home" screen of the app
+		- List shows headline, and thumbnail image for each story
+		- Clicking a bookmark button for a story will toggle the bookmark status of a story
+		- List indicates if the story has been bookmarked
+	User Stories:
+		- As a user I can see a list of top headlines when I open the app
+		- As a user I can view top headlines in multiple different categories by clicking on their tabs
+		- As a user I can click the bookmark button on a story to save it for later
+		- As a user I can see a small thumbnail associated with the the story and a bookmark if I've bookmarked that story
+
+Display a summary of an article and a link to the full article
+	Conditions:
+		- On a cardview in a separate activity, display a summary of a story along with a photo
+		- List indicates if the story has been bookmarked by the user
+		- Offer a link to the full article on the cardview
+		- Clicking the bookmark button will toggle the bookmark status of a story
+		- Said link will open in a webview without leaving the app
+	User Stories:
+		- As a user I can view a little summary of an article without having to open it
+		- As a user I can click on the article's link to read the whole story
+		- As a user I can click the bookmark button to bookmark this story
+		- As a user I can see whether I've bookmarked this story or not
+
+Display social media posts relevent to a news story
+	Conditions:
+		- List shows all top relevent social media posts for this story
+		- Each cardview item holds a social media logo, user information, and interaction buttons (ex. "retweet")
+	User Stories:
+		- As a user I can scroll through a list of social media chatter about the story I've selected
+		- As a user I can interact with these posts. With Twitter posts, I can retweet a post
+
+Bookmark a news story
+	Conditions:
+		- For each story, displays a clickable button to toggle the bookmark status of that story
+		- Clicking said button saves the story to a list of bookmarked stories
+		- In separate Activity, List displays all bookmarked stories
+	User Stories:
+		- As a user I can click the bookmark button to save a story for later
+		- As a user I can click an already bookmarked story to remove the bookmark
+		- As a user I can view and scroll through a list off all my bookmarked stories
+
+Sign into a twitter account
+	Conditions:
+		- Fragment displays a twitter login screen
+		- Logging in saves the user's bearer token for future sessions
+	User Stories:
+		- as a user I can log into my twitter account
+
+Interact with a tweet/some other social media post
+	Conditions:
+		- Clicking the social media interaction buttons will post request to that network's api
+		- Interacting with media posts will provide the user with confirmation feedback
+	User Stories:
+		- As a user I can retweet tweets (Or some other social media interaction) that I find tied to a story
+		- As a user I can see feedback once I attemp to interact with a social media post
+
+Display content in both portrait and landscape orientations
+	Conditions:
+		- Rotating the phone does not interrupt background threads or services
+		- Instance states are saved to preseve the user's current screen when the phone is rotated
+		- Rotating the phone provides the user with an alternative layout
+	User Stories:
+		- As a user I can rotate my phone and view a horizontally-friendly version of the app
+		- As a user I don't notice any interruptions in my experience when I rotate the phone
