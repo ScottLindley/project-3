@@ -25,6 +25,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
 
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
+        //See NewsXmlParser class
         mParser = new NewsXmlParser(this);
         mParser.getXML();
     }
@@ -38,6 +39,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
     @Override
     public void onXmlParseFinished() {
         mStoryLinks = mParser.getStoryLinks();
+        //Make a Smmry api call for each story link
         for (String link : mStoryLinks){
             makeRetroFitCall(link);
         }
@@ -57,6 +59,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
             public void onResponse(Call<GsonStory> call, Response<GsonStory> response) {
                 //Takes the GsonStory response and adds it to mStories
                 mStories.add(response.body());
+                //This checks if all links have been run through a retrofit call (successful or not)
                 if(mStories.size()+mFailedResponses == mStoryLinks.size()){
                     //TODO: call DBHelper method here to send completed list of stories
                 }
@@ -66,6 +69,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
             public void onFailure(Call<GsonStory> call, Throwable t) {
                 t.printStackTrace();
                 mFailedResponses++;
+                //This checks if all links have been run through a retrofit call (successful or not)
                 if(mStories.size()+mFailedResponses == mStoryLinks.size()){
                     //TODO: call DBHelper method here to send completed list of stories
                 }

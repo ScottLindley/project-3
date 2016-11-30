@@ -65,6 +65,7 @@ public class NewsXmlParser {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                //Notify the NewsService that XML parsing is completed
                 mListener.onXmlParseFinished();
             }
         }.execute();
@@ -120,7 +121,7 @@ public class NewsXmlParser {
         return mStoryLinks;
     }
 
-    //Here is the interface that is implemented by MainActivity
+    //Here is the interface that is implemented by NewsService
     public interface ParseFinishedListener {
         void onXmlParseFinished();
     }
