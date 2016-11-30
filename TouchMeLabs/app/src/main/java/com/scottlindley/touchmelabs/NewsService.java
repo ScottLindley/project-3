@@ -2,7 +2,6 @@ package com.scottlindley.touchmelabs;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.os.AsyncTask;
 
 import java.util.List;
 
@@ -12,7 +11,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static android.R.id.list;
 
 /**
  * Created by Scott Lindley on 11/30/2016.
@@ -36,6 +34,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
         return false;
     }
 
+    //Implemented from OnParseFinished interface, only takes action once NewsXmlParser is finished
     @Override
     public void onXmlParseFinished() {
         mStoryLinks = mParser.getStoryLinks();
@@ -44,6 +43,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
         }
     }
 
+    //Makes a call using retrofit with a single story url
     private void makeRetroFitCall(final String link){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(mBaseURL)
@@ -55,9 +55,10 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
         call.enqueue(new Callback<GsonStory>() {
             @Override
             public void onResponse(Call<GsonStory> call, Response<GsonStory> response) {
+                //Takes the GsonStory response and adds it to mStories
                 mStories.add(response.body());
                 if(mStories.size()+mFailedResponses == mStoryLinks.size()){
-
+                    //TODO: call DBHelper method here to send completed list of stories
                 }
             }
 
@@ -66,7 +67,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
                 t.printStackTrace();
                 mFailedResponses++;
                 if(mStories.size()+mFailedResponses == mStoryLinks.size()){
-
+                    //TODO: call DBHelper method here to send completed list of stories
                 }
             }
 
