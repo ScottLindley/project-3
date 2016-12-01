@@ -105,7 +105,12 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
                 mFailedResponses++;
                 //This checks if all links have been run through a retrofit call (successful or not)
                 if(mGsonStories.size()+mFailedResponses == mStoryLinks.size()){
-                    //TODO: call DBHelper method here to send completed list of stories
+                    Intent intent = new Intent("service intent");
+                    intent.putExtra("service name", "news service");
+                    intent.putExtra("failure", "NewsService Failed");
+
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                    jobFinished(jobParameters, false);
                 }
             }
 
