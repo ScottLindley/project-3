@@ -3,6 +3,7 @@ package com.scottlindley.touchmelabs;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -22,13 +23,15 @@ public class TwitterService extends JobService{
     public static final String TWITTER_BASE_URL = "https://api.twitter.com/1.1/statuses/home_timeline.json";
     private List<GsonTweetInfo> mGsonTweets;
 
-
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
         mGsonTweets = new ArrayList<GsonTweetInfo>();
 
+        //This pulls the bearer token out from the jobParameters
         PersistableBundle bundle = jobParameters.getExtras();
         String bearerToken = bundle.getString("bearer token");
+
+        //Build a retrofit request
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(TWITTER_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -41,8 +44,11 @@ public class TwitterService extends JobService{
             @Override
             public void onResponse(Call<GsonTwitterAPIResponse> call, Response<GsonTwitterAPIResponse> response) {
                 if(response.isSuccessful()){
+                    //This object is a GsonObject that contains a list of GsonTweetInfo objects
                     GsonTwitterAPIResponse gsonResponse = response.body();
                     mGsonTweets = gsonResponse.getGsonTweets();
+
+                    //Make arrays that hold tweet info strings
                     int arraySize = mGsonTweets.size();
                     String[] names = new String[arraySize];
                     String[] times = new String[arraySize];
@@ -58,6 +64,7 @@ public class TwitterService extends JobService{
                         tweets[i] = mGsonTweets.get(i).getText();
                     }
 
+                    //Broadcast those string arrays through an intent to be received by the ContentDBHelper
                     Intent intent = new Intent ("service intent");
                     intent.putExtra("service name", "twitter service");
                     intent.putExtra("names", names);

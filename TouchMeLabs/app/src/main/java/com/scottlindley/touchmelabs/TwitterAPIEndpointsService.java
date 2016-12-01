@@ -12,5 +12,6 @@ import retrofit2.http.Header;
 public interface TwitterAPIEndpointsService {
 
     @GET("?count=18")
+    //The header added will be the bearer token
     Call<GsonTwitterAPIResponse> get20Tweets(@Header("Authorization") String authorization);
 }
