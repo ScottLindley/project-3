@@ -1,17 +1,26 @@
 package com.scottlindley.touchmelabs;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
 
 public class ContentDBHelper extends SQLiteOpenHelper {
+    private Context mContext;
+    private static final int NEWS_SERVICE = 3;
+    private static final int TWITTER_SERVICE = 9;
+
     private static final String DB_NAME = "content";
     private static final int DB_VERSION = 1;
 
@@ -45,6 +54,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
 
     private ContentDBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        mContext = context;
     }
 
     private static ContentDBHelper sInstance = null;
@@ -83,7 +93,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      */
 
     private void refreshDB() {
-
+        startRefreshService();
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -142,6 +152,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                 }
             }
         };
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(receiver, new IntentFilter("service intent"));
     }
 
     /**
@@ -152,6 +163,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      * displayed
      */
     public List<CardContent> getUpdatedCardList(CurrentWeather weather) {
+        refreshDB();
         List<CardContent> cards = new ArrayList<>();
         cards.add(weather);
         SQLiteDatabase db = getReadableDatabase();
@@ -285,5 +297,18 @@ public class ContentDBHelper extends SQLiteOpenHelper {
         newsCursor.close();
     }
 
-    private void
+    private void startRefreshService() {
+        JobScheduler jobScheduler = (JobScheduler)mContext.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+        JobInfo newsInfo = new JobInfo.Builder(NEWS_SERVICE, new ComponentName(mContext, NewsService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .build();
+
+        JobInfo twitterInfo = new JobInfo.Builder(TWITTER_SERVICE, new ComponentName(mContext, TwitterService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .build();
+
+        jobScheduler.schedule(newsInfo);
+        jobScheduler.schedule(twitterInfo);
+    }
 }
