@@ -81,6 +81,11 @@ public class TwitterService extends JobService{
             @Override
             public void onFailure(Call<GsonTwitterAPIResponse> call, Throwable t) {
                 t.printStackTrace();
+                Intent intent = new Intent("service intent");
+                intent.putExtra("service name", "failure");
+
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                jobFinished(jobParameters, false);
             }
         });
         return false;
