@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ContentDBHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "content";
@@ -70,7 +69,20 @@ public class ContentDBHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public List<CardContent> refreshList() {
+    /**
+     * Uses helper methods {@link #clearTable(SQLiteDatabase, String)},
+     * {@link #addTweet(SQLiteDatabase, String, String, String, String, String)}, and
+     * {@link #addNews(SQLiteDatabase, String, String, String)} to clear the news and tweets tables
+     * in the local SQLite database.
+     *
+     * {@link GoogleNewsService} sends String arrays to be converted into {@link NewsStory} objects
+     * {@link TwitterService} sends String arrays to be converted into {@link TweetInfo} objects
+     *
+     * This method should never be called from the UI thread. To access the new tables,
+     * see {@link #getNews()} and {@link #getTweets()}
+     */
+
+    private void refreshDB() {
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -80,57 +92,198 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                 Bundle newsInfo = intent.getExtras();
                 String key = newsInfo.getString("service name");
 
+                SQLiteDatabase db = getWritableDatabase();
                 switch(key) {
                     case "news service":
+                        clearTable(db, TABLE_NEWS);
+
                         String[] titles = newsInfo.getStringArray("titles");
                         String[] summaries = newsInfo.getStringArray("summaries");
                         String[] links = newsInfo.getStringArray("links");
+
 
                         for(int i=0;i<titles.length;i++) {
                             String title = titles[i];
                             String summary = summaries[i];
                             String link = links[i];
 
-                            if(addNews(title, summary, link) != -1) {
+                            if(addNews(db, title, summary, link) != -1) {
                                 NewsStory story = new NewsStory(title, summary, link);
                                 newContent.add(story);
                             }
                         }
+                        db.close();
                         break;
                     case "twitter service":
+                        clearTable(db, TABLE_TWEETS);
+
                         String[] handles = newsInfo.getStringArray("handles");
                         String[] usernames = newsInfo.getStringArray("usernames");
                         String[] tweets = newsInfo.getStringArray("tweets");
                         String[] times = newsInfo.getStringArray("times");
                         String[] ids = newsInfo.getStringArray("ids");
+
+                        for(int i=0;i<handles.length;i++) {
+                            String handle = handles[i];
+                            String username = usernames[i];
+                            String tweet = tweets[i];
+                            String time = times[i];
+                            String id = ids[i];
+
+                            if(addTweet(db, handle, tweet, username, time, id) != -1) {
+                                TweetInfo info = new TweetInfo(handle, username, tweet, time, id);
+                                newContent.add(info);
+                            }
+                        }
+                        db.close();
                         break;
                     default:
 
                 }
             }
         };
-        return newContent;
     }
 
-//    public List<NewsStory> getNews() {
-//    }
-//
-//    public List<TweetInfo> getTweets() {
-//    }
-
-    private void clearTable(String table) {
+    /**
+     * Combines {@value TABLE_NEWS} and {@value TABLE_TWEETS} into a list of {@link CardContent}s.
+     *
+     * @param weather will set the element at index 0 to the weather card displayed first
+     * @return a combined list of all tweet, news, and weather objects being
+     * displayed
+     */
+    public List<CardContent> getUpdatedCardList(CurrentWeather weather) {
+        List<CardContent> cards = new ArrayList<>();
+        cards.add(weather);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor tweets = db.query(TABLE_TWEETS,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        Cursor news = db.query(TABLE_NEWS,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        combineResults(cards, tweets, news);
+        return cards;
     }
 
-    private long addTweet(String handle, String tweet, ){
+    public List<NewsStory> getNews() {
+        List<NewsStory> stories = new ArrayList<>();
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NEWS,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        if(cursor.moveToFirst()) {
+            while(!cursor.isAfterLast()) {
+                String title = cursor.getString(cursor.getColumnIndex(COL_NAME));
+                String summary = cursor.getString(cursor.getColumnIndex(COL_CONTENT));
+                String link = cursor.getString(cursor.getColumnIndex(COL_URL));
+                stories.add(new NewsStory(title, summary, link));
+
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        db.close();
+        return stories;
     }
 
-    private long addNews(String title, String summary, String link) {
-        SQLiteDatabase db = getWritableDatabase();
+    public List<TweetInfo> getTweets() {
+        List<TweetInfo> tweets = new ArrayList<>();
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TWEETS,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        if(cursor.moveToFirst()) {
+            while(!cursor.isAfterLast()) {
+                String handle = cursor.getString(cursor.getColumnIndex(COL_NAME));
+                String username = cursor.getString(cursor.getColumnIndex(COL_USERNAME));
+                String tweet = cursor.getString(cursor.getColumnIndex(COL_CONTENT));
+                String time = cursor.getString(cursor.getColumnIndex(COL_TIME));
+                String id = cursor.getString(cursor.getColumnIndex(COL_ID));
+
+                tweets.add(new TweetInfo(handle, tweet, username, time, id));
+                cursor.moveToNext();
+            }
+        }
+        db.close();
+        cursor.close();
+        return tweets;
+    }
+
+    private void clearTable(SQLiteDatabase db, String table) {
+        int removed = db.delete(table,"1",null);
+        if(removed < 1) {
+            //
+        }
+    }
+
+    /**
+     * Insert a new row into the tweets table
+     * @param db
+     * @param handle
+     * @param tweet
+     * @param username
+     * @param time
+     * @param id
+     * @return The row number that was inserted, or -1 if nothing was inserted
+     */
+    private long addTweet(SQLiteDatabase db, String handle, String tweet, String username, String time, String id){
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, handle);
+        values.put(COL_CONTENT, tweet);
+        values.put(COL_USERNAME, username);
+        values.put(COL_TIME, time);
+        values.put(COL_ID, id);
+        return db.insertOrThrow(TABLE_TWEETS, null, values);
+    }
+
+    private long addNews(SQLiteDatabase db, String title, String summary, String link) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME, title);
         values.put(COL_CONTENT, summary);
         values.put(COL_URL, link);
-        long inserted = db.insertOrThrow(TABLE_NEWS, null, values);
-        return inserted;
+        return db.insertOrThrow(TABLE_NEWS, null, values);
     }
+
+    private void combineResults(List<CardContent> cards, Cursor tweetCursor, Cursor newsCursor) {
+        int count = 1;
+        if(tweetCursor.moveToFirst()&&newsCursor.moveToFirst()) {
+            while(!tweetCursor.isAfterLast()) {
+                if(count%3==0) {
+                    String title = newsCursor.getString(newsCursor.getColumnIndex(COL_NAME));
+                    String summary = newsCursor.getString(newsCursor.getColumnIndex(COL_CONTENT));
+                    String link = newsCursor.getString(newsCursor.getColumnIndex(COL_URL));
+                    cards.add(new NewsStory(title, summary, link));
+                } else {
+                    String handle = tweetCursor.getString(tweetCursor.getColumnIndex(COL_NAME));
+                    String tweet = tweetCursor.getString(tweetCursor.getColumnIndex(COL_CONTENT));
+                    String username = tweetCursor.getString(tweetCursor.getColumnIndex(COL_USERNAME));
+                    String time = tweetCursor.getString(tweetCursor.getColumnIndex(COL_TIME));
+                    String id = tweetCursor.getString(tweetCursor.getColumnIndex(COL_ID));
+                    cards.add(new TweetInfo(handle, tweet, username, time, id));
+                }
+            }
+        }
+        tweetCursor.close();
+        newsCursor.close();
+    }
+
+    private void
 }
