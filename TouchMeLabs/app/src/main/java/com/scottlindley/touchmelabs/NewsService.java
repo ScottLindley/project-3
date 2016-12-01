@@ -116,7 +116,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
         for (int i=0; i<mStories.size(); i++){
             mTitles[i] = mStories.get(i).getTitle();
             mSummary[i] = mStories.get(i).getContent();
-            mLinks[i] = mStories.get(i).getUrl();
+            mLinks[i] = mStories.get(i).getURL();
         }
     }
 
