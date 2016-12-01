@@ -34,7 +34,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
     private int mFailedResponses = 0;
 
     @Override
-    public boolean onStartJob(final JobParameters jobParameters) {
+    public boolean onStartJob(JobParameters jobParameters) {
         mGsonStories = new ArrayList<GsonNewsStory>();
         mStories = new ArrayList<NewsStory>();
         mJobParameters = jobParameters;
