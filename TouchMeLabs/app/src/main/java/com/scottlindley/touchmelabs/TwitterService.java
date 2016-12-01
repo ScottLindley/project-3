@@ -67,7 +67,7 @@ public class TwitterService extends JobService{
                     //Broadcast those string arrays through an intent to be received by the ContentDBHelper
                     Intent intent = new Intent ("service intent");
                     intent.putExtra("service name", "twitter service");
-                    intent.putExtra("names", names);
+                    intent.putExtra("usernames", names);
                     intent.putExtra("handles", handles);
                     intent.putExtra("times", times);
                     intent.putExtra("ids", ids);
