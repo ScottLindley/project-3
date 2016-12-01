@@ -30,12 +30,12 @@ public class NewsStory extends CardContent{
 
     @Override
     public String getTitle() {
-        return null;
+        return mTitle;
     }
 
     @Override
     public String getContent() {
-        return null;
+        return mContent;
     }
 
 }

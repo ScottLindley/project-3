@@ -1,19 +1,27 @@
 package com.scottlindley.touchmelabs;
 
-import com.google.android.gms.maps.model.LatLng;
-
 /**
  * Created by Scott Lindley on 11/30/2016.
  */
 
 public class CurrentWeather extends CardContent{
     private String mTemperature;
-    LatLng mLocation;
+    private String[] mLocation;
+    private String mZip;
+    private boolean mHasLocationPermission;
 
-    public CurrentWeather(String title, String content, String temperature, LatLng location) {
+    public CurrentWeather(String title, String content, String temperature, String[] location) {
         super(title, content);
         mTemperature = temperature;
         mLocation = location;
+        mHasLocationPermission = true;
+    }
+
+    public CurrentWeather(String title, String content, String temperature, String zip){
+        super(title, content);
+        mTemperature = temperature;
+        mZip = zip;
+        mHasLocationPermission = false;
     }
 
     public void setTitle(String cityName){
@@ -28,17 +36,33 @@ public class CurrentWeather extends CardContent{
         mTemperature = temperature;
     }
 
-    public void setLocation(LatLng location) {
+    public void setLocation(String[] location) {
         mLocation = location;
     }
 
     @Override
     public String getTitle() {
-        return null;
+        return mTitle;
     }
 
     @Override
     public String getContent() {
-        return null;
+        return mContent;
+    }
+
+    public String getTemperature() {
+        return mTemperature;
+    }
+
+    public String[] getLocation() {
+        return mLocation;
+    }
+
+    public String getZip() {
+        return mZip;
+    }
+
+    public boolean getHasLocationPermission() {
+        return mHasLocationPermission;
     }
 }
