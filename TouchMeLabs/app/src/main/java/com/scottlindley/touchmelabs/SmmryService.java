@@ -11,5 +11,5 @@ public interface SmmryService {
 
     //Here the API key is included because all requests require it
     @GET("?SM_API_KEY=4FBF7A1B12&SM_LENGTH=3&SM_URL={link}")
-    Call<GsonStory> getSummaryLength3(@Path("link") String link);
+    Call<GsonNewsStory> getSummaryLength3(@Path("link") String link);
 }

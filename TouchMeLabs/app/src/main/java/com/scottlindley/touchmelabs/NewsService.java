@@ -26,7 +26,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
     private JobParameters mJobParameters;
     private NewsXmlParser mParser;
     private List<String> mStoryLinks;
-    private List<GsonStory> mGsonStories;
+    private List<GsonNewsStory> mGsonStories;
     private static List<NewsStory> mStories;
     private String[] mTitles;
     private String[] mSummary;
@@ -35,7 +35,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
 
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
-        mGsonStories = new ArrayList<GsonStory>();
+        mGsonStories = new ArrayList<GsonNewsStory>();
         mStories = new ArrayList<NewsStory>();
         mJobParameters = jobParameters;
 
@@ -55,8 +55,15 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
     public void onXmlParseFinished() {
         mStoryLinks = mParser.getStoryLinks();
         //Make a Smmry api call for each story link
-        for (String link : mStoryLinks){
-            makeRetroFitCall(link, mJobParameters);
+        //These conditionals limit the number of articles to 8
+        if(mStoryLinks.size()<=8) {
+            for (String link : mStoryLinks) {
+                makeRetroFitCall(link, mJobParameters);
+            }
+        }else{
+            for (int i=0; i<8; i++){
+                makeRetroFitCall(mStoryLinks.get(i), mJobParameters);
+            }
         }
     }
 
@@ -68,13 +75,13 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
                 .build();
 
         SmmryService service = retrofit.create(SmmryService.class);
-        Call<GsonStory> call = service.getSummaryLength3(link);
-        call.enqueue(new Callback<GsonStory>() {
+        Call<GsonNewsStory> call = service.getSummaryLength3(link);
+        call.enqueue(new Callback<GsonNewsStory>() {
             @Override
-            public void onResponse(Call<GsonStory> call, Response<GsonStory> response) {
+            public void onResponse(Call<GsonNewsStory> call, Response<GsonNewsStory> response) {
                 if(response.isSuccessful()) {
                     //Takes the GsonStory response and adds it to mStories
-                    GsonStory gsonStory = (response.body());
+                    GsonNewsStory gsonStory = (response.body());
                     mGsonStories.add(gsonStory);
                     mStories.add(new NewsStory(
                             gsonStory.getTitle(),
@@ -100,7 +107,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
             }
 
             @Override
-            public void onFailure(Call<GsonStory> call, Throwable t) {
+            public void onFailure(Call<GsonNewsStory> call, Throwable t) {
                 t.printStackTrace();
                 mFailedResponses++;
                 //This checks if all links have been run through a retrofit call (successful or not)
