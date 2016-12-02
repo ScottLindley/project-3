@@ -14,7 +14,15 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.scottlindley.touchmelabs.ModelObjects.CardContent;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
+import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
+import com.scottlindley.touchmelabs.ModelObjects.TweetInfo;
+import com.scottlindley.touchmelabs.Services.NewsService;
+import com.scottlindley.touchmelabs.Services.TwitterService;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class ContentDBHelper extends SQLiteOpenHelper {
     private Context mContext;
@@ -85,7 +93,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      * {@link #addNews(SQLiteDatabase, String, String, String)} to clear the news and tweets tables
      * in the local SQLite database.
      *
-     * {@link GoogleNewsService} sends String arrays to be converted into {@link NewsStory} objects
+     * {@link NewsService} sends String arrays to be converted into {@link NewsStory} objects
      * {@link TwitterService} sends String arrays to be converted into {@link TweetInfo} objects
      *
      * This method should never be called from the UI thread. To access the new tables,
