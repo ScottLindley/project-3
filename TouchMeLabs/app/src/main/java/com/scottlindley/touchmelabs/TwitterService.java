@@ -3,97 +3,88 @@ package com.scottlindley.touchmelabs;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.twitter.sdk.android.Twitter;
-import com.twitter.sdk.android.core.TwitterApiClient;
-import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.models.Tweet;
+import com.twitter.sdk.android.core.models.User;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Scott Lindley on 12/1/2016.
  */
 
 public class TwitterService extends JobService{
-    public static final String TWITTER_BASE_URL = "https://api.twitter.com/1.1/statuses/home_timeline.json";
-    private List<GsonTweetInfo> mGsonTweets;
+    private long userId;
 
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
+
+        //Gets the userId of the user currently logged in
         TwitterSession session = Twitter.getSessionManager().getActiveSession();
-        Twitter.getApiClient(session).getAccountService().verifyCredentials(true, false, new Callback<>())
-
-
-        TwitterApiClient client = new TwitterApiClient(TwitterCore.getInstance().getSessionManager().getActiveSession());
-        client.getStatusesService().userTimeline()
-
-
-        mGsonTweets = new ArrayList<GsonTweetInfo>();
-
-        //This pulls the bearer token out from the jobParameters
-        PersistableBundle bundle = jobParameters.getExtras();
-        String bearerToken = bundle.getString("bearer token");
-
-        //Build a retrofit request
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TWITTER_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        TwitterAPIEndpointsService service =
-                retrofit.create(TwitterAPIEndpointsService.class);
-        Call<GsonTwitterAPIResponse> call = service.get20Tweets("Bearer " + bearerToken);
-        call.enqueue(new Callback<GsonTwitterAPIResponse>() {
+        Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(true, false);
+        userCall.enqueue(new com.twitter.sdk.android.core.Callback<User>() {
             @Override
-            public void onResponse(Call<GsonTwitterAPIResponse> call, Response<GsonTwitterAPIResponse> response) {
-                if(response.isSuccessful()){
-                    //This object is a GsonObject that contains a list of GsonTweetInfo objects
-                    GsonTwitterAPIResponse gsonResponse = response.body();
-                    mGsonTweets = gsonResponse.getGsonTweets();
-
-                    //Make arrays that hold tweet info strings
-                    int arraySize = mGsonTweets.size();
-                    String[] names = new String[arraySize];
-                    String[] times = new String[arraySize];
-                    String[] ids = new String[arraySize];
-                    String[] handles = new String[arraySize];
-                    String[] tweets = new String[arraySize];
-
-                    for(int i=0; i<mGsonTweets.size(); i++) {
-                        names[i] = mGsonTweets.get(i).getUser.getName();
-                        handles[i] = mGsonTweets.get(i).getUser.getHandle();
-                        times[i] = mGsonTweets.get(i).getCreated_at();
-                        ids[i] = mGsonTweets.get(i).getId();
-                        tweets[i] = mGsonTweets.get(i).getText();
-                    }
-
-                    //Broadcast those string arrays through an intent to be received by the ContentDBHelper
-                    Intent intent = new Intent ("service intent");
-                    intent.putExtra("service name", "twitter service");
-                    intent.putExtra("usernames", names);
-                    intent.putExtra("handles", handles);
-                    intent.putExtra("times", times);
-                    intent.putExtra("ids", ids);
-                    intent.putExtra("tweets", tweets);
-
-                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                    jobFinished(jobParameters, false);
-                }
+            public void success(Result<User> result) {
+                User user = result.data;
+                userId = user.getId();
             }
 
             @Override
-            public void onFailure(Call<GsonTwitterAPIResponse> call, Throwable t) {
-                t.printStackTrace();
+            public void failure(TwitterException exception) {
+                exception.printStackTrace();
+            }
+        });
+
+        //Gets the users timeline as a list of Tweet objects
+        Call<List<Tweet>> timelineCall = Twitter.getApiClient(session).getStatusesService().userTimeline(
+                userId, null, 18, null, null, null, null, null, null);
+        timelineCall.enqueue(new com.twitter.sdk.android.core.Callback<List<Tweet>>() {
+            @Override
+            public void success(Result<List<Tweet>> result) {
+                //Creates string arrays with the same length as the result list
+                int arraySize = result.data.size();
+                String[] names = new String[arraySize];
+                String[] times = new String[arraySize];
+                String[] ids = new String[arraySize];
+                String[] handles = new String[arraySize];
+                String[] tweets = new String[arraySize];
+
+                //Loop through and add data to String arrays
+                //CustomUser and CustomTweet extent User and Tweet and contain getter methods to
+                //grab the desired data
+                for (int i = 0; i < result.data.size(); i++) {
+                    CustomUser user = (CustomUser) ((CustomTweet) result.data.get(i)).getUser();
+                    names[i] = user.getScreenName();
+                    handles[i] = user.getName();
+                    times[i] = ((CustomTweet) result.data.get(i)).getCreatedAt();
+                    tweets[i] = ((CustomTweet) result.data.get(i)).getText();
+                    ids[i] = String.valueOf(result.data.get(i).getId());
+                }
+
+                //Put data into an intent and broadcast the intent
+                Intent intent = new Intent("service intent");
+                intent.putExtra("service name", "twitter service");
+                intent.putExtra("usernames", names);
+                intent.putExtra("handles", handles);
+                intent.putExtra("times", times);
+                intent.putExtra("ids", ids);
+                intent.putExtra("tweets", tweets);
+
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                jobFinished(jobParameters, false);
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                //Send an intent with name 'failure' to trigger the default case in onReceive
+                exception.printStackTrace();
                 Intent intent = new Intent("service intent");
                 intent.putExtra("service name", "failure");
 
@@ -101,8 +92,10 @@ public class TwitterService extends JobService{
                 jobFinished(jobParameters, false);
             }
         });
+
         return false;
     }
+
 
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
