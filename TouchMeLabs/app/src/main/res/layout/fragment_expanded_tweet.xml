@@ -4,8 +4,6 @@
              android:layout_height="match_parent"
              tools:context="com.scottlindley.touchmelabs.ExpandedTweetFragment">
 
-    <RelativeLayout
-        android:layout_width=""
-        android:layout_height=""></RelativeLayout>
+
 
 </LinearLayout>
