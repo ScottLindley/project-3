@@ -17,7 +17,7 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    RecyclerView mRecyclerView;
+    RecyclerView mRecyclerView; // need RV Adapter
 
 
         @Override
@@ -109,16 +109,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_twitter) {
-            // Handle the camera action
+
         } else if (id == R.id.nav_settings) {
 
         } else if (id == R.id.nav_theme) {
-
-        //} else if (id == R.id.nav_manage) {
-
-        //} else if (id == R.id.nav_share) {
-
-        //} else if (id == R.id.nav_send) {
 
         }
 
