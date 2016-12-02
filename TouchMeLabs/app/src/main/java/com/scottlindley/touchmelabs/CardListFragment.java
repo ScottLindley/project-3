@@ -15,12 +15,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.attr.id;
 
 /**
  * "Home screen" fragment. Main purpose is to display the RecyclerView of {@link CardContent} objects.
@@ -29,6 +25,7 @@ import static android.R.attr.id;
 public class CardListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
+    private CurrentWeather mWeather;
 
     private CardRecyclerViewAdapter mAdapter;
     private List<CardContent> mCardList;
@@ -61,13 +58,14 @@ public class CardListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        SharedPreferences preferences = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
-
+        SharedPreferences preferences = getContext().getSharedPreferences("mWeather", Context.MODE_PRIVATE);
         String cityName = preferences.getString("city name", "error");
-        String cityTemp = preferences.getString("city temp", "error");
         String cityConditions = preferences.getString("city conditions", "error");
+        String cityTemp = preferences.getString("city temp", "error");
 
+        mWeather = new CurrentWeather(cityName, cityConditions, cityTemp);
 
+        mCardList = ContentDBHelper.getInstance(getContext()).getCardList(mWeather);
 
         RecyclerView cardRecycler = (RecyclerView)getView().findViewById(R.id.recyclerview);
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
@@ -97,47 +95,9 @@ public class CardListFragment extends Fragment {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                //Get twitter data to display
-                String[] tweetNames = intent.getStringArrayExtra("main tweetNames");
-                String[] tweetContents = intent.getStringArrayExtra("main tweetContents");
-                String[] tweetUsernames = intent.getStringArrayExtra("main tweetUsernames");
-                String[] tweetTimes = intent.getStringArrayExtra("main tweetTimes");
-                String[] tweetIds = intent.getStringArrayExtra("main tweetIds");
-
-                //Get news data to display
-                String[] newsNames = intent.getStringArrayExtra("main newsNames");
-                String[] newsContents = intent.getStringArrayExtra("main newsContents");
-                String[] newsLinks = intent.getStringArrayExtra("main newsLinks");
-
-                //Convert into Model Java Objects
-                List<TweetInfo> tweets = convertToTwitterInfo(
-                        tweetNames,
-                        tweetContents,
-                        tweetUsernames,
-                        tweetTimes,
-                        tweetIds
-                );
-
-                List<NewsStories> stories = convertToNewsStory(
-                        newsNames,
-                        newsContents,
-                        newsLinks
-                );
-
-                //Index counter for tweet and news arrays
-                int tweetIndexCounter = 0;
-                int storyIndexCounter = 0;
-
-                for(int i=1;i<CARD_LIST_LENGTH;i++) {
-                    if(i % 3 == 0) {
-                        mCardList.add(stories.get(storyIndexCounter));
-                        storyIndexCounter++;
-                    } else {
-                        mCardList.add(tweets.get(tweetIndexCounter));
-                        tweetIndexCounter++;
-                    }
-                }
-
+                mCardList.clear();
+                mCardList.addAll(ContentDBHelper.getInstance(getContext()).getCardList(mWeather));
+                
                 mAdapter.notifyDataSetChanged();
                 
             }
@@ -155,24 +115,5 @@ public class CardListFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public List<TweetInfo> convertToTwitterInfo(String[] names, String[] contents, String[] usernames, String[] times, String[] ids){
-        List<TweetInfo> tweets = new ArrayList<>();
-        for(int i=0; i<names.length; i++){
-            tweets.add(new TweetInfo(
-                names[i], contents[i], usernames[i], times[i], ids[i]
-            ));
-        }
-        return tweets;
-    }
-
-    public List<NewsStory> convertToNewsStory(String[] names, String[] contents, String[] links){
-        List<NewsStory> stories = new ArrayList<>();
-        for(int i=0; i<names.length; i++){
-            stories.add(new NewsStory(
-                    names[i], contents[i], links[i]
-            ));
-        }
-        return stories;
-    }
 
 }
