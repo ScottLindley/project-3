@@ -1,4 +1,4 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.MainView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +15,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.scottlindley.touchmelabs.ContentDBHelper;
+import com.scottlindley.touchmelabs.ModelObjects.CardContent;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
+import com.scottlindley.touchmelabs.R;
+import com.scottlindley.touchmelabs.RecyclerViewComponents.CardRecyclerViewAdapter;
 
 import java.util.List;
 

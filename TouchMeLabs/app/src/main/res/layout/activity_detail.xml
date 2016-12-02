@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        tools:context="com.scottlindley.touchmelabs.DetailActivity">
+        tools:context="com.scottlindley.touchmelabs.DetailView.DetailActivity">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:context="com.scottlindley.touchmelabs.DetailActivity">
+            tools:context="com.scottlindley.touchmelabs.DetailView.DetailActivity">
 
                 <FrameLayout
                     android:id="@+id/detail_fragment_container"

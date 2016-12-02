@@ -1,4 +1,4 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.DetailView;
 
 import android.content.Context;
 import android.net.Uri;
@@ -8,6 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+
+import com.scottlindley.touchmelabs.NetworkConnectionDetector;
+import com.scottlindley.touchmelabs.R;
 
 
 public class ExpandedNewsFragment extends Fragment {

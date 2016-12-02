@@ -1,4 +1,4 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.DetailView;
 
 import android.content.Context;
 import android.net.Uri;
@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.scottlindley.touchmelabs.NetworkConnectionDetector;
+import com.scottlindley.touchmelabs.R;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
@@ -72,7 +74,7 @@ public class ExpandedTweetFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
 
-        NetworkConnectionDetector detector = new NetworkConnectionDetector();
+        NetworkConnectionDetector detector = new NetworkConnectionDetector(context);
         if(detector.isConnected()){
             TweetUtils.loadTweet(mID, new Callback<Tweet>() {
                 @Override

@@ -5,6 +5,11 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.scottlindley.touchmelabs.ModelObjects.CardContent;
+import com.scottlindley.touchmelabs.R;
+
+import java.util.List;
+
 /**
  * Created by jonlieblich on 12/1/16.
  */

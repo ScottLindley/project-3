@@ -1,4 +1,4 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.DetailView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
