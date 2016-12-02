@@ -10,9 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
 
 public class DetailActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -36,13 +34,16 @@ public class DetailActivity extends AppCompatActivity
                 String handle = receivedIntent.getStringExtra("handle");
                 String tweet = receivedIntent.getStringExtra("tweet");
                 String time = receivedIntent.getStringExtra("time");
-                ExpandedNewsFragment newsFragment = ExpandedNewsFragment.newInstance(name, handle, tweet, time);
-                fragmentTransaction.replace(R.id.detail_fragment_container, newsFragment);
+                ExpandedTweetFragment tweetFragment = ExpandedTweetFragment.newInstance(name, handle, tweet, time);
+                fragmentTransaction.replace(R.id.detail_fragment_container, tweetFragment);
                 fragmentTransaction.commit();
                 break;
             case "TweetInfo":
-                ExpandedTweetFragment tweetFragment = ExpandedTweetFragment.newInstance();
-                fragmentTransaction.replace(R.id.detail_fragment_container, tweetFragment);
+                String title = receivedIntent.getStringExtra("name");
+                String content = receivedIntent.getStringExtra("content");
+                String link = receivedIntent.getStringExtra("link");
+                ExpandedNewsFragment newsFragment = ExpandedNewsFragment.newInstance(title, content, link);
+                fragmentTransaction.replace(R.id.detail_fragment_container, newsFragment);
                 fragmentTransaction.commit();
         }
 

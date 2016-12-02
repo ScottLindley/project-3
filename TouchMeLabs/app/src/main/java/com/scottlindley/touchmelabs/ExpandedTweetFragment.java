@@ -9,23 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ExpandedTweetFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ExpandedTweetFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ExpandedTweetFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_NAME = "name";
     private static final String ARG_HANDLE = "handle";
     private static final String ARG_TWEET = "tweet";
     private static final String ARG_TIME = "time";
 
-    // TODO: Rename and change types of parameters
     private String mName, mHandle, mTweet, mTime;
 
     private OnFragmentInteractionListener mListener;
@@ -34,13 +23,6 @@ public class ExpandedTweetFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment ExpandedTweetFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ExpandedTweetFragment newInstance(String name, String handle, String tweet, String time) {
         ExpandedTweetFragment fragment = new ExpandedTweetFragment();
         Bundle args = new Bundle();
