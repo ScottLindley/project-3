@@ -19,7 +19,6 @@ import android.webkit.WebView;
 
 import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
 
-public class MainActivity extends AppCompatActivity {
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     RecyclerView mRecyclerView;
