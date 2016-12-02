@@ -19,6 +19,9 @@
         <service android:name=".NewsService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
 
+
+        <service android:name=".WeatherService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"/>
     </application>
 
 </manifest>
