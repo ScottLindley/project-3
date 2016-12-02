@@ -24,8 +24,10 @@
             android:value="eb75ce0e71340377645da165307d5f87d140c917"
             />
 
+
+        <service android:name=".TwitterService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"/>
+
     </application>
-
-
 
 </manifest>
