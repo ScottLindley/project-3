@@ -28,11 +28,11 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch(viewType) {
             case R.layout.twitter_card:
-                return inflater.inflate(R.layout.twitter_card, parent, false);
+                return new TweetInfoViewHolder(inflater.inflate(R.layout.twitter_card, parent, false));
             case R.layout.news_card:
-                return inflater.inflate(R.layout.news_card, parent, false);
+                return new NewsStoryViewHolder(inflater.inflate(R.layout.news_card, parent, false));
             case R.layout.weather_card:
-                return inflater.inflate(R.layout.weather_card, parent, false);
+                return new CurrentWeatherViewHolder(inflater.inflate(R.layout.weather_card, parent, false));
             default:
                 return null;
         }
