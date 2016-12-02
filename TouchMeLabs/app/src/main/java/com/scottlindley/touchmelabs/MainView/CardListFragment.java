@@ -24,8 +24,6 @@ import com.scottlindley.touchmelabs.RecyclerViewComponents.CardRecyclerViewAdapt
 
 import java.util.List;
 
-import static java.security.AccessController.getContext;
-
 /**
  * "Home screen" fragment. Main purpose is to display the RecyclerView of {@link CardContent} objects.
  */
@@ -37,7 +35,6 @@ public class CardListFragment extends Fragment {
 
     private CardRecyclerViewAdapter mAdapter;
     private List<CardContent> mCardList;
-    public static final int CARD_LIST_LENGTH = 27;
 
     public CardListFragment() {}
 
@@ -114,8 +111,7 @@ public class CardListFragment extends Fragment {
     }
 
     public void requestDataRefresh(Context context){
-        mCardList.clear();
-        mCardList.addAll(ContentDBHelper.getInstance(context).getUpdatedCardList());
+        ContentDBHelper.getInstance(context).refreshDB();
     }
 
 
