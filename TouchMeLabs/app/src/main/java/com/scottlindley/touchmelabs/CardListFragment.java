@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,19 +17,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static android.R.attr.id;
 
 /**
  * "Home screen" fragment. Main purpose is to display the RecyclerView of {@link CardContent} objects.
  */
 
 public class CardListFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
 
     private OnFragmentInteractionListener mListener;
 
@@ -38,25 +36,19 @@ public class CardListFragment extends Fragment {
 
     public CardListFragment() {}
 
-    // TODO: Rename and change types and number of parameters
-    public static CardListFragment newInstance(String param1) {
+    public static CardListFragment newInstance() {
         CardListFragment fragment = new CardListFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
         fragment.setArguments(args);
         return fragment;
     }
 
-    /**
-     *
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-        }
 
+        }
     }
 
     @Override
@@ -65,18 +57,19 @@ public class CardListFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_card_list, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        SharedPreferences preferences = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
 
-        RecyclerView cardRecycler = (RecyclerView)getView().findViewById(R.id.whatever_the_rv_is);
+        String cityName = preferences.getString("city name", "error");
+        String cityTemp = preferences.getString("city temp", "error");
+        String cityConditions = preferences.getString("city conditions", "error");
+
+
+
+        RecyclerView cardRecycler = (RecyclerView)getView().findViewById(R.id.recyclerview);
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         cardRecycler.setLayoutManager(manager);
         mAdapter = new CardRecyclerViewAdapter(mCardList);
@@ -116,26 +109,70 @@ public class CardListFragment extends Fragment {
                 String[] newsContents = intent.getStringArrayExtra("main newsContents");
                 String[] newsLinks = intent.getStringArrayExtra("main newsLinks");
 
-                //Get weather object data to display
-                String weatherCity = intent.getStringExtra("main weatherCity");
-                String weatherDesc = intent.getStringExtra("main weatherContent");
-                String weatherTemp = intent.getStringExtra("main weatherTemperature");
+                //Convert into Model Java Objects
+                List<TweetInfo> tweets = convertToTwitterInfo(
+                        tweetNames,
+                        tweetContents,
+                        tweetUsernames,
+                        tweetTimes,
+                        tweetIds
+                );
+
+                List<NewsStories> stories = convertToNewsStory(
+                        newsNames,
+                        newsContents,
+                        newsLinks
+                );
 
                 //Index counter for tweet and news arrays
+                int tweetIndexCounter = 0;
+                int storyIndexCounter = 0;
 
                 for(int i=1;i<CARD_LIST_LENGTH;i++) {
                     if(i % 3 == 0) {
-
+                        mCardList.add(stories.get(storyIndexCounter));
+                        storyIndexCounter++;
+                    } else {
+                        mCardList.add(tweets.get(tweetIndexCounter));
+                        tweetIndexCounter++;
                     }
                 }
+
+                mAdapter.notifyDataSetChanged();
                 
             }
         };
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("card list"));
     }
 
+    public void requestDataRefresh(Context context){
+        mCardList.clear();
+        mCardList.addAll(ContentDBHelper.getInstance(context).getUpdatedCardList());
+    }
+
+
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    public List<TweetInfo> convertToTwitterInfo(String[] names, String[] contents, String[] usernames, String[] times, String[] ids){
+        List<TweetInfo> tweets = new ArrayList<>();
+        for(int i=0; i<names.length; i++){
+            tweets.add(new TweetInfo(
+                names[i], contents[i], usernames[i], times[i], ids[i]
+            ));
+        }
+        return tweets;
+    }
+
+    public List<NewsStory> convertToNewsStory(String[] names, String[] contents, String[] links){
+        List<NewsStory> stories = new ArrayList<>();
+        for(int i=0; i<names.length; i++){
+            stories.add(new NewsStory(
+                    names[i], contents[i], links[i]
+            ));
+        }
+        return stories;
+    }
+
 }

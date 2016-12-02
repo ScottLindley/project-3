@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
-        Fragment cardFragment = new Fragment();
+        CardListFragment cardFragment = CardListFragment.newInstance()
 
         transaction.add(cardFragment, R.id.card_fragment);
         transaction.commit();
