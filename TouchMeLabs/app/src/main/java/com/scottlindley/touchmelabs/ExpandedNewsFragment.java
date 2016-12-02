@@ -7,12 +7,15 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 
 
 public class ExpandedNewsFragment extends Fragment {
     private static final String ARG_TITLE = "title";
     private static final String ARG_CONTENT = "content";
     private static final String ARG_URL = "url";
+
+    private WebView mWebView;
 
     private String mTitle;
     private String mContent;
@@ -48,7 +51,9 @@ public class ExpandedNewsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_expanded_news, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_expanded_news, container, false);
+        mWebView = (WebView)rootView.findViewById(R.id.webview);
+        return rootView;
     }
 
 
@@ -61,6 +66,12 @@ public class ExpandedNewsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
+        NetworkConnectionDetector detector = new NetworkConnectionDetector();
+        if(detector.isConnected()){
+            mWebView.loadUrl(mURL);
+        }
+
     }
 
     @Override

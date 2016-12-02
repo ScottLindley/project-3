@@ -4,6 +4,10 @@
              android:layout_height="match_parent"
              tools:context="com.scottlindley.touchmelabs.ExpandedTweetFragment">
 
+    <FrameLayout
+        android:id="@+id/tweet_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 
 </LinearLayout>

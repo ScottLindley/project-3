@@ -7,15 +7,23 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.Toast;
+
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.models.Tweet;
+import com.twitter.sdk.android.tweetui.TweetUtils;
+import com.twitter.sdk.android.tweetui.TweetView;
 
 
 public class ExpandedTweetFragment extends Fragment {
-    private static final String ARG_NAME = "name";
-    private static final String ARG_HANDLE = "handle";
-    private static final String ARG_TWEET = "tweet";
-    private static final String ARG_TIME = "time";
+    private static final String ARG_ID = "id";
 
-    private String mName, mHandle, mTweet, mTime;
+    private FrameLayout mTweetContainer;
+
+    private long mID;
 
     private OnFragmentInteractionListener mListener;
 
@@ -23,13 +31,11 @@ public class ExpandedTweetFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ExpandedTweetFragment newInstance(String name, String handle, String tweet, String time) {
+    public static ExpandedTweetFragment newInstance(long id) {
         ExpandedTweetFragment fragment = new ExpandedTweetFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_NAME, name);
-        args.putString(ARG_HANDLE, handle);
-        args.putString(ARG_TWEET, tweet);
-        args.putString(ARG_TIME, time);
+        args.putLong(ARG_ID, id);
+
 
         fragment.setArguments(args);
         return fragment;
@@ -39,10 +45,10 @@ public class ExpandedTweetFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mName = getArguments().getString(ARG_NAME);
-            mHandle = getArguments().getString(ARG_HANDLE);
-            mTweet = getArguments().getString(ARG_TWEET);
-            mTime = getArguments().getString(ARG_TIME);
+            long longID = getArguments().getLong(ARG_ID);
+            if(longID != -1){
+                mID = longID;
+            }
         }
     }
 
@@ -50,18 +56,38 @@ public class ExpandedTweetFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_expanded_tweet, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_expanded_tweet, container, false);
+        mTweetContainer = (FrameLayout)rootView.findViewById(R.id.tweet_container);
+        return rootView;
     }
 
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(final Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
+        }
+
+        NetworkConnectionDetector detector = new NetworkConnectionDetector();
+        if(detector.isConnected()){
+            TweetUtils.loadTweet(mID, new Callback<Tweet>() {
+                @Override
+                public void success(Result<Tweet> result) {
+                    Tweet tweet = result.data;
+                    mTweetContainer.addView(new TweetView(context, tweet));
+                }
+
+                @Override
+                public void failure(TwitterException exception) {
+                    exception.printStackTrace();
+                }
+            });
+        }else{
+            Toast.makeText(context, "No Network Connection", Toast.LENGTH_SHORT).show();
         }
     }
 

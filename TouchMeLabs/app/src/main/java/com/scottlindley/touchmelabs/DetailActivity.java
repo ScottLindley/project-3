@@ -11,6 +11,18 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.SessionManager;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.tweetui.TweetUi;
+
+import io.fabric.sdk.android.Fabric;
+
+import static android.R.attr.handle;
+import static android.R.attr.id;
 
 public class DetailActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -18,6 +30,9 @@ public class DetailActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
+        Fabric.with(this, new TwitterCore(authConfig),new TweetUi());
+
         setContentView(R.layout.activity_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -28,23 +43,33 @@ public class DetailActivity extends AppCompatActivity
 
         Intent receivedIntent = getIntent();
         String intentID = receivedIntent.getStringExtra("card identifier");
-        switch (intentID){
+        switch (intentID) {
             case "NewsStory":
-                String name = receivedIntent.getStringExtra("name");
-                String handle = receivedIntent.getStringExtra("handle");
-                String tweet = receivedIntent.getStringExtra("tweet");
-                String time = receivedIntent.getStringExtra("time");
-                ExpandedTweetFragment tweetFragment = ExpandedTweetFragment.newInstance(name, handle, tweet, time);
-                fragmentTransaction.replace(R.id.detail_fragment_container, tweetFragment);
-                fragmentTransaction.commit();
-                break;
-            case "TweetInfo":
                 String title = receivedIntent.getStringExtra("name");
                 String content = receivedIntent.getStringExtra("content");
                 String link = receivedIntent.getStringExtra("link");
                 ExpandedNewsFragment newsFragment = ExpandedNewsFragment.newInstance(title, content, link);
                 fragmentTransaction.replace(R.id.detail_fragment_container, newsFragment);
                 fragmentTransaction.commit();
+                break;
+            case "TweetInfo":
+                //This check to verify that the user is already logged into Twitter
+                if (Twitter.getSessionManager().getActiveSession() != null) {
+                    String id = receivedIntent.getStringExtra("id");
+                    //Convert string id to a long
+                    long longID = -1;
+                    try {
+                        longID = Long.parseLong(id);
+                    }catch(NumberFormatException e){
+                        e.printStackTrace();
+                    }
+                    ExpandedTweetFragment tweetFragment = ExpandedTweetFragment.newInstance(longID);
+                    fragmentTransaction.replace(R.id.detail_fragment_container, tweetFragment);
+                    fragmentTransaction.commit();
+                } else {
+                    Toast.makeText(this, "You're not logged in to Twitter!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
         }
 
 

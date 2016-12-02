@@ -20,6 +20,12 @@
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="eb75ce0e71340377645da165307d5f87d140c917"
+            />
+
     </application>
 
 </manifest>
