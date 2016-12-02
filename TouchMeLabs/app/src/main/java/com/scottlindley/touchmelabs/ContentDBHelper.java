@@ -100,9 +100,12 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      * see {@link #getNews()} and {@link #getTweets()}
      */
 
-    private void refreshDB() {
+    public void refreshDB() {
         startRefreshService();
+
         BroadcastReceiver receiver = new BroadcastReceiver() {
+        boolean twitterIsDone = false;
+        boolean newsIsDone = false;
             @Override
             public void onReceive(Context context, Intent intent) {
                 List<CardContent> newContent = new ArrayList<>();
@@ -131,6 +134,10 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                             }
                         }
                         db.close();
+                        newsIsDone = true;
+                        if(twitterIsDone){
+                            broadcastData();
+                        }
                         break;
                     case "twitter service":
                         clearTable(db, TABLE_TWEETS);
@@ -154,9 +161,13 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                             }
                         }
                         db.close();
+                        twitterIsDone = true;
+                        if (newsIsDone){
+                            broadcastData();
+                        }
                         break;
                     default:
-
+                        broadcastData();
                 }
             }
         };
@@ -170,8 +181,8 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      * @return a combined list of all tweet, news, and weather objects being
      * displayed
      */
-    public List<CardContent> getUpdatedCardList(CurrentWeather weather) {
-        refreshDB();
+    public List<CardContent> getCardList(CurrentWeather weather) {
+        //TODO: everything below can be cut out
         List<CardContent> cards = new ArrayList<>();
         cards.add(weather);
         SQLiteDatabase db = getReadableDatabase();
@@ -318,5 +329,19 @@ public class ContentDBHelper extends SQLiteOpenHelper {
 
         jobScheduler.schedule(newsInfo);
         jobScheduler.schedule(twitterInfo);
+    }
+
+    /**
+     * Takes what ever is currently stored in the database and puts the objects' values
+     * into string arrays. Those arrays are then put into an intent and the LocalBroadcastManager
+     * broadcasts that intent.
+     */
+    private void broadcastData(){
+
+
+        Intent intent = new Intent("card list");
+
+
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 }
