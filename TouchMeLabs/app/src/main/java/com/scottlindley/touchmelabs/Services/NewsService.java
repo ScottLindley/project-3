@@ -5,6 +5,7 @@ import android.app.job.JobService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.scottlindley.touchmelabs.GsonObjects.GsonNewsStory;
 import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
 
 import java.util.ArrayList;

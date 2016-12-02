@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.scottlindley.touchmelabs.Services.OpenWeatherMapService;
+import com.scottlindley.touchmelabs.GsonObjects.GsonCurrentWeather;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,7 +67,7 @@ public class WeatherService extends JobService{
             public void onResponse(Call<GsonCurrentWeather> call, Response<GsonCurrentWeather> response) {
                 if(response.isSuccessful()){
                     //See helper method
-                    handleResponse();
+                    handleResponse(response);
                     jobFinished(jobParameters, false);
                 }
             }
@@ -102,7 +102,7 @@ public class WeatherService extends JobService{
             public void onResponse(Call<GsonCurrentWeather> call, Response<GsonCurrentWeather> response) {
                 if(response.isSuccessful()){
                     //see helper method
-                    handleResponse();
+                    handleResponse(response);
                     jobFinished(jobParameters, false);
                 }
             }
@@ -119,12 +119,12 @@ public class WeatherService extends JobService{
         });
     }
 
-    public void handleResponse(){
+    public void handleResponse(Response<GsonCurrentWeather> response){
         /*Regardless of the api call (zip or longitude/latitude), the pieces we need in the JSON respose
         are identical. Therefore we can use this block of code for both responses.
         */
 
-        GSonCurrentWeather gsonWeather = response.body();
+        GsonCurrentWeather gsonWeather = response.body();
         String cityName = gsonWeather.getName();
         String description = gsonWeather.getWeather().getDescription();
         String temperature = gsonWeather.getMain().getTemp();

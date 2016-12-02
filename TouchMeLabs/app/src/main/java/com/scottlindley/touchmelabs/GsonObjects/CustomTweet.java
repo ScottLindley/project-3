@@ -1,4 +1,4 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.GsonObjects;
 
 import com.twitter.sdk.android.core.models.Card;
 import com.twitter.sdk.android.core.models.Coordinates;

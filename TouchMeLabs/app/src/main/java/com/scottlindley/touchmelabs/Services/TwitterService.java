@@ -5,8 +5,8 @@ import android.app.job.JobService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.scottlindley.touchmelabs.CustomTweet;
-import com.scottlindley.touchmelabs.CustomUser;
+import com.scottlindley.touchmelabs.GsonObjects.CustomTweet;
+import com.scottlindley.touchmelabs.GsonObjects.CustomUser;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
