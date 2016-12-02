@@ -1,6 +1,8 @@
 package com.scottlindley.touchmelabs.RecyclerViewComponents;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,8 +52,20 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
                 ((NewsStoryViewHolder)holder).setClickListenerForAllViews(this);
                 break;
             case R.layout.weather_card:
-                ((CurrentWeatherViewHolder)holder).bindDataToViews(mCardList.get(position),
-                        holder.itemView.getContext());
+                SharedPreferences sp = holder.itemView.getContext()
+                        .getSharedPreferences("weather", Context.MODE_PRIVATE);
+                if(sp.contains("city name")) {
+                    String name = sp.getString("city name", null);
+                    String temp = sp.getString("temperature", null);
+                    String desc = sp.getString("description", null);
+
+                    ((CurrentWeatherViewHolder)holder).mCityName.setText(name);
+                    ((CurrentWeatherViewHolder)holder).mTemperature.setText(temp);
+                    ((CurrentWeatherViewHolder)holder).mDescription.setText(desc);
+                } else {
+                    ((CurrentWeatherViewHolder) holder).bindDataToViews(mCardList.get(position),
+                            holder.itemView.getContext());
+                }
                 break;
             default:
                 Toast.makeText(holder.itemView.getContext(), "Whoops!", Toast.LENGTH_SHORT).show();

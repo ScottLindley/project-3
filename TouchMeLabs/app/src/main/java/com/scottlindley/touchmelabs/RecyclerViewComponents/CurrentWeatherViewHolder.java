@@ -31,10 +31,10 @@ import com.scottlindley.touchmelabs.R;
  */
 
 public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
-    private TextView mCityName, mTemperature, mDescription;
-    private RelativeLayout mWeatherCard;
-    private Button mSetLocation;
-    private EditText mZipCode;
+    public TextView mCityName, mTemperature, mDescription;
+    public RelativeLayout mWeatherCard;
+    public Button mSetLocation;
+    public EditText mZipCode;
 
     private static final int WEATHER_JOB_SERVICE_ID = 49;
 
@@ -54,12 +54,13 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
      */
     public void bindDataToViews(CurrentWeather weather, final Context context) {
         SharedPreferences currentData = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
-        if(!currentData.contains("city name")) {
+        if((!currentData.contains("city name"))||weather != null) {
             int cLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
             int fLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
             JobScheduler weatherScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
             if(cLocation == PackageManager.PERMISSION_GRANTED||fLocation == PackageManager.PERMISSION_GRANTED) {
-                JobInfo info = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID, new ComponentName(context, WeatherService.class))
+                JobInfo info = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                        new ComponentName(context, WeatherService.class))
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .build();
                 weatherScheduler.schedule(info);
@@ -70,6 +71,13 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
         } else {
             SharedPreferences weatherContext = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
 
+            String city = weatherContext.getString("city name", null);
+            String temperature = weatherContext.getString("temperature", null);
+            String description = weatherContext.getString("description", null);
+
+            mCityName.setText(city);
+            mDescription.setText(description);
+            mTemperature.setText(temperature);
         }
     }
 
