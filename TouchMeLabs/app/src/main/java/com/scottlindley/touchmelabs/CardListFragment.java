@@ -36,9 +36,7 @@ public class CardListFragment extends Fragment {
     private List<CardContent> mCardList;
     public static final int CARD_LIST_LENGTH = 27;
 
-    public CardListFragment() {
-        // Required empty public constructor
-    }
+    public CardListFragment() {}
 
     // TODO: Rename and change types and number of parameters
     public static CardListFragment newInstance(String param1) {
@@ -50,7 +48,7 @@ public class CardListFragment extends Fragment {
     }
 
     /**
-     * 
+     *
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,36 +56,7 @@ public class CardListFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
         }
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                //Get twitter data to display
-                String[] tweetNames = intent.getStringArrayExtra("main tweetNames");
-                String[] tweetContents = intent.getStringArrayExtra("main tweetContents");
-                String[] tweetUsernames = intent.getStringArrayExtra("main tweetUsernames");
-                String[] tweetTimes = intent.getStringArrayExtra("main tweetTimes");
-                String[] tweetIds = intent.getStringArrayExtra("main tweetIds");
 
-                //Get news data to display
-                String[] newsNames = intent.getStringArrayExtra("main newsNames");
-                String[] newsContents = intent.getStringArrayExtra("main newsContents");
-                String[] newsLinks = intent.getStringArrayExtra("main newsLinks");
-
-                //Get weather object data to display
-                String weatherCity = intent.getStringExtra("main weatherCity");
-                String weatherDesc = intent.getStringExtra("main weatherContent");
-                String weatherTemp = intent.getStringExtra("main weatherTemperature");
-
-                //Index counter for tweet and news arrays
-
-                for(int i=1;i<CARD_LIST_LENGTH;i++) {
-                    if(i % 3 == 0) {
-
-                    }
-                }
-            }
-        };
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("card list"));
     }
 
     @Override
@@ -129,6 +98,40 @@ public class CardListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void setUpBroadcastReceiverForRecyclerView() {
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //Get twitter data to display
+                String[] tweetNames = intent.getStringArrayExtra("main tweetNames");
+                String[] tweetContents = intent.getStringArrayExtra("main tweetContents");
+                String[] tweetUsernames = intent.getStringArrayExtra("main tweetUsernames");
+                String[] tweetTimes = intent.getStringArrayExtra("main tweetTimes");
+                String[] tweetIds = intent.getStringArrayExtra("main tweetIds");
+
+                //Get news data to display
+                String[] newsNames = intent.getStringArrayExtra("main newsNames");
+                String[] newsContents = intent.getStringArrayExtra("main newsContents");
+                String[] newsLinks = intent.getStringArrayExtra("main newsLinks");
+
+                //Get weather object data to display
+                String weatherCity = intent.getStringExtra("main weatherCity");
+                String weatherDesc = intent.getStringExtra("main weatherContent");
+                String weatherTemp = intent.getStringExtra("main weatherTemperature");
+
+                //Index counter for tweet and news arrays
+
+                for(int i=1;i<CARD_LIST_LENGTH;i++) {
+                    if(i % 3 == 0) {
+
+                    }
+                }
+                
+            }
+        };
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("card list"));
     }
 
     public interface OnFragmentInteractionListener {
