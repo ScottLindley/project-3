@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import static java.security.AccessController.getContext;
+
 /**
  * "Home screen" fragment. Main purpose is to display the RecyclerView of {@link CardContent} objects.
  */
@@ -67,7 +69,7 @@ public class CardListFragment extends Fragment {
 
         mCardList = ContentDBHelper.getInstance(getContext()).getCardList(mWeather);
 
-        RecyclerView cardRecycler = (RecyclerView)getView().findViewById(R.id.recyclerview);
+        RecyclerView cardRecycler = (RecyclerView)getView().findViewById(R.id.fragment_recyclerview);
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         cardRecycler.setLayoutManager(manager);
         mAdapter = new CardRecyclerViewAdapter(mCardList);
@@ -97,7 +99,7 @@ public class CardListFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                 mCardList.clear();
                 mCardList.addAll(ContentDBHelper.getInstance(getContext()).getCardList(mWeather));
-                
+
                 mAdapter.notifyDataSetChanged();
                 
             }
