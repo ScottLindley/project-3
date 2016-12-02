@@ -1,9 +1,11 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.Services;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+
+import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +16,12 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static android.R.id.list;
-
 
 /**
  * Created by Scott Lindley on 11/30/2016.
  */
 
-public class NewsService extends JobService implements NewsXmlParser.ParseFinishedListener{
+public class NewsService extends JobService implements NewsXmlParser.ParseFinishedListener {
     private static final String mBaseURL = "http://api.smmry.com";
     private JobParameters mJobParameters;
     private NewsXmlParser mParser;

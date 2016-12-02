@@ -1,4 +1,4 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.Services;
 
 import retrofit2.http.GET;
 import retrofit2.http.Path;

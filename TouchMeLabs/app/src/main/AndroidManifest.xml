@@ -25,14 +25,14 @@
             />
 
 
-        <service android:name=".TwitterService"
+        <service android:name=".Services.TwitterService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
 
-        <service android:name=".NewsService"
+        <service android:name=".Services.NewsService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
 
 
-        <service android:name=".WeatherService"
+        <service android:name=".Services.WeatherService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
         
     </application>

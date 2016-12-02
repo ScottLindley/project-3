@@ -1,10 +1,12 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.Services;
+
+import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 
 /**
  * Created by Scott Lindley on 11/30/2016.
  */
 
-public class TweetInfo extends CardContent{
+public class TweetInfo extends CardContent {
     private String mUsername, mTime, mId;
 
     public TweetInfo(String title, String content, String username, String time, String id) {

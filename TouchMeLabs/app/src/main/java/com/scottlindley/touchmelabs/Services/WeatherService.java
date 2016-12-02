@@ -1,4 +1,4 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.Services;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -6,14 +6,13 @@ import android.content.Intent;
 import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.scottlindley.touchmelabs.Services.OpenWeatherMapService;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import static android.R.attr.handle;
-import static android.R.attr.name;
 
 /**
  * Created by Scott Lindley on 12/1/2016.

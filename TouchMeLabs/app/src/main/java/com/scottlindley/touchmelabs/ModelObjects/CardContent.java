@@ -1,4 +1,4 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.ModelObjects;
 
 /**
  * Created by Scott Lindley on 11/30/2016.

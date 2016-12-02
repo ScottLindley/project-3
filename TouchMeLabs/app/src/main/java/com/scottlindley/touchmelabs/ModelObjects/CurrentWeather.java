@@ -1,10 +1,10 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.ModelObjects;
 
 /**
  * Created by Scott Lindley on 11/30/2016.
  */
 
-public class CurrentWeather extends CardContent{
+public class CurrentWeather extends CardContent {
     private String mTemperature;
     private String[] mLocation;
     private String mZip;

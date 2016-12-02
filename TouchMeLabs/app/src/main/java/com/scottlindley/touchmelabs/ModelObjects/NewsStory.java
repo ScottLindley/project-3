@@ -1,10 +1,10 @@
-package com.scottlindley.touchmelabs;
+package com.scottlindley.touchmelabs.ModelObjects;
 
 /**
  * Created by Scott Lindley on 11/30/2016.
  */
 
-public class NewsStory extends CardContent{
+public class NewsStory extends CardContent {
     private String mURL;
 
     public NewsStory(String title, String content, String URL) {
