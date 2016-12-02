@@ -17,6 +17,9 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
+
+public class MainActivity extends AppCompatActivity {
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     RecyclerView mRecyclerView;
@@ -27,6 +30,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        DBAssetHelper dbSetup = new DBAssetHelper(MainActivity.this);
+        dbSetup.getReadableDatabase();
 
             mWebView = (WebView) findViewById(R.id.webview);
             // Enable Javascript WebViews don't allow JavaScript by default.
