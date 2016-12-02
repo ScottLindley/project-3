@@ -26,6 +26,16 @@
             android:layout_centerVertical="true"/>
 
         <TextView
+            android:id="@+id/temperature_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/temperature"
+            android:textSize="18dp"
+            android:textColor="#757575"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+
+        <TextView
             android:id="@+id/weather_conditions_light"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,15 +45,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="6dp"/>
 
-        <TextView
-            android:id="@+id/temperature_light"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/temperature"
-            android:textSize="18dp"
-            android:textColor="#757575"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"/>
+
 
     </RelativeLayout>
 

@@ -14,16 +14,25 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    RecyclerView mRecyclerView; // need RV Adapter
+    RecyclerView mRecyclerView;
+    WebView mWebView;
 
 
         @Override
         protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+            mWebView = (WebView) findViewById(R.id.webview);
+            // Enable Javascript WebViews don't allow JavaScript by default.
+            // To run a web application in the web view, you need to explicitly enable JavaScript.
+            WebSettings webSettings = mWebView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
 
             mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
 
