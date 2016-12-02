@@ -7,6 +7,11 @@ import android.content.SharedPreferences;
 import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterApiClient;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterSession;
+
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -25,6 +30,14 @@ public class TwitterService extends JobService{
 
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
+        TwitterSession session = Twitter.getSessionManager().getActiveSession();
+        Twitter.getApiClient(session).getAccountService().verifyCredentials(true, false, new Callback<>())
+
+
+        TwitterApiClient client = new TwitterApiClient(TwitterCore.getInstance().getSessionManager().getActiveSession());
+        client.getStatusesService().userTimeline()
+
+
         mGsonTweets = new ArrayList<GsonTweetInfo>();
 
         //This pulls the bearer token out from the jobParameters
