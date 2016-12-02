@@ -17,4 +17,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
 
+    // Weather Strings
+    <string name="city_name">City</string>
+    <string name="weather_conditions">Conditions</string>
+    <string name="temperature">Temp</string>
+
 </resources>
