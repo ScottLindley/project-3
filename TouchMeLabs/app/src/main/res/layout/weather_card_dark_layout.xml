@@ -6,7 +6,7 @@
     android:id="@+id/news_dark">
 
     <RelativeLayout
-        android:id="@+id/weather_card_light"
+        android:id="@+id/weather_card_dark"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_marginLeft="8dp"
