@@ -99,7 +99,6 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
             case R.id.twitter_card_light_bg:
                 Intent twitterIntent = new Intent(view.getContext(), DetailActivity.class);
                 String id = ((TweetInfo)mCardList.get(positionForWeather)).getId();
-
                 twitterIntent.putExtra("id", id);
                 view.getContext().startActivity(twitterIntent);
                 break;
