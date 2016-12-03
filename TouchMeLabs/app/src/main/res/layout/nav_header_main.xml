@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- I think-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -15,16 +17,15 @@
 
     <ImageView
         android:id="@+id/twitter_profile_picture_drawer"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         app:srcCompat="@drawable/twitter_profile_picture" />
 
     <TextView
         android:id="@+id/twitter_username_drawer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:paddingTop="4dp"
         android:text="@string/twitter_username"
         android:textSize="20dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
@@ -33,6 +34,6 @@
         android:id="@+id/twitter_handle_drawer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/twitter_handle"/>
+        android:text="@string/twitter_handle" />
 
 </LinearLayout>
