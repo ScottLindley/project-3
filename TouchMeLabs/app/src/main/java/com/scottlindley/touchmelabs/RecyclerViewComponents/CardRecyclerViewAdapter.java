@@ -34,12 +34,12 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch(viewType) {
-            case R.layout.twitter_card:
-                return new TweetInfoViewHolder(inflater.inflate(R.layout.twitter_card, parent, false));
-            case R.layout.news_card:
-                return new NewsStoryViewHolder(inflater.inflate(R.layout.news_card, parent, false));
-            case R.layout.weather_card:
-                return new CurrentWeatherViewHolder(inflater.inflate(R.layout.weather_card, parent, false));
+            case R.layout.twitter_card_light_layout:
+                return new TweetInfoViewHolder(inflater.inflate(R.layout.twitter_card_light_layout, parent, false));
+            case R.layout.news_card_light_layout:
+                return new NewsStoryViewHolder(inflater.inflate(R.layout.news_card_light_layout, parent, false));
+            case R.layout.weather_card_light_layout:
+                return new CurrentWeatherViewHolder(inflater.inflate(R.layout.weather_card_light_layout, parent, false));
             default:
                 return null;
         }
@@ -103,7 +103,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
 
                 newsIntent.putExtra("name", title);
                 newsIntent.putExtra("content", content);
-                newsIntent.putExtra("linke", link);
+                newsIntent.putExtra("link", link);
                 view.getContext().startActivity(newsIntent);
                 break;
         }
