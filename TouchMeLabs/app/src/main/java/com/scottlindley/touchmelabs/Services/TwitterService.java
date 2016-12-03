@@ -53,7 +53,7 @@ public class TwitterService extends JobService{
 
                     names[i] = result.data.get(i).user.screenName;
                     //Add an "@" before each handle name
-                    handles[i] = "@" + result.data.get(i).user.name;
+                    handles[i] = result.data.get(i).user.name;
                     tweets[i] = result.data.get(i).text;
                     ids[i] = String.valueOf(result.data.get(i).id);
                     //Format the time to be more readable
@@ -95,8 +95,10 @@ public class TwitterService extends JobService{
     }
 
     /**
-     * For each tweet time, the last 14 characters are not needed. They include the seconds,
+     * The last 14 characters are not needed. They include the seconds,
      * and the year.
+     *
+     * The
      * @param time
      * @return
      */
