@@ -52,10 +52,12 @@ public class TwitterService extends JobService{
                 for (int i = 0; i < result.data.size(); i++) {
 
                     names[i] = result.data.get(i).user.screenName;
-                    handles[i] = result.data.get(i).user.name;
-                    times[i] = result.data.get(i).createdAt;
+                    //Add an "@" before each handle name
+                    handles[i] = "@" + result.data.get(i).user.name;
                     tweets[i] = result.data.get(i).text;
                     ids[i] = String.valueOf(result.data.get(i).id);
+                    //Format the time to be more readable
+                    times[i] = formatTime(result.data.get(i).createdAt);
                 }
 
                 //Put data into an intent and broadcast the intent
@@ -90,5 +92,15 @@ public class TwitterService extends JobService{
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
         return false;
+    }
+
+    /**
+     * For each tweet time, the last 14 characters are not needed. They include the seconds,
+     * and the year.
+     * @param time
+     * @return
+     */
+    public String formatTime(String time){
+        return time.substring(0, time.length()-14);
     }
 }

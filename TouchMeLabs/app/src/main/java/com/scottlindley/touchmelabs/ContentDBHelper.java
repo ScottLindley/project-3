@@ -139,6 +139,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                         }
                         db.close();
                         newsIsDone = true;
+                        Log.d(TAG, "onReceive: NEWS DONE");
                         if(twitterIsDone){
                             broadcastData();
                         }
@@ -166,6 +167,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                         }
                         db.close();
                         twitterIsDone = true;
+                        Log.d(TAG, "onReceive: TWITTER DONE");
                         if (newsIsDone){
                             broadcastData();
                         }

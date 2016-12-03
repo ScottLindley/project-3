@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity
             FragmentTransaction transaction = manager.beginTransaction();
             CardListFragment cardFragment = CardListFragment.newInstance();
 
-            transaction.add(R.id.main_fragment_container, cardFragment);
+            transaction.replace(R.id.main_fragment_container, cardFragment);
             transaction.commit();
 
 
