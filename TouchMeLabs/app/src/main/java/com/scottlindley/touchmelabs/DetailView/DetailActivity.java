@@ -44,7 +44,7 @@ public class DetailActivity extends AppCompatActivity
         switch (intentID) {
             case "NewsStory":
                 String title = receivedIntent.getStringExtra("name");
-                String content = receivedIntent.getStringExtra("content");
+                String content = receivedIntent.getStringExtra("content.db");
                 String link = receivedIntent.getStringExtra("link");
                 ExpandedNewsFragment newsFragment = ExpandedNewsFragment.newInstance(title, content, link);
                 fragmentTransaction.replace(R.id.detail_fragment_container, newsFragment);

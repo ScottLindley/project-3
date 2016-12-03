@@ -26,7 +26,7 @@ public class TweetInfoViewHolder extends RecyclerView.ViewHolder{
     }
 
     /**
-     * Helper method to assign a given {@link TweetInfo} object's content to this view
+     * Helper method to assign a given {@link TweetInfo} object's content.db to this view
      */
     public void bindDataToView(TweetInfo tweet) {
         mHandle.setText(tweet.getTitle());

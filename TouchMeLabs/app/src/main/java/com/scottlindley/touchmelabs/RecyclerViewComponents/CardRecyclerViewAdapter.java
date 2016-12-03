@@ -110,7 +110,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
                 String link = ((NewsStory)mCardList.get(positionForWeather)).getURL();
 
                 newsIntent.putExtra("name", title);
-                newsIntent.putExtra("content", content);
+                newsIntent.putExtra("content.db", content);
                 newsIntent.putExtra("link", link);
                 view.getContext().startActivity(newsIntent);
                 break;

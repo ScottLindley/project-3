@@ -35,6 +35,8 @@ import java.util.List;
  */
 
 public class CardListFragment extends Fragment {
+    private static final String TAG = "CardListFragment";
+    
     TwitterLoginButton mLoginButton;
 
     private OnFragmentInteractionListener mListener;
@@ -123,11 +125,15 @@ public class CardListFragment extends Fragment {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-
+                Log.d(TAG, "onReceive: RECEIVED REFRESH INTENT");
                 mCardList.clear();
                 mCardList.addAll(ContentDBHelper.getInstance(getContext()).getCardList(mWeather));
 
                 mAdapter.notifyDataSetChanged();
+
+                for (CardContent c : mCardList){
+                    Log.d(TAG, "onReceive: "+c.getTitle());
+                }
                 
             }
         };

@@ -31,7 +31,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
     private static final int NEWS_SERVICE = 3;
     private static final int TWITTER_SERVICE = 9;
 
-    private static final String DB_NAME = "content";
+    private static final String DB_NAME = "content.db";
     private static final int DB_VERSION = 1;
 
     //Table names for news and twitter API responses
@@ -44,23 +44,23 @@ public class ContentDBHelper extends SQLiteOpenHelper {
     private static final String COL_URL = "url";
     private static final String COL_USERNAME = "username";
     private static final String COL_TIME = "time";
-    private static final String COL_ID = "id";
+    private static final String COL_TWEET_ID = "id";
 
     //Create news table
     private static final String CREATE_NEWS_TABLE = "CREATE TABLE "
             +TABLE_NEWS+"("
-            +COL_URL+" TEXT PRIMARY KEY,"
+            +COL_URL+" TEXT PRIMARY KEY, "
             +COL_NAME+" TEXT,"
             +COL_CONTENT+" TEXT)";
 
     //Create tweet table
     private static final String CREATE_TWEETS_TABLE = "CREATE TABLE "
             +TABLE_TWEETS+"("
-            +COL_NAME+" TEXT PRIMARY KEY, "
+            +COL_TWEET_ID+" TEXT PRIMARY KEY, "
             +COL_CONTENT+" TEXT, "
             +COL_USERNAME+" TEXT, "
             +COL_TIME+" TEXT, "
-            +COL_ID+" TEXT";
+            +COL_NAME+" TEXT";
 
     private ContentDBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -119,6 +119,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                 SQLiteDatabase db = getWritableDatabase();
                 switch(key) {
                     case "news service":
+                        Log.d(TAG, "onReceive: NEWS SERVICE");
                         clearTable(db, TABLE_NEWS);
 
                         String[] titles = newsInfo.getStringArray("titles");
@@ -185,7 +186,6 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      * displayed
      */
     public List<CardContent> getCardList(CurrentWeather weather) {
-        //TODO: everything below can be cut out
         List<CardContent> cards = new ArrayList<>();
         cards.add(weather);
         SQLiteDatabase db = getReadableDatabase();
@@ -203,7 +203,8 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                 null,
                 null,
                 null);
-        combineResults(cards, tweets, news);
+        cards = combineResults(cards, tweets, news);
+        db.close();
         return cards;
     }
 
@@ -250,7 +251,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                 String username = cursor.getString(cursor.getColumnIndex(COL_USERNAME));
                 String tweet = cursor.getString(cursor.getColumnIndex(COL_CONTENT));
                 String time = cursor.getString(cursor.getColumnIndex(COL_TIME));
-                String id = cursor.getString(cursor.getColumnIndex(COL_ID));
+                String id = cursor.getString(cursor.getColumnIndex(COL_TWEET_ID));
 
                 tweets.add(new TweetInfo(handle, tweet, username, time, id));
                 cursor.moveToNext();
@@ -284,7 +285,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
         values.put(COL_CONTENT, tweet);
         values.put(COL_USERNAME, username);
         values.put(COL_TIME, time);
-        values.put(COL_ID, id);
+        values.put(COL_TWEET_ID, id);
         return db.insertOrThrow(TABLE_TWEETS, null, values);
     }
 
@@ -296,7 +297,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
         return db.insertOrThrow(TABLE_NEWS, null, values);
     }
 
-    private void combineResults(List<CardContent> cards, Cursor tweetCursor, Cursor newsCursor) {
+    private List<CardContent> combineResults(List<CardContent> cards, Cursor tweetCursor, Cursor newsCursor) {
         int count = 1;
         if(tweetCursor.moveToFirst()&&newsCursor.moveToFirst()) {
             while(!tweetCursor.isAfterLast()) {
@@ -305,18 +306,21 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                     String summary = newsCursor.getString(newsCursor.getColumnIndex(COL_CONTENT));
                     String link = newsCursor.getString(newsCursor.getColumnIndex(COL_URL));
                     cards.add(new NewsStory(title, summary, link));
+                    newsCursor.moveToNext();
                 } else {
                     String handle = tweetCursor.getString(tweetCursor.getColumnIndex(COL_NAME));
                     String tweet = tweetCursor.getString(tweetCursor.getColumnIndex(COL_CONTENT));
                     String username = tweetCursor.getString(tweetCursor.getColumnIndex(COL_USERNAME));
                     String time = tweetCursor.getString(tweetCursor.getColumnIndex(COL_TIME));
-                    String id = tweetCursor.getString(tweetCursor.getColumnIndex(COL_ID));
+                    String id = tweetCursor.getString(tweetCursor.getColumnIndex(COL_TWEET_ID));
                     cards.add(new TweetInfo(handle, tweet, username, time, id));
+                    tweetCursor.moveToNext();
                 }
             }
         }
         tweetCursor.close();
         newsCursor.close();
+        return cards;
     }
 
     private void startRefreshService() {
@@ -340,8 +344,6 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      * broadcasts that intent.
      */
     private void broadcastData(){
-
-
         Intent intent = new Intent("card list");
         Log.d(TAG, "broadcastData: ");
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);

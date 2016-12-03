@@ -15,7 +15,7 @@ import com.scottlindley.touchmelabs.R;
 
 public class ExpandedNewsFragment extends Fragment {
     private static final String ARG_TITLE = "title";
-    private static final String ARG_CONTENT = "content";
+    private static final String ARG_CONTENT = "content.db";
     private static final String ARG_URL = "url";
 
     private WebView mWebView;

@@ -4,7 +4,6 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Result;
@@ -12,7 +11,6 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.Tweet;
-import com.twitter.sdk.android.core.models.User;
 import com.twitter.sdk.android.tweetui.TweetUi;
 
 import java.util.List;
@@ -20,35 +18,19 @@ import java.util.List;
 import io.fabric.sdk.android.Fabric;
 import retrofit2.Call;
 
+
 /**
  * Created by Scott Lindley on 12/1/2016.
  */
 
 public class TwitterService extends JobService{
-    private long userId;
-    private static final String TAG = "TwitterService";
 
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
         Fabric.with(this, new Twitter(authConfig),new TweetUi());
-        //Gets the userId of the user currently logged in
-        TwitterSession session = Twitter.getSessionManager().getActiveSession();
-        Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(true, false);
-        userCall.enqueue(new com.twitter.sdk.android.core.Callback<User>() {
-            @Override
-            public void success(Result<User> result) {
-                User user = result.data;
-                userId = user.getId();
-                Log.d(TAG, "success: userID = "+userId);
-            }
 
-            @Override
-            public void failure(TwitterException exception) {
-                exception.printStackTrace();
-                Log.d(TAG, "failure: Failed user call");
-            }
-        });
+        TwitterSession session = Twitter.getSessionManager().getActiveSession();
 
         //Gets the users timeline as a list of Tweet objects
         Call<List<Tweet>> timelineCall = Twitter.getApiClient(session).getStatusesService().homeTimeline(
@@ -93,7 +75,6 @@ public class TwitterService extends JobService{
             public void failure(TwitterException exception) {
                 //Send an intent with name 'failure' to trigger the default case in onReceive
                 exception.printStackTrace();
-                Log.d(TAG, "failure: Failed timeline call");
                 Intent intent = new Intent("service intent");
                 intent.putExtra("service name", "failure");
 

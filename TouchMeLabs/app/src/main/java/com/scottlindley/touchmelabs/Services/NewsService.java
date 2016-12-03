@@ -4,6 +4,7 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.scottlindley.touchmelabs.GsonObjects.GsonNewsStory;
 import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
@@ -30,14 +31,15 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
     private List<GsonNewsStory> mGsonStories;
     private static List<NewsStory> mStories;
     private String[] mTitles;
-    private String[] mSummary;
+    private String[] mSummaries;
     private String[] mLinks;
-    private int mFailedResponses = 0;
+
+    private static final String TAG = "NewsService";
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        mGsonStories = new ArrayList<GsonNewsStory>();
-        mStories = new ArrayList<NewsStory>();
+        mGsonStories = new ArrayList<>();
+        mStories = new ArrayList<>();
         mJobParameters = jobParameters;
 
         //See NewsXmlParser class
@@ -63,6 +65,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
             }
         }else{
             for (int i=0; i<8; i++){
+                Log.d(TAG, "onXmlParseFinished: "+mStoryLinks.get(i));
                 makeRetroFitCall(mStoryLinks.get(i), mJobParameters);
             }
         }
@@ -89,45 +92,46 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
                             gsonStory.getContent(),
                             link
                     ));
-                    //This checks if all links have been run through a retrofit call (successful or not)
-                    if (mGsonStories.size() + mFailedResponses == mStoryLinks.size()) {
-                        if (mFailedResponses == 0) {
-                            convertStoryToStringArrays();
 
-                            Intent intent = new Intent("service intent");
-                            intent.putExtra("titles", mTitles);
-                            intent.putExtra("summaries", mSummary);
-                            intent.putExtra("links", mLinks);
-                            intent.putExtra("service name", "news service");
+                    if(mStories.size()==8) {
+                        convertStoryToStringArrays();
 
-                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                            jobFinished(jobParameters, false);
-                        }
+                        Intent intent = new Intent("service intent");
+                        intent.putExtra("titles", mTitles);
+                        intent.putExtra("summaries", mSummaries);
+                        intent.putExtra("links", mLinks);
+                        intent.putExtra("service name", "news service");
+
+                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                        jobFinished(jobParameters, false);
+                    }else{
+                        Log.d(TAG, "onResponse: "+mStories.size());
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<GsonNewsStory> call, Throwable t) {
-                t.printStackTrace();
-                mFailedResponses++;
-                //This checks if all links have been run through a retrofit call (successful or not)
-                if(mGsonStories.size()+mFailedResponses == mStoryLinks.size()){
-                    Intent intent = new Intent("service intent");
-                    intent.putExtra("service name", "failure");
+                Intent intent = new Intent("service intent");
+                intent.putExtra("service name", "failure");
 
-                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                    jobFinished(jobParameters, false);
-                }
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                jobFinished(jobParameters, false);
             }
-
         });
     }
 
     public void convertStoryToStringArrays(){
+        int arraySize = mStories.size();
+
+        mTitles = new String[arraySize];
+        mSummaries = new String[arraySize];
+        mLinks = new String[arraySize];
+
+
         for (int i=0; i<mStories.size(); i++){
             mTitles[i] = mStories.get(i).getTitle();
-            mSummary[i] = mStories.get(i).getContent();
+            mSummaries[i] = mStories.get(i).getContent();
             mLinks[i] = mStories.get(i).getURL();
         }
     }
