@@ -10,10 +10,12 @@
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings_black_18dp"
             android:title="Settings" />
+
         <item
             android:id="@+id/nav_theme"
-            android:icon="@drawable/ic_palette_black_18dp"
-            android:title="Theme" />
+            android:icon="@drawable/ic_palette_black_24dp"
+            android:title="Theme">
+        </item>
 
     </group>
 
