@@ -29,9 +29,11 @@ public class TweetInfoViewHolder extends RecyclerView.ViewHolder{
      * Helper method to assign a given {@link TweetInfo} object's content.db to this view
      */
     public void bindDataToView(TweetInfo tweet) {
+        //Adds a "@" before each handle name
         mHandle.setText( "@" + tweet.getTitle());
         mUsername.setText(tweet.getUsername());
         mTime.setText(tweet.getTime());
+        //Trims any tweets that are longer than 140 characters
         if(tweet.getContent().length()>140){
             String trimmedTweet = tweet.getContent().substring(0, 140);
             mTweetContent.setText(trimmedTweet+"...");
