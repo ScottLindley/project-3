@@ -38,12 +38,14 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
     public CurrentWeatherViewHolder(View itemView) {
         super(itemView);
 
-        mCityName = (TextView)itemView.findViewById(R.id.city_name);
-        mTemperature = (TextView)itemView.findViewById(R.id.tempertature);
-        mDescription = (TextView)itemView.findViewById(R.id.weather_conditions);
-        mWeatherCard = (RelativeLayout)itemView.findViewById(R.id.weather_card);
-        mSetLocation = (Button)itemView.findViewById(R.id.find_location_btn);
-        mZipCode = (EditText)itemView.findViewById(R.id.zip_code_edit);
+        mCityName = (TextView)itemView.findViewById(R.id.city_name_light);
+        mTemperature = (TextView)itemView.findViewById(R.id.temperature_light);
+        mDescription = (TextView)itemView.findViewById(R.id.weather_conditions_light);
+        mWeatherCard = (RelativeLayout)itemView.findViewById(R.id.weather_card_light);
+        //TODO: make weather card button (A.K.A. THE BUTTON)
+        //TODO: make weather card editText
+//        mSetLocation = (Button)itemView.findViewById(R.id.find_location_btn);
+//        mZipCode = (EditText)itemView.findViewById(R.id.zip_code_edit);
     }
 
     /**

@@ -19,10 +19,10 @@ public class TweetInfoViewHolder extends RecyclerView.ViewHolder{
     public TweetInfoViewHolder(View itemView) {
         super(itemView);
         mHandle = (TextView)itemView.findViewById(R.id.twitter_handle);
-        mTweetContent = (TextView)itemView.findViewById(R.id.tweet_content);
-        mUsername = (TextView)itemView.findViewById(R.id.twiter_username);
+        mTweetContent = (TextView)itemView.findViewById(R.id.twitter_tweet_content);
+        mUsername = (TextView)itemView.findViewById(R.id.twitter_username);
         mTime = (TextView)itemView.findViewById(R.id.twitter_time_stamp);
-        mTwitterCard = (RelativeLayout)itemView.findViewById(R.id.twitter_card);
+        mTwitterCard = (RelativeLayout)itemView.findViewById(R.id.twitter_card_light_bg);
     }
 
     /**

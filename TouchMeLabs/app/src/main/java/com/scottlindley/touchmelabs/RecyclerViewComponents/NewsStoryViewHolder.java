@@ -19,10 +19,10 @@ public class NewsStoryViewHolder extends RecyclerView.ViewHolder{
     public NewsStoryViewHolder(View itemView) {
         super(itemView);
 
-        mTitle = (TextView)itemView.findViewById(R.id.news_article_title);
+        mTitle = (TextView)itemView.findViewById(R.id.news_article_headline);
         mSummary = (TextView)itemView.findViewById(R.id.news_article_summary);
         mUrl = (TextView)itemView.findViewById(R.id.news_article_source);
-        mNewsCard = (RelativeLayout)itemView.findViewById(R.id.news_card);
+        mNewsCard = (RelativeLayout)itemView.findViewById(R.id.news_card_bg);
     }
 
     /**

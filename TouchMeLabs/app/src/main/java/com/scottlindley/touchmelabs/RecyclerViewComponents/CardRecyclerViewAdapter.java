@@ -34,12 +34,12 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch(viewType) {
-            case R.layout.twitter_card:
-                return inflater.inflate(R.layout.twitter_card, parent, false);
-            case R.layout.news_card:
-                return inflater.inflate(R.layout.news_card, parent, false);
-            case R.layout.weather_card:
-                return inflater.inflate(R.layout.weather_card, parent, false);
+            case R.layout.twitter_card_light_layout:
+                return new TweetInfoViewHolder(inflater.inflate(R.layout.twitter_card_light_layout, parent, false));
+            case R.layout.news_card_light_layout:
+                return new NewsStoryViewHolder(inflater.inflate(R.layout.news_card_light_layout, parent, false));
+            case R.layout.weather_card_light_layout:
+                return new CurrentWeatherViewHolder(inflater.inflate(R.layout.weather_card_light_layout, parent, false));
             default:
                 return null;
         }
@@ -51,15 +51,15 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
         positionForWeather = position;
 
         switch(type) {
-            case R.layout.twitter_card:
+            case R.layout.twitter_card_light_layout:
                 ((TweetInfoViewHolder)holder).bindDataToView((TweetInfo) mCardList.get(position));
                 ((TweetInfoViewHolder) holder).setClickListenerForAllViews(this);
                 break;
-            case R.layout.news_card:
+            case R.layout.news_card_light_layout:
                 ((NewsStoryViewHolder)holder).bindDataToViews((NewsStory) mCardList.get(position));
                 ((NewsStoryViewHolder)holder).setClickListenerForAllViews(this);
                 break;
-            case R.layout.weather_card:
+            case R.layout.weather_card_light_layout:
                 SharedPreferences sp = holder.itemView.getContext()
                         .getSharedPreferences("weather", Context.MODE_PRIVATE);
                 if(sp.contains("city name")) {
@@ -89,18 +89,18 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
     public void onClick(View view) {
         //TODO: Set to open new detail activity and/or fragment
         switch(view.getId()) {
-            case R.id.twitter_card:
+            case R.id.twitter_card_light_bg:
                 Intent twitterIntent = new Intent(view.getContext(), DetailActivity.class);
-                String id = mCardList.get(positionForWeather).getId();
+                String id = ((TweetInfo)mCardList.get(positionForWeather)).getId();
 
                 twitterIntent.putExtra("id", id);
                 view.getContext().startActivity(twitterIntent);
                 break;
-            case R.id.news_card:
+            case R.id.news_card_bg:
                 Intent newsIntent = new Intent(view.getContext(), DetailActivity.class);
                 String title = mCardList.get(positionForWeather).getTitle();
                 String content = mCardList.get(positionForWeather).getContent();
-                String link = mCardList.get(positionForWeather).getUrl();
+                String link = ((NewsStory)mCardList.get(positionForWeather)).getURL();
 
                 newsIntent.putExtra("name", title);
                 newsIntent.putExtra("content", content);
