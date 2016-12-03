@@ -3,10 +3,20 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              tools:context="com.scottlindley.touchmelabs.MainView.CardListFragment">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.twitter.sdk.android.core.identity.TwitterLoginButton
+        android:id="@+id/twitter_login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_recyclerview"
+        android:layout_below="@id/twitter_login_button"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>
 </FrameLayout>

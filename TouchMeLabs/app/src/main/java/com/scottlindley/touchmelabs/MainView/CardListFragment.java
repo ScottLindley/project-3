@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,11 @@ import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.RecyclerViewComponents.CardRecyclerViewAdapter;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import java.util.List;
 
@@ -29,6 +35,7 @@ import java.util.List;
  */
 
 public class CardListFragment extends Fragment {
+    TwitterLoginButton mLoginButton;
 
     private OnFragmentInteractionListener mListener;
     private CurrentWeather mWeather;
@@ -63,6 +70,20 @@ public class CardListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mLoginButton = (TwitterLoginButton) getView().findViewById(R.id.twitter_login_button);
+        mLoginButton.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+                requestDataRefresh(getContext());
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                exception.printStackTrace();
+            }
+        });
+
+
         SharedPreferences preferences = getContext().getSharedPreferences("mWeather", Context.MODE_PRIVATE);
         String cityName = preferences.getString("city name", "error");
         String cityConditions = preferences.getString("city conditions", "error");
@@ -77,6 +98,8 @@ public class CardListFragment extends Fragment {
         cardRecycler.setLayoutManager(manager);
         mAdapter = new CardRecyclerViewAdapter(mCardList);
         cardRecycler.setAdapter(mAdapter);
+
+        setUpBroadcastReceiverForRecyclerView();
     }
 
     @Override
@@ -100,6 +123,7 @@ public class CardListFragment extends Fragment {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
                 mCardList.clear();
                 mCardList.addAll(ContentDBHelper.getInstance(getContext()).getCardList(mWeather));
 
@@ -119,5 +143,10 @@ public class CardListFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mLoginButton.onActivityResult(requestCode, resultCode, data);
+    }
 
 }

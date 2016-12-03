@@ -18,6 +18,10 @@ import com.scottlindley.touchmelabs.R;
 
 import java.util.List;
 
+import static com.scottlindley.touchmelabs.R.layout.news_card_light_layout;
+import static com.scottlindley.touchmelabs.R.layout.twitter_card_light_layout;
+import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
+
 /**
  * Created by jonlieblich on 12/1/16.
  */
@@ -25,6 +29,10 @@ import java.util.List;
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements View.OnClickListener{
     private List<CardContent> mCardList;
     private int positionForWeather;
+
+    private static final int TWEET_VIEW_TYPE = twitter_card_light_layout;
+    private static final int NEWS_VIEW_TYPE = news_card_light_layout;
+    private static final int WEATHER_VIEW_TYPE = weather_card_light_layout;
 
     public CardRecyclerViewAdapter(List<CardContent> list) {
         mCardList = list;
@@ -34,12 +42,12 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch(viewType) {
-            case R.layout.twitter_card_light_layout:
-                return new TweetInfoViewHolder(inflater.inflate(R.layout.twitter_card_light_layout, parent, false));
-            case R.layout.news_card_light_layout:
-                return new NewsStoryViewHolder(inflater.inflate(R.layout.news_card_light_layout, parent, false));
-            case R.layout.weather_card_light_layout:
-                return new CurrentWeatherViewHolder(inflater.inflate(R.layout.weather_card_light_layout, parent, false));
+            case twitter_card_light_layout:
+                return new TweetInfoViewHolder(inflater.inflate(twitter_card_light_layout, parent, false));
+            case news_card_light_layout:
+                return new NewsStoryViewHolder(inflater.inflate(news_card_light_layout, parent, false));
+            case weather_card_light_layout:
+                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_light_layout, parent, false));
             default:
                 return null;
         }
@@ -50,15 +58,15 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
         int type = getItemViewType(position);
         positionForWeather = position;
         switch(type) {
-            case R.layout.twitter_card_light_layout:
+            case twitter_card_light_layout:
                 ((TweetInfoViewHolder)holder).bindDataToView((TweetInfo) mCardList.get(position));
                 ((TweetInfoViewHolder) holder).setClickListenerForAllViews(this);
                 break;
-            case R.layout.news_card_light_layout:
+            case news_card_light_layout:
                 ((NewsStoryViewHolder)holder).bindDataToViews((NewsStory) mCardList.get(position));
                 ((NewsStoryViewHolder)holder).setClickListenerForAllViews(this);
                 break;
-            case R.layout.weather_card_light_layout:
+            case weather_card_light_layout:
                 SharedPreferences sp = holder.itemView.getContext()
                         .getSharedPreferences("weather", Context.MODE_PRIVATE);
                 if(sp.contains("city name")) {
@@ -106,6 +114,19 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
                 newsIntent.putExtra("link", link);
                 view.getContext().startActivity(newsIntent);
                 break;
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(mCardList.get(position) instanceof CurrentWeather){
+            return WEATHER_VIEW_TYPE;
+        } else if (mCardList.get(position) instanceof NewsStory){
+            return NEWS_VIEW_TYPE;
+        } else if (mCardList.get(position) instanceof TweetInfo){
+            return TWEET_VIEW_TYPE;
+        } else {
+            return -1;
         }
     }
 }

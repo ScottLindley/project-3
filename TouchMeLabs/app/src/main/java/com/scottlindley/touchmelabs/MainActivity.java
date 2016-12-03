@@ -1,5 +1,7 @@
 package com.scottlindley.touchmelabs;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -13,18 +15,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.scottlindley.touchmelabs.MainView.CardListFragment;
+import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
 import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.tweetui.TweetUi;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import io.fabric.sdk.android.Fabric;
+
+public class MainActivity extends AppCompatActivity
+        implements CardListFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener {
+
 
         @Override
         protected void onCreate (Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
+            Fabric.with(this, new Twitter(authConfig),new TweetUi());
+
             setContentView(R.layout.activity_main);
 
             DBAssetHelper dbSetup = new DBAssetHelper(MainActivity.this);
             dbSetup.getReadableDatabase();
-
 
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
@@ -68,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+
+
         @Override
         public boolean onCreateOptionsMenu (Menu menu){
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -110,5 +124,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if(fragmentManager != null){
+            fragmentManager.findFragmentById(R.id.main_fragment_container)
+                    .onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
