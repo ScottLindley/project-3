@@ -13,6 +13,9 @@
     android:id="@+id/nav_drawer_banner"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
+    <!-- @background: be sure we match this color to match the overall
+    app theme, prior to presentation -->
+
     <ImageView
         android:id="@+id/twitter_profile_picture_drawer"
         android:layout_width="wrap_content"
