@@ -19,7 +19,7 @@
             android:id="@+id/twitter_profile_picture"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:background="@mipmap/ic_launcher" />
+            android:background="@drawable/twitter_profile_picture" />
 
         <TextView
             android:id="@+id/twitter_username_dark"

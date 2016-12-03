@@ -40,7 +40,7 @@
             android:id="@+id/news_article_image"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:background="@mipmap/ic_launcher"
+            android:background="@drawable/news_image"
             android:layout_alignParentRight="true"
             android:layout_margin="2dp"/>
 
