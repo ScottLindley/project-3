@@ -117,6 +117,12 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
         }
     }
 
+    public void replaceData(List<CardContent> newContent){
+        mCardList.clear();
+        mCardList.addAll(newContent);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemViewType(int position) {
         if(mCardList.get(position) instanceof CurrentWeather){

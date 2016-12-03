@@ -22,6 +22,7 @@ import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.RecyclerViewComponents.CardRecyclerViewAdapter;
+import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
@@ -126,8 +127,7 @@ public class CardListFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "onReceive: RECEIVED REFRESH INTENT");
-                mCardList.clear();
-                mCardList.addAll(ContentDBHelper.getInstance(getContext()).getCardList(mWeather));
+                mAdapter.replaceData(ContentDBHelper.getInstance(getContext()).getCardList(mWeather));
 
                 mAdapter.notifyDataSetChanged();
 

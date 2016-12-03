@@ -112,11 +112,11 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
 
             @Override
             public void onFailure(Call<GsonNewsStory> call, Throwable t) {
-                Intent intent = new Intent("service intent");
-                intent.putExtra("service name", "failure");
-
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                jobFinished(jobParameters, false);
+//                Intent intent = new Intent("service intent");
+//                intent.putExtra("service name", "failure");
+//
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+//                jobFinished(jobParameters, false);
             }
         });
     }

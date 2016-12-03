@@ -307,6 +307,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                     String link = newsCursor.getString(newsCursor.getColumnIndex(COL_URL));
                     cards.add(new NewsStory(title, summary, link));
                     newsCursor.moveToNext();
+                    count++;
                 } else {
                     String handle = tweetCursor.getString(tweetCursor.getColumnIndex(COL_NAME));
                     String tweet = tweetCursor.getString(tweetCursor.getColumnIndex(COL_CONTENT));
@@ -315,6 +316,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                     String id = tweetCursor.getString(tweetCursor.getColumnIndex(COL_TWEET_ID));
                     cards.add(new TweetInfo(handle, tweet, username, time, id));
                     tweetCursor.moveToNext();
+                    count++;
                 }
             }
         }
