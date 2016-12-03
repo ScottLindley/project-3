@@ -44,12 +44,15 @@
             android:textSize="14dp"
             android:layout_margin="2dp"/>
 
+        <!-- will move time stamp back to top right once only the hour
+        and minutes are being displayed. At the moment, the string is
+        too long-->
         <TextView
             android:id="@+id/twitter_time_stamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/twitter_time_stamp"
-            android:layout_alignParentRight="true"
+            android:layout_below="@id/twitter_profile_picture"
             android:layout_margin="4dp" />
         <TextView
             android:id="@+id/twitter_tweet_content"
