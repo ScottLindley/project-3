@@ -11,18 +11,22 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.ContentDBHelper;
 import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
+import com.scottlindley.touchmelabs.NetworkConnectionDetector;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.RecyclerViewComponents.CardRecyclerViewAdapter;
+import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
@@ -73,28 +77,31 @@ public class CardListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        final NetworkConnectionDetector networkDetector = new NetworkConnectionDetector(getContext());
+        if (!networkDetector.isConnected()){
+            Toast.makeText(getContext(), "No Network Detected", Toast.LENGTH_SHORT).show();
+        }
         mRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipeRefreshLayout);
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                ContentDBHelper.getInstance(getContext()).refreshDB();
+                if(networkDetector.isConnected()) {
+                    //This prevents a refresh request if the user is not logged into Twitter
+                    if(Twitter.getSessionManager().getActiveSession() != null) {
+                        ContentDBHelper.getInstance(getContext()).refreshDB();
+                    } else {
+                        checkForTwitterLogin();
+                        mRefreshLayout.setRefreshing(false);
+                    }
+                } else {
+                    mRefreshLayout.setRefreshing(false);
+                }
             }
         });
 
-
-        mLoginButton = (TwitterLoginButton) getView().findViewById(R.id.twitter_login_button);
-        mLoginButton.setCallback(new Callback<TwitterSession>() {
-            @Override
-            public void success(Result<TwitterSession> result) {
-                requestDataRefresh(getContext());
-            }
-
-            @Override
-            public void failure(TwitterException exception) {
-                exception.printStackTrace();
-            }
-        });
-
+        if(networkDetector.isConnected()) {
+            checkForTwitterLogin();
+        }
 
         SharedPreferences preferences = getContext().getSharedPreferences("mWeather", Context.MODE_PRIVATE);
         String cityName = preferences.getString("city name", "error");
@@ -122,13 +129,7 @@ public class CardListFragment extends Fragment {
                 Log.d(TAG, "onReceive: RECEIVED REFRESH INTENT");
                 mAdapter.replaceData(ContentDBHelper.getInstance(getContext()).getCardList(mWeather));
                 mAdapter.notifyDataSetChanged();
-
-                for (CardContent c : mCardList){
-                    Log.d(TAG, "onReceive: "+c.getTitle());
-                }
-
                 mRefreshLayout.setRefreshing(false);
-                
             }
         };
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("card list"));
@@ -136,6 +137,39 @@ public class CardListFragment extends Fragment {
 
     public void requestDataRefresh(Context context){
         ContentDBHelper.getInstance(context).refreshDB();
+    }
+
+    /**
+     * First checks to see if the user is already logged into Twitter.
+     * If not, a dialog is launched with a login button.
+     * Once logged in, the ContentDBHelper is requested to refresh its content.
+     */
+    public void checkForTwitterLogin(){
+        Log.d(TAG, "checkForTwitterLogin: ");
+        if (Twitter.getSessionManager().getActiveSession() == null) {
+            LayoutInflater inflater = getLayoutInflater(null);
+            View dialogView = inflater.inflate(R.layout.twitter_dialog, null);
+
+            final AlertDialog dialog = new AlertDialog.Builder(getContext())
+                    .setView(dialogView)
+                    .create();
+            mLoginButton = (TwitterLoginButton)dialogView.findViewById(R.id.twitter_login_button);
+            mLoginButton.setCallback(new Callback<TwitterSession>() {
+                @Override
+                public void success(Result<TwitterSession> result) {
+                    requestDataRefresh(getContext());
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void failure(TwitterException exception) {
+                    exception.printStackTrace();
+                    Toast.makeText(getContext(), "Error logging into Twitter", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                }
+            });
+            dialog.show();
+        }
     }
 
 
