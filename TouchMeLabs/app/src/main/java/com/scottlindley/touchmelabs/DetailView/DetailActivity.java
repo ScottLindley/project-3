@@ -14,13 +14,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.R;
-import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
 import com.twitter.sdk.android.Twitter;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
-import com.twitter.sdk.android.core.TwitterCore;
-import com.twitter.sdk.android.tweetui.TweetUi;
-
-import io.fabric.sdk.android.Fabric;
 
 public class DetailActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -28,8 +22,6 @@ public class DetailActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
-        Fabric.with(this, new TwitterCore(authConfig),new TweetUi());
 
         setContentView(R.layout.activity_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -42,15 +34,14 @@ public class DetailActivity extends AppCompatActivity
         Intent receivedIntent = getIntent();
         String intentID = receivedIntent.getStringExtra("card identifier");
         switch (intentID) {
-            case "NewsStory":
-                String title = receivedIntent.getStringExtra("name");
-                String content = receivedIntent.getStringExtra("content.db");
+            case "story":
+
                 String link = receivedIntent.getStringExtra("link");
-                ExpandedNewsFragment newsFragment = ExpandedNewsFragment.newInstance(title, content, link);
+                ExpandedNewsFragment newsFragment = ExpandedNewsFragment.newInstance(link);
                 fragmentTransaction.replace(R.id.detail_fragment_container, newsFragment);
                 fragmentTransaction.commit();
                 break;
-            case "TweetInfo":
+            case "tweet":
                 //This check to verify that the user is already logged into Twitter
                 if (Twitter.getSessionManager().getActiveSession() != null) {
                     String id = receivedIntent.getStringExtra("id");

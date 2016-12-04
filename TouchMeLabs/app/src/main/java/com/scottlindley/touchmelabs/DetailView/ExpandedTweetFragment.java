@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,22 +13,30 @@ import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.NetworkConnectionDetector;
 import com.scottlindley.touchmelabs.R;
+import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
+import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.Tweet;
-import com.twitter.sdk.android.tweetui.TweetUtils;
+import com.twitter.sdk.android.tweetui.TweetUi;
 import com.twitter.sdk.android.tweetui.TweetView;
+
+import java.util.List;
+
+import io.fabric.sdk.android.Fabric;
+import retrofit2.Call;
 
 
 public class ExpandedTweetFragment extends Fragment {
+
     private static final String ARG_ID = "id";
 
     private FrameLayout mTweetContainer;
 
     private long mID;
-
-    private OnFragmentInteractionListener mListener;
 
     public ExpandedTweetFragment() {
         // Required empty public constructor
@@ -57,6 +66,7 @@ public class ExpandedTweetFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_expanded_tweet, container, false);
         mTweetContainer = (FrameLayout)rootView.findViewById(R.id.tweet_container);
@@ -67,36 +77,35 @@ public class ExpandedTweetFragment extends Fragment {
     @Override
     public void onAttach(final Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
+        Fabric.with(getContext(), new Twitter(authConfig),new TweetUi());
 
         NetworkConnectionDetector detector = new NetworkConnectionDetector(context);
         if(detector.isConnected()){
-            TweetUtils.loadTweet(mID, new Callback<Tweet>() {
+            TwitterSession session = Twitter.getSessionManager().getActiveSession();
+
+            Call<List<Tweet>> timelineCall = Twitter.getApiClient(session).getStatusesService().homeTimeline(
+                    18, null, null, null, null, null, null);
+            timelineCall.enqueue(new Callback<List<Tweet>>(){
                 @Override
-                public void success(Result<Tweet> result) {
-                    Tweet tweet = result.data;
-                    mTweetContainer.addView(new TweetView(context, tweet));
+                public void success(Result<List<Tweet>> result) {
+                    Tweet selectedTweet = null;
+                    for(Tweet tweet : result.data){
+                        if (tweet.id == mID){
+                            selectedTweet = tweet;
+                        }
+                    }
+                    mTweetContainer.addView(new TweetView(getActivity(), selectedTweet));
                 }
 
                 @Override
                 public void failure(TwitterException exception) {
-                    exception.printStackTrace();
                 }
             });
         }else{
             Toast.makeText(context, "No Network Connection", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
 

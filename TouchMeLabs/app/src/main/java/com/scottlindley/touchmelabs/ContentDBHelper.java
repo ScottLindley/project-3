@@ -13,7 +13,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ContentDBHelper extends SQLiteOpenHelper {
-    private static final String TAG = "ContentDBHelper";
     private Context mContext;
     private static final int NEWS_SERVICE = 3;
     private static final int TWITTER_SERVICE = 9;
@@ -103,7 +101,6 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      */
 
     public void refreshDB() {
-        Log.d(TAG, "refreshDB: ");
         startRefreshService();
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -119,7 +116,6 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                 SQLiteDatabase db = getWritableDatabase();
                 switch(key) {
                     case "news service":
-                        Log.d(TAG, "onReceive: NEWS SERVICE");
                         clearTable(db, TABLE_NEWS);
 
                         String[] titles = newsInfo.getStringArray("titles");
@@ -139,14 +135,12 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                         }
                         db.close();
                         newsIsDone = true;
-                        Log.d(TAG, "onReceive: NEWS DONE");
                         if(twitterIsDone){
                             broadcastData();
                         }
                         break;
                     case "twitter service":
                         clearTable(db, TABLE_TWEETS);
-
                         String[] handles = newsInfo.getStringArray("handles");
                         String[] usernames = newsInfo.getStringArray("usernames");
                         String[] tweets = newsInfo.getStringArray("tweets");
@@ -167,7 +161,6 @@ public class ContentDBHelper extends SQLiteOpenHelper {
                         }
                         db.close();
                         twitterIsDone = true;
-                        Log.d(TAG, "onReceive: TWITTER DONE");
                         if (newsIsDone){
                             broadcastData();
                         }
@@ -349,7 +342,6 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      */
     private void broadcastData(){
         Intent intent = new Intent("card list");
-        Log.d(TAG, "broadcastData: ");
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 }

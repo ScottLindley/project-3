@@ -8,33 +8,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.NetworkConnectionDetector;
 import com.scottlindley.touchmelabs.R;
 
 
 public class ExpandedNewsFragment extends Fragment {
-    private static final String ARG_TITLE = "title";
-    private static final String ARG_CONTENT = "content.db";
     private static final String ARG_URL = "url";
 
     private WebView mWebView;
 
-    private String mTitle;
-    private String mContent;
     private String mURL;
 
-    private OnFragmentInteractionListener mListener;
 
     public ExpandedNewsFragment() {
         // Required empty public constructor
     }
 
-    public static ExpandedNewsFragment newInstance(String title, String content, String link) {
+    public static ExpandedNewsFragment newInstance(String link) {
         ExpandedNewsFragment fragment = new ExpandedNewsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_TITLE, title);
-        args.putString(ARG_CONTENT, content);
         args.putString(ARG_URL, link);
         fragment.setArguments(args);
         return fragment;
@@ -44,8 +38,6 @@ public class ExpandedNewsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mTitle = getArguments().getString(ARG_TITLE);
-            mContent = getArguments().getString(ARG_CONTENT);
             mURL = getArguments().getString(ARG_URL);
         }
     }
@@ -55,7 +47,13 @@ public class ExpandedNewsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_expanded_news, container, false);
-        mWebView = (WebView)rootView.findViewById(R.id.webview);
+        mWebView = (WebView)rootView.findViewById(R.id.article_webView);
+        NetworkConnectionDetector detector = new NetworkConnectionDetector(getContext());
+        if(detector.isConnected()){
+            mWebView.loadUrl(mURL);
+        } else {
+            Toast.makeText(getContext(), "No Network Detected", Toast.LENGTH_SHORT).show();
+        }
         return rootView;
     }
 
@@ -63,25 +61,10 @@ public class ExpandedNewsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
 
-        NetworkConnectionDetector detector = new NetworkConnectionDetector(context);
-        if(detector.isConnected()){
-            mWebView.loadUrl(mURL);
-        }
 
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);

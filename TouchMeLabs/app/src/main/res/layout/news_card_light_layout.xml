@@ -11,9 +11,10 @@
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
     app:cardCornerRadius="5dp"
-    android:background="@drawable/card_background_light">
+    android:background="@drawable/card_background_light"
+    android:id="@+id/news_card_bg">
 <RelativeLayout
-        android:id="@+id/news_card_bg"
+    android:id="@+id/news_card_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"

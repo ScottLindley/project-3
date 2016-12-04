@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,7 @@ import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
  * Created by jonlieblich on 12/1/16.
  */
 
-public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements View.OnClickListener{
+public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     private List<CardContent> mCardList;
     private int positionForWeather;
 
@@ -54,17 +55,27 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         int type = getItemViewType(position);
         positionForWeather = position;
         switch(type) {
             case twitter_card_light_layout:
                 ((TweetInfoViewHolder)holder).bindDataToView((TweetInfo) mCardList.get(position));
-                ((TweetInfoViewHolder) holder).setClickListenerForAllViews(this);
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        cardClick(holder);
+                    }
+                });
                 break;
             case news_card_light_layout:
                 ((NewsStoryViewHolder)holder).bindDataToViews((NewsStory) mCardList.get(position));
-                ((NewsStoryViewHolder)holder).setClickListenerForAllViews(this);
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        cardClick(holder);
+                    }
+                });
                 break;
             case weather_card_light_layout:
                 SharedPreferences sp = holder.itemView.getContext()
@@ -92,27 +103,26 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter implements Vie
         return mCardList.size();
     }
 
-    @Override
-    public void onClick(View view) {
-        //TODO: Set to open new detail activity and/or fragment
+
+    public void cardClick(RecyclerView.ViewHolder holder) {
+        View view = holder.itemView;
         switch(view.getId()) {
             case R.id.twitter_card_light_bg:
                 Intent twitterIntent = new Intent(view.getContext(), DetailActivity.class);
-                String id = ((TweetInfo)mCardList.get(positionForWeather)).getId();
+                String id = ((TweetInfo)mCardList.get(holder.getAdapterPosition())).getId();
+                twitterIntent.putExtra("card identifier", "tweet");
                 twitterIntent.putExtra("id", id);
                 view.getContext().startActivity(twitterIntent);
                 break;
             case R.id.news_card_bg:
                 Intent newsIntent = new Intent(view.getContext(), DetailActivity.class);
-                String title = mCardList.get(positionForWeather).getTitle();
-                String content = mCardList.get(positionForWeather).getContent();
-                String link = ((NewsStory)mCardList.get(positionForWeather)).getURL();
+                String link = ((NewsStory)mCardList.get(holder.getAdapterPosition())).getURL();
 
-                newsIntent.putExtra("name", title);
-                newsIntent.putExtra("content.db", content);
+                newsIntent.putExtra("card identifier", "story");
                 newsIntent.putExtra("link", link);
                 view.getContext().startActivity(newsIntent);
                 break;
+            default:
         }
     }
 

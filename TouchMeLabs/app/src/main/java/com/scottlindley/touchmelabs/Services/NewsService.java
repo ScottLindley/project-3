@@ -4,7 +4,6 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.scottlindley.touchmelabs.GsonObjects.GsonNewsStory;
 import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
@@ -33,8 +32,6 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
     private String[] mTitles;
     private String[] mSummaries;
     private String[] mLinks;
-
-    private static final String TAG = "NewsService";
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
@@ -65,7 +62,6 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
             }
         }else{
             for (int i=0; i<8; i++){
-                Log.d(TAG, "onXmlParseFinished: "+mStoryLinks.get(i));
                 makeRetroFitCall(mStoryLinks.get(i), mJobParameters);
             }
         }
@@ -104,8 +100,6 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
 
                         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                         jobFinished(jobParameters, false);
-                    }else{
-                        Log.d(TAG, "onResponse: "+mStories.size());
                     }
                 }
             }

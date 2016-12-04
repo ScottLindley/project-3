@@ -22,7 +22,7 @@ public class TweetInfoViewHolder extends RecyclerView.ViewHolder{
         mTweetContent = (TextView)itemView.findViewById(R.id.twitter_tweet_content);
         mUsername = (TextView)itemView.findViewById(R.id.twitter_username);
         mTime = (TextView)itemView.findViewById(R.id.twitter_time_stamp);
-        mTwitterCard = (RelativeLayout)itemView.findViewById(R.id.twitter_card_light_bg);
+        mTwitterCard = (RelativeLayout)itemView.findViewById(R.id.twitter_card_relative_layout);
     }
 
     /**
