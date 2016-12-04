@@ -121,7 +121,6 @@ public class CardListFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "onReceive: RECEIVED REFRESH INTENT");
                 mAdapter.replaceData(ContentDBHelper.getInstance(getContext()).getCardList(mWeather));
-
                 mAdapter.notifyDataSetChanged();
 
                 for (CardContent c : mCardList){
