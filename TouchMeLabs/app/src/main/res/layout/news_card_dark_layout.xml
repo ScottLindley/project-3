@@ -10,11 +10,11 @@
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
     app:cardCornerRadius="5dp"
-    android:backgroundTint="#bababa"
-    android:id="@+id/news_dark">
+    android:backgroundTint="@color/cardview_dark_background"
+    android:id="@+id/news_card_bg">
 
     <RelativeLayout
-        android:id="@+id/news_card_dark_bg"
+        android:id="@+id/news_card_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -23,17 +23,18 @@
         android:layout_marginBottom="4dp">
 
         <TextView
-            android:id="@+id/news_article_source_dark"
+            android:id="@+id/news_article_source"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/news_article_source"
             android:textSize="10sp"
             android:textColor="#eee"
             android:layout_toRightOf="@+id/news_article_image"
+            android:layout_toLeftOf="@+id/news_share_button"
             android:layout_marginTop="8dp"/>
 
         <TextView
-            android:id="@+id/news_article_headline_dark"
+            android:id="@+id/news_article_headline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
@@ -51,13 +52,23 @@
             android:layout_marginTop="4dp"
             android:layout_marginLeft="4dp"/>
         <TextView
-            android:id="@+id/news_article_summary_dark"
+            android:id="@+id/news_article_summary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            android:textColor="#eee"
             android:text="@string/news_article_summary"
             android:textSize="12dp"
-            android:layout_below="@id/news_article_headline_dark"/>
+            android:layout_below="@id/news_article_headline"/>
+
+        <ImageView
+            android:id="@id/news_share_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@drawable/ic_share_white_18dp"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_alignParentRight="true"/>
 
     </RelativeLayout>
 

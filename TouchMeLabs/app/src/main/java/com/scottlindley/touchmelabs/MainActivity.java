@@ -19,6 +19,7 @@ import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
 import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 import com.twitter.sdk.android.tweetui.TweetUi;
 
 import io.fabric.sdk.android.Fabric;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity
         protected void onCreate (Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
-            Fabric.with(this, new Twitter(authConfig),new TweetUi());
+            Fabric.with(this, new Twitter(authConfig),new TweetUi(), new TweetComposer());
 
             setContentView(R.layout.activity_main);
 

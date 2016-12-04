@@ -5,16 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:backgroundTint="#bababa"
+    android:backgroundTint="@color/cardview_dark_background"
     android:layout_marginRight="8dp"
     android:layout_marginLeft="8dp"
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
     app:cardCornerRadius="5dp"
-    android:id="@+id/twitter_dark">
+    android:id="@+id/twitter_card_light_bg">
 
     <RelativeLayout
-        android:id="@+id/twitter_card_dark_bg"
+        android:id="@+id/twitter_card_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -29,21 +29,21 @@
             android:background="@drawable/tw__composer_logo_blue"/>
 
         <TextView
-            android:id="@+id/twitter_username_dark"
+            android:id="@+id/twitter_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#eee"
             android:text="@string/twitter_username"
             android:textSize="18sp"
-            android:layout_toLeftOf="@+id/twitter_time_stamp_dark"
+            android:layout_toLeftOf="@+id/twitter_time_stamp"
             android:layout_toRightOf="@id/twitter_profile_picture"/>
 
         <TextView
-            android:id="@+id/twitter_handle_dark"
+            android:id="@+id/twitter_handle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/twitter_profile_picture"
-            android:layout_below="@id/twitter_username_dark"
+            android:layout_below="@id/twitter_username"
             android:text="@string/twitter_handle"
             android:textColor="@color/colorAccent"
             android:textSize="12sp"/>
@@ -54,17 +54,18 @@
             android:layout_height="wrap_content"
             android:textColor="#eee"
             android:text="@string/twitter_time_stamp"
-            android:layout_alignTop="@id/twitter_username_dark"
+            android:layout_alignTop="@id/twitter_username"
             android:layout_alignParentRight="true"
             android:layout_margin="4dp" />
         <TextView
-            android:id="@+id/twitter_tweet_content_dark"
+            android:id="@+id/twitter_tweet_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            android:textColor="#eee"
             android:text="@string/tweet_content"
             android:textSize="14dp"
-            android:layout_below="@id/twitter_handle_dark"/>
+            android:layout_below="@id/twitter_handle"/>
 
     </RelativeLayout>
 
