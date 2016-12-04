@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,7 +23,6 @@ import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.RecyclerViewComponents.CardRecyclerViewAdapter;
-import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
@@ -38,9 +38,9 @@ import java.util.List;
 public class CardListFragment extends Fragment {
     private static final String TAG = "CardListFragment";
     
-    TwitterLoginButton mLoginButton;
+    private TwitterLoginButton mLoginButton;
+    private SwipeRefreshLayout mRefreshLayout;
 
-    private OnFragmentInteractionListener mListener;
     private CurrentWeather mWeather;
 
     private CardRecyclerViewAdapter mAdapter;
@@ -73,6 +73,15 @@ public class CardListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipeRefreshLayout);
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                ContentDBHelper.getInstance(getContext()).refreshDB();
+            }
+        });
+
+
         mLoginButton = (TwitterLoginButton) getView().findViewById(R.id.twitter_login_button);
         mLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
@@ -105,22 +114,6 @@ public class CardListFragment extends Fragment {
         setUpBroadcastReceiverForRecyclerView();
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 
     public void setUpBroadcastReceiverForRecyclerView() {
         BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -134,6 +127,8 @@ public class CardListFragment extends Fragment {
                 for (CardContent c : mCardList){
                     Log.d(TAG, "onReceive: "+c.getTitle());
                 }
+
+                mRefreshLayout.setRefreshing(false);
                 
             }
         };
