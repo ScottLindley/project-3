@@ -126,6 +126,13 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * Necessary override to notify the login button a successful login occurred.
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
