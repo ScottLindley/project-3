@@ -16,6 +16,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.DetailView.AboutUsFragment;
@@ -24,12 +27,19 @@ import com.scottlindley.touchmelabs.DetailView.SettingsFragment;
 import com.scottlindley.touchmelabs.MainView.CardListFragment;
 import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
 import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
+import com.squareup.picasso.Picasso;
 import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.models.User;
 import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 import com.twitter.sdk.android.tweetui.TweetUi;
 
 import io.fabric.sdk.android.Fabric;
+import retrofit2.Call;
 
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
 
@@ -55,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         transaction.replace(R.id.main_fragment_container, cardFragment);
         transaction.commit();
 
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -70,11 +79,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-    }
-    @Override
-    public void onBackPressed () {
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            setUserNavInfo(navigationView);
+            navigationView.setNavigationItemSelectedListener(this);
+        }
+
+        @Override
+        public void onBackPressed () {
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         android.app.FragmentManager fm = getFragmentManager();
@@ -90,8 +102,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         if (drawer.isDrawerOpen(GravityCompat.START)) {
+
             drawer.closeDrawer(GravityCompat.START);
+
         } else {
+
             super.onBackPressed();
         }
     }
@@ -132,6 +147,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return true;
     }
+
+    private void setUserNavInfo(NavigationView navigationView){
+        View headerView = navigationView.getHeaderView(0);
+        final ImageView userPhoto = (ImageView) headerView.findViewById(R.id.twitter_profile_picture_drawer);
+        final TextView userName =(TextView) headerView.findViewById(R.id.twitter_username_drawer);
+        final TextView handleName =(TextView) headerView.findViewById(R.id.twitter_handle_drawer);
+
+        TwitterSession session = Twitter.getSessionManager().getActiveSession();
+        Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(false, false);
+        userCall.enqueue(new Callback<User>() {
+            @Override
+            public void success(Result<User> result) {
+                User user = result.data;
+                Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
+                userName.setText(user.name);
+                handleName.setText("@"+user.screenName);
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                exception.printStackTrace();
+            }
+        });
+
+    }
+
 
     /**
      * Necessary override to notify the login button a successful login occurred.
