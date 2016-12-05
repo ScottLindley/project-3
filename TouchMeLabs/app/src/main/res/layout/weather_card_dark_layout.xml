@@ -58,4 +58,4 @@
 
 
     <!-- Dark layout for the weather card. 3 TextViews are present.
-         Depending on time, this layout may not be used. -->
+         Depending on time this layout may not be used. -->
