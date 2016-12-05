@@ -2,6 +2,7 @@ package com.scottlindley.touchmelabs.RecyclerViewComponents;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -15,6 +16,7 @@ import com.scottlindley.touchmelabs.R;
 public class NewsStoryViewHolder extends RecyclerView.ViewHolder{
     private TextView mTitle, mSummary;
     private RelativeLayout mNewsCard;
+    public ImageView mShareButton;
 
     public NewsStoryViewHolder(View itemView) {
         super(itemView);
@@ -22,6 +24,7 @@ public class NewsStoryViewHolder extends RecyclerView.ViewHolder{
         mTitle = (TextView)itemView.findViewById(R.id.news_article_headline);
         mSummary = (TextView)itemView.findViewById(R.id.news_article_summary);
         mNewsCard = (RelativeLayout)itemView.findViewById(R.id.news_card_relative_layout);
+        mShareButton = (ImageView)itemView.findViewById(R.id.news_share_button);
     }
 
     /**

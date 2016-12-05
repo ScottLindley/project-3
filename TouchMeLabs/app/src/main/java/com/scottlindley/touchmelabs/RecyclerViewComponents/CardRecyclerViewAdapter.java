@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,11 +68,19 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                 });
                 break;
             case news_card_light_layout:
+                //Card click listener to start new detail activity
                 ((NewsStoryViewHolder)holder).bindDataToViews((NewsStory) mCardList.get(position));
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         cardClick(holder);
+                    }
+                });
+                //Share button click listener to share a news story
+                ((NewsStoryViewHolder) holder).mShareButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        shareNewsClick();
                     }
                 });
                 break;
@@ -104,7 +111,11 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     }
 
 
-    public void cardClick(RecyclerView.ViewHolder holder) {
+    private void shareNewsClick(){
+         
+    }
+
+    private void cardClick(RecyclerView.ViewHolder holder) {
         View view = holder.itemView;
         switch(view.getId()) {
             case R.id.twitter_card_light_bg:
