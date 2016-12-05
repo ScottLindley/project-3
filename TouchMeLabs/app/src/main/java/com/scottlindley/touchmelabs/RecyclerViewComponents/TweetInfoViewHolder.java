@@ -2,6 +2,7 @@ package com.scottlindley.touchmelabs.RecyclerViewComponents;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -15,6 +16,7 @@ import com.scottlindley.touchmelabs.R;
 public class TweetInfoViewHolder extends RecyclerView.ViewHolder{
     private TextView mHandle, mTweetContent, mUsername, mTime;
     private RelativeLayout mTwitterCard;
+    public ImageView mReplyButton, mRetweetButton;
 
     public TweetInfoViewHolder(View itemView) {
         super(itemView);
@@ -23,6 +25,8 @@ public class TweetInfoViewHolder extends RecyclerView.ViewHolder{
         mUsername = (TextView)itemView.findViewById(R.id.twitter_username);
         mTime = (TextView)itemView.findViewById(R.id.twitter_time_stamp);
         mTwitterCard = (RelativeLayout)itemView.findViewById(R.id.twitter_card_relative_layout);
+        mReplyButton = (ImageView)itemView.findViewById(R.id.tweet_reply_button);
+        mRetweetButton = (ImageView)itemView.findViewById(R.id.tweet_retweet_button);
     }
 
     /**

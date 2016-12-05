@@ -2,10 +2,10 @@ package com.scottlindley.touchmelabs.MainView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.ContentDBHelper;
@@ -31,6 +32,7 @@ import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
+import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
 import java.util.List;
 
@@ -38,7 +40,7 @@ import java.util.List;
  * "Home screen" fragment. Main purpose is to display the RecyclerView of {@link CardContent} objects.
  */
 
-public class CardListFragment extends Fragment {
+public class CardListFragment extends Fragment implements CardRecyclerViewAdapter.OnShareContentListener{
 
     private TwitterLoginButton mLoginButton;
     private SwipeRefreshLayout mRefreshLayout;
@@ -94,7 +96,7 @@ public class CardListFragment extends Fragment {
         RecyclerView cardRecycler = (RecyclerView)getView().findViewById(R.id.fragment_recyclerview);
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         cardRecycler.setLayoutManager(manager);
-        mAdapter = new CardRecyclerViewAdapter(mCardList);
+        mAdapter = new CardRecyclerViewAdapter(mCardList, this);
         cardRecycler.setAdapter(mAdapter);
 
         setUpBroadcastReceiverForRecyclerView();
@@ -173,8 +175,41 @@ public class CardListFragment extends Fragment {
     }
 
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+    @Override
+    public void shareNews(String headline, String URL) {
+        LayoutInflater inflater = getLayoutInflater(null);
+        View view = inflater.inflate(R.layout.share_news_dialog, null);
+        final EditText editText = (EditText)view.findViewById(R.id.news_share_editText);
+        editText.setText(headline+"\n"+URL+"\n");
+        editText.requestFocus();
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(view)
+                .setPositiveButton("okay", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        TweetComposer.Builder tweetBuilder = new TweetComposer.Builder(getContext())
+                                .text(editText.getText().toString());
+                        tweetBuilder.show();
+                    }
+                })
+                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .create();
+        dialog.show();
+    }
+
+    @Override
+    public void replyTweet(String handle) {
+
+    }
+
+    @Override
+    public void retweet(long id) {
+
     }
 
     /**

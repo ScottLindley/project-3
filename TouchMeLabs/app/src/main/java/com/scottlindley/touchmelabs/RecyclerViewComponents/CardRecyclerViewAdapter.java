@@ -29,13 +29,13 @@ import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     private List<CardContent> mCardList;
     private int positionForWeather;
-    private OnNewsShareListener mListener;
+    private OnShareContentListener mListener;
 
     private static final int TWEET_VIEW_TYPE = twitter_card_light_layout;
     private static final int NEWS_VIEW_TYPE = news_card_light_layout;
     private static final int WEATHER_VIEW_TYPE = weather_card_light_layout;
 
-    public CardRecyclerViewAdapter(List<CardContent> list, OnNewsShareListener listener) {
+    public CardRecyclerViewAdapter(List<CardContent> list, OnShareContentListener listener) {
         mCardList = list;
         mListener = listener;
     }
@@ -66,6 +66,18 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     @Override
                     public void onClick(View view) {
                         cardClick(holder);
+                    }
+                });
+                ((TweetInfoViewHolder)holder).mReplyButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mListener.replyTweet(mCardList.get(position).getTitle());
+                    }
+                });
+                ((TweetInfoViewHolder)holder).mRetweetButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mListener.retweet(Long.parseLong(((TweetInfo) mCardList.get(position)).getId()));
                     }
                 });
                 break;
@@ -154,7 +166,9 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
         }
     }
 
-    public interface OnNewsShareListener{
+    public interface OnShareContentListener{
         void shareNews(String headline, String URL);
+        void replyTweet(String handle);
+        void retweet(long id);
     }
 }
