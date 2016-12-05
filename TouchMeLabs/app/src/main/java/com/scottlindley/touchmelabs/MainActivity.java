@@ -35,7 +35,8 @@ import com.twitter.sdk.android.tweetui.TweetUi;
 import io.fabric.sdk.android.Fabric;
 import retrofit2.Call;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        CardListFragment.LoggedInListener{
 
         @Override
         protected void onCreate (Bundle savedInstanceState) {
@@ -147,24 +148,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final TextView handleName =(TextView) headerView.findViewById(R.id.twitter_handle_drawer);
 
         TwitterSession session = Twitter.getSessionManager().getActiveSession();
-        Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(false, false);
-        userCall.enqueue(new Callback<User>() {
-            @Override
-            public void success(Result<User> result) {
-                User user = result.data;
-                Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
-                userName.setText(user.name);
-                handleName.setText("@"+user.screenName);
-            }
+        if(session!=null) {
+            Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(false, false);
+            userCall.enqueue(new Callback<User>() {
+                @Override
+                public void success(Result<User> result) {
+                    User user = result.data;
+                    Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
+                    userName.setText(user.name);
+                    handleName.setText("@" + user.screenName);
+                }
 
-            @Override
-            public void failure(TwitterException exception) {
-                exception.printStackTrace();
-            }
-        });
-
+                @Override
+                public void failure(TwitterException exception) {
+                    exception.printStackTrace();
+                }
+            });
+        }
     }
 
+    @Override
+    public void assignNavBarValues() {
+        setUserNavInfo((NavigationView) findViewById(R.id.nav_view));
+    }
 
     /**
      * Necessary override to notify the login button a successful login occurred.
