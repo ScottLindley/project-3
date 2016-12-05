@@ -40,8 +40,8 @@ import retrofit2.Call;
 
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        OnLocationPermissionResponseListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+    private OnLocationPermissionResponseListener mListener;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -193,15 +193,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch(requestCode) {
             case PERMISSION_LOCATION_REQUEST_CODE:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    setPermissionResponseListener(PackageManager.PERMISSION_GRANTED);
+                    mListener.setPermissionResponseListener(PackageManager.PERMISSION_GRANTED);
                 }
                 break;
             default:
                 Toast.makeText(this, "Only location permission needed", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-    @Override
-    public void setPermissionResponseListener(int response) {}
 }
