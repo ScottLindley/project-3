@@ -147,7 +147,8 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
     @Override
     public void setPermissionResponseListener(final int response) {
         if(response == PackageManager.PERMISSION_GRANTED) {
-            scheduleWeather(mCityName.getContext(), "nothing that I put here even matters so fuck this viewholder");
+            JobScheduler stupidShitFuckThis = (JobScheduler)mCityName.getContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            stupidShitFuckThis.schedule(scheduleWeather(mCityName.getContext(), "nothing that I put here even matters so fuck this viewholder"));
             updateWeatherCard(mCityName.getContext());
         } else {
             showZipCodeEntry();
