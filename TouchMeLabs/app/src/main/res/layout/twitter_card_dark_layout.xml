@@ -66,6 +66,25 @@
             android:text="@string/tweet_content"
             android:textSize="14dp"
             android:layout_below="@id/twitter_handle"/>
+        <ImageView
+            android:id="@+id/tweet_reply_button"
+            android:layout_below="@id/twitter_tweet_content"
+            android:background="@drawable/ic_reply_white_24dp"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="4dp"
+            android:layout_alignParentRight="true"
+            android:layout_width="24dp"
+            android:layout_height="24dp"/>
+        <ImageView
+            android:id="@+id/tweet_retweet_button"
+            android:layout_toLeftOf="@+id/tweet_reply_button"
+            android:background="@drawable/twitter_retweet_white"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_below="@id/twitter_tweet_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"/>
 
     </RelativeLayout>
 

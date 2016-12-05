@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:background="@drawable/drawer_placeholder_background"
+    android:background="#33b5e5"
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -13,18 +14,20 @@
     android:id="@+id/nav_drawer_banner"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
+    <!-- @background: be sure we match this color to match the overall
+    app theme, prior to presentation -->
+
     <ImageView
         android:id="@+id/twitter_profile_picture_drawer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        app:srcCompat="@android:drawable/sym_def_app_icon" />
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        app:srcCompat="@drawable/twitter_profile_picture" />
 
     <TextView
         android:id="@+id/twitter_username_drawer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:paddingTop="4dp"
         android:text="@string/twitter_username"
         android:textSize="20dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
@@ -33,6 +36,6 @@
         android:id="@+id/twitter_handle_drawer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/twitter_handle"/>
+        android:text="@string/twitter_handle" />
 
 </LinearLayout>
