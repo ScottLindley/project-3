@@ -76,28 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toggle.syncState();
 
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            View headerView = navigationView.getHeaderView(0);
-            final ImageView userPhoto = (ImageView) headerView.findViewById(R.id.twitter_profile_picture_drawer);
-            final TextView userName =(TextView) headerView.findViewById(R.id.twitter_username_drawer);
-            final TextView handleName =(TextView) headerView.findViewById(R.id.twitter_handle_drawer);
-
-            TwitterSession session = Twitter.getSessionManager().getActiveSession();
-            Call<User> userCall = Twitter.getApiClient().getAccountService().verifyCredentials(false, false);
-            userCall.enqueue(new Callback<User>() {
-                @Override
-                public void success(Result<User> result) {
-                    User user = result.data;
-                    Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
-                    userName.setText(user.name);
-                    handleName.setText("@"+user.screenName);
-                }
-
-                @Override
-                public void failure(TwitterException exception) {
-                    exception.printStackTrace();
-                }
-            });
-
+            setUserNavInfo(navigationView);
             navigationView.setNavigationItemSelectedListener(this);
         }
 
@@ -164,6 +143,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return true;
     }
+
+    private void setUserNavInfo(NavigationView navigationView){
+        View headerView = navigationView.getHeaderView(0);
+        final ImageView userPhoto = (ImageView) headerView.findViewById(R.id.twitter_profile_picture_drawer);
+        final TextView userName =(TextView) headerView.findViewById(R.id.twitter_username_drawer);
+        final TextView handleName =(TextView) headerView.findViewById(R.id.twitter_handle_drawer);
+
+        TwitterSession session = Twitter.getSessionManager().getActiveSession();
+        Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(false, false);
+        userCall.enqueue(new Callback<User>() {
+            @Override
+            public void success(Result<User> result) {
+                User user = result.data;
+                Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
+                userName.setText(user.name);
+                handleName.setText("@"+user.screenName);
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                exception.printStackTrace();
+            }
+        });
+
+    }
+
 
     /**
      * Necessary override to notify the login button a successful login occurred.
