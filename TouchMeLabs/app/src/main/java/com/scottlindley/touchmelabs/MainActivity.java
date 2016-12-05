@@ -23,6 +23,8 @@ import com.twitter.sdk.android.tweetui.TweetUi;
 
 import io.fabric.sdk.android.Fabric;
 
+import static android.R.attr.id;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -79,8 +81,6 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
-
 
         @Override
         public boolean onCreateOptionsMenu (Menu menu){
