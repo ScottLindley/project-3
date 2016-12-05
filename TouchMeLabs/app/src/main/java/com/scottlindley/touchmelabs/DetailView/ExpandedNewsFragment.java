@@ -1,7 +1,5 @@
 package com.scottlindley.touchmelabs.DetailView;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -56,18 +54,5 @@ public class ExpandedNewsFragment extends Fragment {
             Toast.makeText(getContext(), "No Network Detected", Toast.LENGTH_SHORT).show();
         }
         return rootView;
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-
-    }
-
-
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
     }
 }
