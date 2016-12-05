@@ -71,13 +71,15 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                 ((TweetInfoViewHolder)holder).mReplyButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mListener.replyTweet(mCardList.get(position).getTitle());
+                        mListener.replyTweet(((TweetInfo) mCardList.get(position)).getUsername());
                     }
                 });
                 ((TweetInfoViewHolder)holder).mRetweetButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mListener.retweet(Long.parseLong(((TweetInfo) mCardList.get(position)).getId()));
+                        mListener.retweet(
+                                Long.parseLong(((TweetInfo) mCardList.get(position)).getId()),
+                                position);
                     }
                 });
                 break;
@@ -169,6 +171,6 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     public interface OnShareContentListener{
         void shareNews(String headline, String URL);
         void replyTweet(String handle);
-        void retweet(long id);
+        void retweet(long id, int position);
     }
 }

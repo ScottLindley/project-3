@@ -1,7 +1,6 @@
 package com.scottlindley.touchmelabs;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -25,7 +24,7 @@ import com.twitter.sdk.android.tweetui.TweetUi;
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
-        implements CardListFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
 
         @Override
@@ -142,10 +141,5 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.findFragmentById(R.id.main_fragment_container)
                     .onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 }

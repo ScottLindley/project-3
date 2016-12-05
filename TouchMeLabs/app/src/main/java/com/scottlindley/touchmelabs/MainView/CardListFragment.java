@@ -2,7 +2,6 @@ package com.scottlindley.touchmelabs.MainView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -17,7 +16,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.ContentDBHelper;
@@ -32,9 +30,13 @@ import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
+import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.tweetcomposer.TweetComposer;
+import com.twitter.sdk.android.tweetcomposer.TweetUploadService;
 
 import java.util.List;
+
+import retrofit2.Call;
 
 /**
  * "Home screen" fragment. Main purpose is to display the RecyclerView of {@link CardContent} objects.
@@ -100,6 +102,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         cardRecycler.setAdapter(mAdapter);
 
         setUpBroadcastReceiverForRecyclerView();
+        setUpBroadCastReceiverForShareButtons();
     }
 
 
@@ -113,6 +116,25 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
             }
         };
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("card list"));
+    }
+
+    public void setUpBroadCastReceiverForShareButtons() {
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (TweetUploadService.UPLOAD_SUCCESS.equals(intent.getAction())) {
+                    // success
+                    Toast.makeText(context, "Tweet posted", Toast.LENGTH_SHORT).show();
+                } else {
+                    // failure
+                    Toast.makeText(context, "Error posting tweet", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.twitter.sdk.android.tweetcomposer.UPLOAD_SUCCESS");
+        filter.addAction("com.twitter.sdk.android.tweetcomposer.UPLOAD_FAILURE");
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, filter);
     }
 
     public void requestDataRefresh(Context context){
@@ -177,39 +199,34 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
 
     @Override
     public void shareNews(String headline, String URL) {
-        LayoutInflater inflater = getLayoutInflater(null);
-        View view = inflater.inflate(R.layout.share_news_dialog, null);
-        final EditText editText = (EditText)view.findViewById(R.id.news_share_editText);
-        editText.setText(headline+"\n"+URL+"\n");
-        editText.requestFocus();
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setView(view)
-                .setPositiveButton("okay", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        TweetComposer.Builder tweetBuilder = new TweetComposer.Builder(getContext())
-                                .text(editText.getText().toString());
-                        tweetBuilder.show();
-                    }
-                })
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                })
-                .create();
-        dialog.show();
+        TweetComposer.Builder tweetBuilder = new TweetComposer.Builder(getContext())
+                .text(headline + "\n" + URL);
+        tweetBuilder.show();
     }
 
     @Override
     public void replyTweet(String handle) {
-
+        TweetComposer.Builder replyBuilder = new TweetComposer.Builder(getContext())
+                .text("@"+handle);
+        replyBuilder.show();
     }
 
     @Override
-    public void retweet(long id) {
+    public void retweet(long id, final int position) {
+        TwitterSession session = Twitter.getSessionManager().getActiveSession();
+        Call<Tweet> retweetCall = Twitter.getApiClient(session).getStatusesService().retweet(id, false);
+        retweetCall.enqueue(new Callback<Tweet>() {
+            @Override
+            public void success(Result<Tweet> result) {
+                Toast.makeText(getContext(), "Retweet Success", Toast.LENGTH_SHORT).show();
+            }
 
+            @Override
+            public void failure(TwitterException exception) {
+                exception.printStackTrace();
+                Toast.makeText(getContext(), "Error, post may have already been retweeted", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -224,5 +241,4 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         super.onActivityResult(requestCode, resultCode, data);
         mLoginButton.onActivityResult(requestCode, resultCode, data);
     }
-
 }
