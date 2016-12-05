@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        
+
         android.app.FragmentManager fm = getFragmentManager();
 
         if (fm.getBackStackEntryCount() >= 0) {
