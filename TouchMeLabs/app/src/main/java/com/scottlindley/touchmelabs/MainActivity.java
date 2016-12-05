@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity
 
         /**
          * ^^ simply a footnote comment-out to denote the segment of code that seems problematic/
-         * needs work
+         * needs work ~ Jay
          * */
 
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_settings) {
-            SettingsFragment settingsFragment = new SettingsFragment(); // TODO - create this fragment ~ Jay... created and working on it
+            SettingsFragment settingsFragment = new SettingsFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, settingsFragment);
             fragmentTransaction.commit();
