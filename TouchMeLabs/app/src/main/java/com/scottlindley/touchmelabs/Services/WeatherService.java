@@ -1,10 +1,15 @@
 package com.scottlindley.touchmelabs.Services;
 
+import android.app.NotificationManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.NotificationCompat;
 
 import com.scottlindley.touchmelabs.GsonObjects.GsonCurrentWeather;
 
@@ -129,6 +134,8 @@ public class WeatherService extends JobService{
         String description = gsonWeather.getWeather().getDescription();
         String temperature = gsonWeather.getMain().getTemp();
 
+        showPersistentWeatherNotification(cityName, temperature);
+
         Intent intent = new Intent("service intent");
         intent.putExtra("service name", "weather service");
         intent.putExtra("city name", cityName);
@@ -137,5 +144,20 @@ public class WeatherService extends JobService{
 
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
+    }
+
+    public void showPersistentWeatherNotification(String cityName, String temperature) {
+        String cityInNotification = "Weather for "+cityName+":";
+        String currentTempNotification = "Current temperature: "+temperature;
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+        builder.setPriority(NotificationCompat.PRIORITY_MAX);
+        builder.setContentTitle(cityInNotification);
+        builder.setContentInfo(currentTempNotification);
+        builder.setOngoing(true);
+
+        NotificationManager manager = (NotificationManager) getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(999, builder.build());
     }
 }

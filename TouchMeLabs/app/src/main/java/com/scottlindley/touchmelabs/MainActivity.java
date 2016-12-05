@@ -25,7 +25,8 @@ import com.twitter.sdk.android.tweetui.TweetUi;
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
-        implements CardListFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener {
+        implements CardListFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener,
+OnLocationPermissionResponseListener{
 
 
         @Override
@@ -147,5 +148,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void setPermissionResponseListener(String response) {
     }
 }

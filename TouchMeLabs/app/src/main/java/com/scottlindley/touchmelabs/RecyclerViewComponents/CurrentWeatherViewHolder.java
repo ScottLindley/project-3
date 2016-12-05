@@ -19,7 +19,9 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.scottlindley.touchmelabs.MainActivity;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
+import com.scottlindley.touchmelabs.OnLocationPermissionResponseListener;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.Services.WeatherService;
 
@@ -32,6 +34,8 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
     public RelativeLayout mWeatherCard;
     public Button mSetLocation;
     public EditText mZipCode;
+
+    private OnLocationPermissionResponseListener mListener;
 
     private static final int WEATHER_JOB_SERVICE_ID = 49;
 
@@ -98,6 +102,8 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
                 mCityName.setText(name);
                 mTemperature.setText(temperature);
                 mDescription.setText(description);
+
+                ((MainActivity) mCityName.getContext()).getParent()
             }
         };
 
