@@ -82,9 +82,12 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
                 if(response.isSuccessful()) {
                     //Takes the GsonStory response and adds it to mStories
                     GsonNewsStory gsonStory = (response.body());
+
+                    String title = gsonStory.getTitle().replace("\\", "");
+
                     mGsonStories.add(gsonStory);
                     mStories.add(new NewsStory(
-                            gsonStory.getTitle(),
+                            title,
                             gsonStory.getContent(),
                             link
                     ));
