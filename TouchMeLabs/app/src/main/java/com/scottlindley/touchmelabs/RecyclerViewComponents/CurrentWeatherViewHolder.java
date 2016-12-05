@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.PersistableBundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -59,7 +60,7 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
     /**
      * Helper method to assign a given {@link CurrentWeather} object's contents to this view
      */
-    public void bindDataToViews(CurrentWeather weather, final Context context) {
+    public void bindDataToViews(Context context) {
         SharedPreferences currentData = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
         //Check if weather data is empty
         if(!currentData.contains("city name")) {
@@ -68,12 +69,10 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
             int cLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
             int fLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
 
-            JobScheduler weatherScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
             //Check for either location permission
             if(cLocation == PackageManager.PERMISSION_GRANTED||fLocation == PackageManager.PERMISSION_GRANTED) {
-                scheduleWeather(weatherScheduler, context);
-                updateWeatherCard(context, weather);
+                scheduleWeather(context, "odijfgapdofgijpeariog");
+                updateWeatherCard(context);
 
             //No location permission, request it
             } else {
@@ -102,7 +101,7 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
         }
     }
 
-    private void updateWeatherCard(Context context, final CurrentWeather info) {
+    private void updateWeatherCard(Context context) {
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -110,14 +109,14 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
 
                 SharedPreferences weather = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
 
-                weather.edit().putString("city name", info.getTitle())
-                        .putString("city temp", info.getTemperature())
-                        .putString("city conditions", info.getContent())
-                        .commit();
-
                 String name = intent.getStringExtra("city name");
                 String description = intent.getStringExtra("description");
                 String temperature = intent.getStringExtra("temperature");
+
+                weather.edit().putString("city name", name)
+                        .putString("city temp", temperature)
+                        .putString("city conditions", description)
+                        .commit();
 
                 mCityName.setText(name);
                 mTemperature.setText(temperature);
@@ -131,50 +130,49 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
 
     @Override
     public void setPermissionResponseListener(final int response) {
-        BroadcastReceiver afterPermission = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, Intent intent) {
-                String city = intent.getStringExtra("city name");
-                String desc = intent.getStringExtra("description");
-                String temp = intent.getStringExtra("temperature");
+        if(response == PackageManager.PERMISSION_GRANTED) {
+            scheduleWeather(mCityName.getContext(), "nothing that I put here even matters so fuck this viewholder");
+            updateWeatherCard(mCityName.getContext());
+        } else {
+            showZipCodeEntry();
+            mSetZipCode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mZipCode.getText().length() != 5) {
+                        mZipCode.setError("Enter Zip Code");
+                    } else {
+                        if(Pattern.matches("\\d", mZipCode.getText())) {
+                            SharedPreferences pref = mCityName.getContext()
+                                    .getSharedPreferences("weather", Context.MODE_PRIVATE);
+                            pref.edit().putString("zip", mZipCode.getText().toString()).apply();
 
-                if(response == PackageManager.PERMISSION_GRANTED) {
-                    CurrentWeather weather = new CurrentWeather(city, desc, temp);
-                    updateWeatherCard(mCityName.getContext(), weather);
-                } else {
-                    showZipCodeEntry();
-                    mSetZipCode.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if(mZipCode.getText().length() != 5) {
-                                mZipCode.setError("Enter Zip Code");
-                            } else {
-                                if(Pattern.matches("\\d", mZipCode.getText())) {
-                                    SharedPreferences pref = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
-                                    pref.edit().putString("zip", mZipCode.getText().toString()).apply();
-
-                                    JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                                    scheduleWeather(scheduler, context);
-                                } else {
-                                    mZipCode.setError("Invalid format");
-                                }
-                            }
+                            JobScheduler scheduler = (JobScheduler) mCityName.getContext()
+                                    .getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                            scheduler.schedule(scheduleWeather(mCityName.getContext(), "zip"));
+                        } else {
+                            mZipCode.setError("Invalid format");
                         }
-                    });
+                    }
                 }
-            }
-        };
-        LocalBroadcastManager.getInstance(mCityName.getContext()).registerReceiver(afterPermission,
-                new IntentFilter("weather service"));
+            });
+        }
     }
 
-    private void scheduleWeather(JobScheduler jobs, Context context) {
+    private JobInfo scheduleWeather(Context context, String callType) {
+        PersistableBundle pb = new PersistableBundle();
+        if(callType.equals("zip")) {
+            pb.putString("zip", mZipCode.getText().toString());
+        } else {
+            pb.putString("long lat", "permission granted");
+        }
+
         JobInfo info = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
                 new ComponentName(context, WeatherService.class))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPeriodic(TEN_MINUTE_REFRESH)
+                .setExtras(pb)
                 .build();
-        jobs.schedule(info);
+        return info;
     }
 
     private void showLocationButton() {

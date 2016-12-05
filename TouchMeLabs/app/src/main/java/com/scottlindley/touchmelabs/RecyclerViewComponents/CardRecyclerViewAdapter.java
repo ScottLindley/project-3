@@ -113,8 +113,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     ((CurrentWeatherViewHolder)holder).mTemperature.setText(temp);
                     ((CurrentWeatherViewHolder)holder).mDescription.setText(desc);
                 } else {
-                    ((CurrentWeatherViewHolder) holder).bindDataToViews((CurrentWeather) mCardList.get(position),
-                            holder.itemView.getContext());
+                    ((CurrentWeatherViewHolder) holder).bindDataToViews((holder.itemView.getContext()));
                 }
                 break;
             default:

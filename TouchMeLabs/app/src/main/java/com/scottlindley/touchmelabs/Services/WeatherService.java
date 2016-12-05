@@ -1,5 +1,6 @@
 package com.scottlindley.touchmelabs.Services;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -7,7 +8,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.PersistableBundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 
@@ -23,7 +28,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by Scott Lindley on 12/1/2016.
  */
 
-public class WeatherService extends JobService{
+public class WeatherService extends JobService {
     private static final String WEATHER_BASE_URL = "api.openweathermap.org/data/2.5/";
     private static final String API_KEY = "8125261db99aefc2183578b967646acc";
 
@@ -33,7 +38,7 @@ public class WeatherService extends JobService{
         //Pulls the location from the jobParameters
         PersistableBundle bundle = jobParameters.getExtras();
         String zip = bundle.getString("zip");
-        String[] latLong = bundle.getStringArray("long lat");
+        String latLong = bundle.getString("long lat");
         /*One of these will be null, the other will contain location info.
 
         If zip isn't null then the user has declined to share their current location
@@ -42,9 +47,9 @@ public class WeatherService extends JobService{
         If latLong isn't null then the user is sharing their current location and data
         is coming through as a String[] with longitude and latitude values.
         */
-        if(zip != null && latLong == null){
+        if (zip != null && latLong == null) {
             requestWithZip(zip, jobParameters);
-        } else if (zip == null && latLong != null){
+        } else if (zip == null && latLong != null) {
             requestWithLongLat(latLong, jobParameters);
         } else {
             jobFinished(jobParameters, false);
@@ -57,7 +62,7 @@ public class WeatherService extends JobService{
         return false;
     }
 
-    public void requestWithZip(String zip, final JobParameters jobParameters){
+    public void requestWithZip(String zip, final JobParameters jobParameters) {
         //Build retrofit request
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(WEATHER_BASE_URL)
@@ -70,7 +75,7 @@ public class WeatherService extends JobService{
         call.enqueue(new Callback<GsonCurrentWeather>() {
             @Override
             public void onResponse(Call<GsonCurrentWeather> call, Response<GsonCurrentWeather> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
                     //See helper method
                     handleResponse(response);
                     jobFinished(jobParameters, false);
@@ -90,9 +95,17 @@ public class WeatherService extends JobService{
         });
     }
 
-    public void requestWithLongLat(String[] latLong, final JobParameters jobParameters){
-        String latitude = latLong[0];
-        String longitude = latLong[1];
+    public void requestWithLongLat(String latLong, final JobParameters jobParameters) {
+        String latitude;
+        String longitude;
+
+        LocationManager manager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        if (latLong.equals("lat long")) {
+            Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            latitude = Double.toString(location.getLatitude());
+            longitude = Double.toString(location.getLongitude());
+        } else
+            return;
 
         //Build retrofit request
         Retrofit retrofit = new Retrofit.Builder()
