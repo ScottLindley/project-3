@@ -111,3 +111,6 @@
     </LinearLayout>
 
 </FrameLayout>
+
+<!-- xml layout for the 'About Us'
+fragment, includes 3 ImageViews and 7 TextViews -->

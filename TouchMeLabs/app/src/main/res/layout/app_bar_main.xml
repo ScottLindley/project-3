@@ -27,3 +27,5 @@
     <include layout="@layout/content_main" />
 
 </android.support.design.widget.CoordinatorLayout>
+
+<!-- setting up the toolBar -->

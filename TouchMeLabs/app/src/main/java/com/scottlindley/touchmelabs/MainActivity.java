@@ -71,12 +71,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void onBackPressed () {
+            //implementing the popBackstack method to remove fragments from
+            //backStack
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         android.app.FragmentManager fm = getFragmentManager();
 
-        if (fm.getBackStackEntryCount() >= 0) {
+        if (fm.getBackStackEntryCount() > 0) {
             Log.i("MainActivity", "popping backstack");
             fm.popBackStack();
 
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         // Adding fragment navigation onItemSelected - click each item to navigate to the
-        // respective fragment
+        // respective fragment, and adding it to the backStack
         if (id == R.id.nav_home) {
             CardListFragment cardListFragment = new CardListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

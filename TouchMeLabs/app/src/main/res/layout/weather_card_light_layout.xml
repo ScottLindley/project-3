@@ -54,3 +54,6 @@
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>
+
+    <!-- Light layout for the weather card. 3 TextViews are present.
+             This is the default layout being used by the app. -->
