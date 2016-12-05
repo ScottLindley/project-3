@@ -14,7 +14,7 @@
     android:id="@+id/news_dark">
 
     <RelativeLayout
-        android:id="@+id/weather_card_dark"
+        android:id="@+id/weather_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -30,7 +30,8 @@
             android:textStyle="bold"
             android:textColor="#ffffff"
             android:textSize="20sp"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/temperature_dark"
@@ -40,7 +41,8 @@
             android:textSize="18sp"
             android:textColor="#ffffff"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/weather_conditions_dark"
@@ -50,7 +52,8 @@
             android:textColor="#ffffff"
             android:layout_toLeftOf="@id/temperature_dark"
             android:layout_centerVertical="true"
-            android:layout_marginRight="6dp"/>
+            android:layout_marginRight="6dp"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/find_location_btn"

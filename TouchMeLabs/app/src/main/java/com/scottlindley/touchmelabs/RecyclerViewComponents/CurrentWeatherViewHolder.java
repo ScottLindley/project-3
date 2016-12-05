@@ -98,6 +98,14 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
             mCityName.setText(city);
             mDescription.setText(description);
             mTemperature.setText(temperature);
+
+            mSetLocation.setVisibility(View.GONE);
+            mSetZipCode.setVisibility(View.GONE);
+            mZipCode.setVisibility(View.GONE);
+
+            mCityName.setVisibility(View.VISIBLE);
+            mTemperature.setVisibility(View.VISIBLE);
+            mDescription.setVisibility(View.VISIBLE);
         }
     }
 
@@ -121,6 +129,14 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
                 mCityName.setText(name);
                 mTemperature.setText(temperature);
                 mDescription.setText(description);
+
+                mSetZipCode.setVisibility(View.GONE);
+                mSetLocation.setVisibility(View.GONE);
+                mZipCode.setVisibility(View.GONE);
+
+                mCityName.setVisibility(View.VISIBLE);
+                mTemperature.setVisibility(View.VISIBLE);
+                mDescription.setVisibility(View.VISIBLE);
             }
         };
 

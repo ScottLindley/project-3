@@ -20,7 +20,8 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="8dp"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/city_name_light"
@@ -29,7 +30,8 @@
             android:text="@string/city_name"
             android:textStyle="bold"
             android:textColor="#757575"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/temperature_light"
@@ -39,7 +41,8 @@
             android:textSize="18sp"
             android:textColor="#757575"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/weather_conditions_light"
@@ -49,7 +52,8 @@
             android:textColor="#757575"
             android:layout_toLeftOf="@id/temperature_light"
             android:layout_centerVertical="true"
-            android:layout_marginRight="6dp"/>
+            android:layout_marginRight="6dp"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/find_location_btn"
