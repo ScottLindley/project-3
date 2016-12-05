@@ -27,7 +27,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
         <activity
@@ -38,8 +37,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="eb75ce0e71340377645da165307d5f87d140c917"
-            />
+            android:value="eb75ce0e71340377645da165307d5f87d140c917" />
 
 
         <service android:name=".Services.TwitterService"
@@ -50,7 +48,6 @@
 
         <service android:name=".Services.WeatherService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
-
 
     </application>
 

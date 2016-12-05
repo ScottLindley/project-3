@@ -1,6 +1,7 @@
 package com.scottlindley.touchmelabs;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -10,9 +11,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.scottlindley.touchmelabs.DetailView.AboutUsFragment;
+import com.scottlindley.touchmelabs.DetailView.ExpandedTweetFragment;
+import com.scottlindley.touchmelabs.DetailView.SettingsFragment;
 import com.scottlindley.touchmelabs.MainView.CardListFragment;
 import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
 import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
@@ -23,11 +28,9 @@ import com.twitter.sdk.android.tweetui.TweetUi;
 
 import io.fabric.sdk.android.Fabric;
 
-import static android.R.attr.id;
-
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        ExpandedTweetFragment.OnFragmentInteractionListener, SettingsFragment.OnFragmentInteractionListener,
+        AboutUsFragment.OnFragmentInteractionListener {
 
         @Override
         protected void onCreate (Bundle savedInstanceState) {
@@ -47,12 +50,12 @@ public class MainActivity extends AppCompatActivity
             transaction.replace(R.id.main_fragment_container, cardFragment);
             transaction.commit();
 
-
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
 
-
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+
             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                     this,
                     drawer,
@@ -64,6 +67,7 @@ public class MainActivity extends AppCompatActivity
             toggle.syncState();
 
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            View headerView = navigationView.getHeaderView(0);
             navigationView.setNavigationItemSelectedListener(this);
         }
 
@@ -71,6 +75,18 @@ public class MainActivity extends AppCompatActivity
         public void onBackPressed () {
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        android.app.FragmentManager fm = getFragmentManager();
+
+        if (fm.getBackStackEntryCount() >= 0) {
+            Log.i("MainActivity", "popping backstack");
+            fm.popBackStack();
+
+        } else {
+
+            Log.i("MainActivity", "nothing on backstack, calling super");
+            super.onBackPressed();
+        }
 
         if (drawer.isDrawerOpen(GravityCompat.START)) {
 
@@ -82,42 +98,35 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-        @Override
-        public boolean onCreateOptionsMenu (Menu menu){
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
 
-        return true;
-    }
-
-        @Override
-        public boolean onOptionsItemSelected (MenuItem item){
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-        @SuppressWarnings("StatementWithEmptyBody")
-        @Override
-        public boolean onNavigationItemSelected (MenuItem item){
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_twitter) {
+        // Adding fragment navigation onItemSelected - click each item to navigate to the
+        // respective fragment
+        if (id == R.id.nav_home) {
+            CardListFragment cardListFragment = new CardListFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.main_fragment_container, cardListFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
 
         } else if (id == R.id.nav_settings) {
+            SettingsFragment settingsFragment = new SettingsFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.main_fragment_container, settingsFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
 
-        } else if (id == R.id.nav_theme) {
-
+        } else if (id == R.id.nav_about_us) {
+            AboutUsFragment aboutUsFragment = new AboutUsFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.main_fragment_container, aboutUsFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -137,9 +146,14 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if(fragmentManager != null){
+        if (fragmentManager != null) {
             fragmentManager.findFragmentById(R.id.main_fragment_container)
                     .onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
