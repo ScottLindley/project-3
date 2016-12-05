@@ -1,9 +1,7 @@
 package com.scottlindley.touchmelabs;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -22,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.DetailView.AboutUsFragment;
-import com.scottlindley.touchmelabs.DetailView.ExpandedTweetFragment;
 import com.scottlindley.touchmelabs.DetailView.SettingsFragment;
 import com.scottlindley.touchmelabs.MainView.CardListFragment;
 import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
@@ -44,8 +41,7 @@ import retrofit2.Call;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        ExpandedTweetFragment.OnFragmentInteractionListener, SettingsFragment.OnFragmentInteractionListener,
-        AboutUsFragment.OnFragmentInteractionListener, OnLocationPermissionResponseListener {
+        OnLocationPermissionResponseListener {
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -121,21 +117,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Adding fragment navigation onItemSelected - click each item to navigate to the
         // respective fragment
         if (id == R.id.nav_home) {
-            CardListFragment cardListFragment = new CardListFragment();
+            CardListFragment cardListFragment = CardListFragment.newInstance();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, cardListFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_settings) {
-            SettingsFragment settingsFragment = new SettingsFragment();
+            SettingsFragment settingsFragment = SettingsFragment.newInstance();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, settingsFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_about_us) {
-            AboutUsFragment aboutUsFragment = new AboutUsFragment();
+            AboutUsFragment aboutUsFragment = AboutUsFragment.newInstance();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, aboutUsFragment);
             fragmentTransaction.addToBackStack(null);
@@ -205,8 +201,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {}
 
     @Override
     public void setPermissionResponseListener(int response) {}
