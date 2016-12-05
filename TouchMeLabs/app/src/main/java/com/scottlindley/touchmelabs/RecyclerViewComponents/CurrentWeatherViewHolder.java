@@ -21,11 +21,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.scottlindley.touchmelabs.MainActivity;
-import com.scottlindley.touchmelabs.MainActivity.*;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
 import com.scottlindley.touchmelabs.OnLocationPermissionResponseListener;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.Services.WeatherService;
+
+import java.util.regex.Pattern;
 
 /**
  * ViewHolder for {@link CurrentWeather} card.
@@ -50,8 +51,9 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
         mWeatherCard = (RelativeLayout)itemView.findViewById(R.id.weather_card_light);
         //TODO: make weather card button (A.K.A. THE BUTTON)
         //TODO: make weather card editText
-//        mSetLocation = (Button)itemView.findViewById(R.id.find_location_btn);
-//        mZipCode = (EditText)itemView.findViewById(R.id.zip_code_edit);
+        mSetLocation = (Button)itemView.findViewById(R.id.find_location_btn);
+        mZipCode = (EditText)itemView.findViewById(R.id.zip_code_entry);
+        mSetZipCode = (Button)itemView.findViewById(R.id.find_zip_code_btn);
     }
 
     /**
@@ -131,17 +133,34 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
     public void setPermissionResponseListener(final int response) {
         BroadcastReceiver afterPermission = new BroadcastReceiver() {
             @Override
-            public void onReceive(Context context, Intent intent) {
+            public void onReceive(final Context context, Intent intent) {
                 String city = intent.getStringExtra("city name");
                 String desc = intent.getStringExtra("description");
                 String temp = intent.getStringExtra("temperature");
 
                 if(response == PackageManager.PERMISSION_GRANTED) {
-
                     CurrentWeather weather = new CurrentWeather(city, desc, temp);
                     updateWeatherCard(mCityName.getContext(), weather);
                 } else {
                     showZipCodeEntry();
+                    mSetZipCode.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(mZipCode.getText().length() != 5) {
+                                mZipCode.setError("Enter Zip Code");
+                            } else {
+                                if(Pattern.matches("\\d", mZipCode.getText())) {
+                                    SharedPreferences pref = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
+                                    pref.edit().putString("zip", mZipCode.getText().toString()).apply();
+
+                                    JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                                    scheduleWeather(scheduler, context);
+                                } else {
+                                    mZipCode.setError("Invalid format");
+                                }
+                            }
+                        }
+                    });
                 }
             }
         };
