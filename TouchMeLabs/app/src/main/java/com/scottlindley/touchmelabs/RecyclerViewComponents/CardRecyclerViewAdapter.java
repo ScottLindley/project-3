@@ -1,12 +1,15 @@
 package com.scottlindley.touchmelabs.RecyclerViewComponents;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.DetailView.DetailActivity;
@@ -29,6 +32,7 @@ import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     private List<CardContent> mCardList;
     private int positionForWeather;
+    private Context mContext;
 
     private static final int TWEET_VIEW_TYPE = twitter_card_light_layout;
     private static final int NEWS_VIEW_TYPE = news_card_light_layout;
@@ -40,6 +44,8 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        mContext = parent.getContext();
+
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch(viewType) {
             case twitter_card_light_layout:
@@ -80,7 +86,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                 ((NewsStoryViewHolder) holder).mShareButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        shareNewsClick();
+                        shareNewsClick(holder.getAdapterPosition());
                     }
                 });
                 break;
@@ -111,8 +117,18 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     }
 
 
-    private void shareNewsClick(){
-         
+    private void shareNewsClick(int position){
+        AlertDialog dialog = new AlertDialog.Builder(mContext)
+                .setView(R.layout.share_news_dialog)
+                .setPositiveButton("okay", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }})
+                .create();
+        EditText editText = (EditText)dialog.findViewById(R.id.news_share_editText);
+        editText.setText(mCardList.get(position).getTitle()+"\n"+
+                ((NewsStory)mCardList.get(position)).getURL());
     }
 
     private void cardClick(RecyclerView.ViewHolder holder) {
