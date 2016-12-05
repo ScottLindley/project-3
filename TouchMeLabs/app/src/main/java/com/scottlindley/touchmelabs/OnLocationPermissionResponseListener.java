@@ -5,5 +5,5 @@ package com.scottlindley.touchmelabs;
  */
 
 public interface OnLocationPermissionResponseListener {
-    void setPermissionResponseListener(String response);
+    void setPermissionResponseListener(int response);
 }

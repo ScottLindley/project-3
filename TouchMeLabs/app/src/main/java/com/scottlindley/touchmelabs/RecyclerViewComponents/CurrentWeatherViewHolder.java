@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +21,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.scottlindley.touchmelabs.MainActivity;
+import com.scottlindley.touchmelabs.MainActivity.*;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
 import com.scottlindley.touchmelabs.OnLocationPermissionResponseListener;
 import com.scottlindley.touchmelabs.R;
@@ -29,15 +31,15 @@ import com.scottlindley.touchmelabs.Services.WeatherService;
  * ViewHolder for {@link CurrentWeather} card.
  */
 
-public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
+public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements OnLocationPermissionResponseListener{
     public TextView mCityName, mTemperature, mDescription;
     public RelativeLayout mWeatherCard;
     public Button mSetLocation;
     public EditText mZipCode;
 
-    private OnLocationPermissionResponseListener mListener;
-
     private static final int WEATHER_JOB_SERVICE_ID = 49;
+    private static final int TEN_MINUTE_REFRESH = 600000;
+    public static final int PERMISSION_LOCATION_REQUEST_CODE = 235;
 
     public CurrentWeatherViewHolder(View itemView) {
         super(itemView);
@@ -57,20 +59,29 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
      */
     public void bindDataToViews(CurrentWeather weather, final Context context) {
         SharedPreferences currentData = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
-        if((!currentData.contains("city name"))||weather != null) {
+        //Check if weather data is empty
+        if(!currentData.contains("city name")) {
+
+            //Get permission info
             int cLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
             int fLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+
             JobScheduler weatherScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+            //Check for either location permission
             if(cLocation == PackageManager.PERMISSION_GRANTED||fLocation == PackageManager.PERMISSION_GRANTED) {
-                JobInfo info = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
-                        new ComponentName(context, WeatherService.class))
-                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .build();
-                weatherScheduler.schedule(info);
-                updateWeatherCard(context);
+                scheduleWeather(weatherScheduler, context);
+                updateWeatherCard(context, weather);
+
+            //No location permission, request it
             } else {
+                ActivityCompat.requestPermissions((MainActivity)mCityName.getContext(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSION_LOCATION_REQUEST_CODE);
 
             }
+
+        //If data exists, populate the card with most recent weather data
         } else {
             SharedPreferences weatherContext = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
 
@@ -84,17 +95,19 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
         }
     }
 
-    private void updateWeatherCard(Context context) {
-        SharedPreferences weather = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
-
-        weather.edit().putString("city name", "retrieve from api call")
-                    .putString("city temp", "retrieve temp from api")
-                    .putString("city conditions", "retrieve from api")
-                    .commit();
+    private void updateWeatherCard(Context context, final CurrentWeather info) {
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
+                SharedPreferences weather = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
+
+                weather.edit().putString("city name", info.getTitle())
+                        .putString("city temp", info.getTemperature())
+                        .putString("city conditions", info.getContent())
+                        .commit();
+
                 String name = intent.getStringExtra("city name");
                 String description = intent.getStringExtra("description");
                 String temperature = intent.getStringExtra("temperature");
@@ -102,11 +115,47 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
                 mCityName.setText(name);
                 mTemperature.setText(temperature);
                 mDescription.setText(description);
-
-                ((MainActivity) mCityName.getContext()).getParent()
             }
         };
 
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, new IntentFilter("weather service"));
+    }
+
+
+    @Override
+    public void setPermissionResponseListener(final int response) {
+        BroadcastReceiver afterPermission = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String city = intent.getStringExtra("city name");
+                String desc = intent.getStringExtra("description");
+                String temp = intent.getStringExtra("temperature");
+
+                if(response == PackageManager.PERMISSION_GRANTED) {
+
+                    CurrentWeather weather = new CurrentWeather(city, desc, temp);
+                    updateWeatherCard(mCityName.getContext(), weather);
+                }
+            }
+        };
+        LocalBroadcastManager.getInstance(mCityName.getContext()).registerReceiver(afterPermission,
+                new IntentFilter("weather service"));
+    }
+
+    private void scheduleWeather(JobScheduler jobs, Context context) {
+        JobInfo info = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                new ComponentName(context, WeatherService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(TEN_MINUTE_REFRESH)
+                .build();
+        jobs.schedule(info);
+    }
+
+    private void showLocationButton() {
+
+    }
+
+    private void showZipCodeEntry() {
+        
     }
 }
