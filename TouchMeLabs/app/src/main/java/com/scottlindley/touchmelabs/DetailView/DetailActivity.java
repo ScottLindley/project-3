@@ -96,11 +96,11 @@ public class DetailActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_twitter) {
+        if (id == R.id.nav_home) {
             // Handle the camera action
         } else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_theme) {
+        } else if (id == R.id.nav_about_us) {
 
         } else if (id == R.id.nav_manage) {
 
