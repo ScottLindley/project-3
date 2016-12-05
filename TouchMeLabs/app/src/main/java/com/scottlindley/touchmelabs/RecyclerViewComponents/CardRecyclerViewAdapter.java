@@ -1,5 +1,8 @@
 package com.scottlindley.touchmelabs.RecyclerViewComponents;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,12 +18,18 @@ import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
 import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
 import com.scottlindley.touchmelabs.ModelObjects.TweetInfo;
 import com.scottlindley.touchmelabs.R;
+import com.scottlindley.touchmelabs.Services.WeatherService;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.scottlindley.touchmelabs.R.layout.news_card_light_layout;
 import static com.scottlindley.touchmelabs.R.layout.twitter_card_light_layout;
+import static com.scottlindley.touchmelabs.R.layout.weather_card_data_added;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
+import static com.scottlindley.touchmelabs.R.layout.weather_card_no_data;
+import static com.scottlindley.touchmelabs.R.layout.weather_card_no_permission;
+import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.WEATHER_JOB_SERVICE_ID;
 
 /**
  * Created by jonlieblich on 12/1/16.
@@ -28,7 +37,6 @@ import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
 
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     private List<CardContent> mCardList;
-    private int positionForWeather;
     private OnShareContentListener mListener;
 
     private static final int TWEET_VIEW_TYPE = twitter_card_light_layout;
@@ -50,6 +58,12 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                 return new NewsStoryViewHolder(inflater.inflate(news_card_light_layout, parent, false));
             case weather_card_light_layout:
                 return new CurrentWeatherViewHolder(inflater.inflate(weather_card_light_layout, parent, false));
+            case weather_card_no_data:
+                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_no_data, parent, false));
+            case weather_card_no_permission:
+                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_no_permission, parent, false));
+            case weather_card_data_added:
+                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_data_added, parent, false));
             default:
                 return null;
         }
@@ -58,7 +72,6 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         int type = getItemViewType(position);
-        positionForWeather = position;
         switch(type) {
             case twitter_card_light_layout:
                 ((TweetInfoViewHolder)holder).bindDataToView((TweetInfo) mCardList.get(position));
@@ -101,7 +114,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     }
                 });
                 break;
-            case weather_card_light_layout:
+            case weather_card_data_added:
                 SharedPreferences sp = holder.itemView.getContext()
                         .getSharedPreferences("weather", Context.MODE_PRIVATE);
                 if(sp.contains("city name")) {
@@ -114,6 +127,25 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     ((CurrentWeatherViewHolder)holder).mDescription.setText(desc);
                 } else {
                     ((CurrentWeatherViewHolder) holder).bindDataToViews((holder.itemView.getContext()));
+                }
+                break;
+            case weather_card_no_data:
+                ((CurrentWeatherViewHolder)holder).mSetLocation.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                });
+                break;
+            case weather_card_no_permission:
+                String zip = ((CurrentWeatherViewHolder)holder).mZipCode.getText().toString();
+                if(Pattern.matches("\\d", zip) && zip.length() == 5) {
+                    JobScheduler scheduler = (JobScheduler) holder.itemView.getContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                    JobInfo weather = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                            new ComponentName(holder.itemView.getContext(), WeatherService.class))
+                            .setPeriodic(600000)
+                            .build();
+                    scheduler.schedule(weather);
                 }
                 break;
             default:

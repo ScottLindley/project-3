@@ -39,7 +39,7 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
     public Button mSetLocation, mSetZipCode;
     public EditText mZipCode;
 
-    private static final int WEATHER_JOB_SERVICE_ID = 49;
+    public static final int WEATHER_JOB_SERVICE_ID = 49;
     private static final int TEN_MINUTE_REFRESH = 600000;
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 235;
 
