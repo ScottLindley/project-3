@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity
         } else {
 
             Log.i("MainActivity", "nothing on backstack, calling super");
+            super.onBackPressed();
         }
 
         /**
@@ -143,18 +144,21 @@ public class MainActivity extends AppCompatActivity
             CardListFragment cardListFragment = new CardListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, cardListFragment);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_settings) {
             SettingsFragment settingsFragment = new SettingsFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, settingsFragment);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_about_us) {
             AboutUsFragment aboutUsFragment = new AboutUsFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, aboutUsFragment);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
 
