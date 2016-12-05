@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.scottlindley.touchmelabs.DetailView.AboutUsFragment;
 import com.scottlindley.touchmelabs.DetailView.ExpandedTweetFragment;
@@ -67,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toggle.syncState();
 
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            View headerView = navigationView.getHeaderView(0);
             navigationView.setNavigationItemSelectedListener(this);
         }
 

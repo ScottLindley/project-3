@@ -86,6 +86,8 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         mRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipeRefreshLayout);
         setRefreshListener();
 
+        checkForTwitterLogin();
+
         SharedPreferences preferences = getContext().getSharedPreferences("mWeather", Context.MODE_PRIVATE);
         String cityName = preferences.getString("city name", "error");
         String cityConditions = preferences.getString("city conditions", "error");
