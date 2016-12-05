@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             AboutUsFragment aboutUsFragment = new AboutUsFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, aboutUsFragment);
+            // add onSavedInstanceState for each
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
