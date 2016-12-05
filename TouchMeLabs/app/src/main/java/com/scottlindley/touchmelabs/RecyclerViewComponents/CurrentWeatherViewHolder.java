@@ -34,7 +34,7 @@ import com.scottlindley.touchmelabs.Services.WeatherService;
 public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements OnLocationPermissionResponseListener{
     public TextView mCityName, mTemperature, mDescription;
     public RelativeLayout mWeatherCard;
-    public Button mSetLocation;
+    public Button mSetLocation, mSetZipCode;
     public EditText mZipCode;
 
     private static final int WEATHER_JOB_SERVICE_ID = 49;
@@ -75,10 +75,15 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
 
             //No location permission, request it
             } else {
-                ActivityCompat.requestPermissions((MainActivity)mCityName.getContext(),
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        PERMISSION_LOCATION_REQUEST_CODE);
-
+                showLocationButton();
+                mSetLocation.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ActivityCompat.requestPermissions((MainActivity)mCityName.getContext(),
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                PERMISSION_LOCATION_REQUEST_CODE);
+                    }
+                });
             }
 
         //If data exists, populate the card with most recent weather data
@@ -135,6 +140,8 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
 
                     CurrentWeather weather = new CurrentWeather(city, desc, temp);
                     updateWeatherCard(mCityName.getContext(), weather);
+                } else {
+                    showZipCodeEntry();
                 }
             }
         };
@@ -152,10 +159,11 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
     }
 
     private void showLocationButton() {
-
+        mSetLocation.setVisibility(View.VISIBLE);
     }
 
     private void showZipCodeEntry() {
-        
+        mZipCode.setVisibility(View.VISIBLE);
+        mSetZipCode.setVisibility(View.VISIBLE);
     }
 }
