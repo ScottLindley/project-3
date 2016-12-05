@@ -77,11 +77,7 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        /** What I'm trying to do here is to get the fragments to stay in the backStack, so
-         * when the back button is pressed, we can return to the previous fragment...
-         * it's not working at the moment though. */
-
+        
         android.app.FragmentManager fm = getFragmentManager();
 
         if (fm.getBackStackEntryCount() >= 0) {
@@ -93,11 +89,6 @@ public class MainActivity extends AppCompatActivity
             Log.i("MainActivity", "nothing on backstack, calling super");
             super.onBackPressed();
         }
-
-        /**
-         * ^^ simply a footnote comment-out to denote the segment of code that seems problematic/
-         * needs work ~ Jay
-         * */
 
         if (drawer.isDrawerOpen(GravityCompat.START)) {
 
