@@ -63,7 +63,7 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
     public void bindDataToViews(Context context) {
         SharedPreferences currentData = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
         //Check if weather data is empty
-        if(!currentData.contains("city name")||currentData.getString("city name", null) != null) {
+        if(!currentData.contains("city name")||currentData.getString("city name", null) == null) {
 
             //Get permission info
             int cLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
