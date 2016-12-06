@@ -29,8 +29,7 @@
             android:text="@string/city_name"
             android:textStyle="bold"
             android:textColor="#757575"
-            android:textSize="20sp"
-            android:visibility="gone"/>
+            android:textSize="20sp"/>
 
         <TextView
             android:id="@+id/temperature_light"
@@ -40,8 +39,7 @@
             android:textSize="18sp"
             android:textColor="#757575"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:visibility="gone"/>
+            android:layout_centerVertical="true"/>
 
         <TextView
             android:id="@+id/weather_conditions_light"
@@ -51,18 +49,15 @@
             android:textColor="#757575"
             android:layout_toLeftOf="@id/temperature_light"
             android:layout_centerVertical="true"
-            android:layout_marginRight="6dp"
-            android:visibility="gone"/>
+            android:layout_marginRight="6dp"/>
 
         <Button
             android:id="@+id/find_location_btn"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <Button
             android:id="@+id/find_zip_code_btn"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"/>
@@ -71,7 +66,6 @@
             android:id="@+id/zip_code_entry"
             android:hint="enter zip code"
             android:inputType="numberDecimal"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

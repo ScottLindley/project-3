@@ -1,8 +1,12 @@
 package com.scottlindley.touchmelabs;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -39,9 +43,9 @@ import io.fabric.sdk.android.Fabric;
 import retrofit2.Call;
 
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
+import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.WEATHER_JOB_SERVICE_ID;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-    private OnLocationPermissionResponseListener mListener;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -193,11 +197,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch(requestCode) {
             case PERMISSION_LOCATION_REQUEST_CODE:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mListener.setPermissionResponseListener(PackageManager.PERMISSION_GRANTED);
+                    PersistableBundle pb = new PersistableBundle();
+                    pb.putString("long lat", "lat long");
+
+                    JobScheduler scheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
+                    JobInfo locationInfo = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                            new ComponentName(this, "weather service"))
+                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                            .setPeriodic(600000)
+                            .setExtras(pb)
+                            .build();
+                    scheduler.schedule(locationInfo);
+                } else {
+                    CardListFragment fragment = (CardListFragment)
+                            getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                    fragment.handlePermissionDenied();
                 }
                 break;
             default:
                 Toast.makeText(this, "Only location permission needed", Toast.LENGTH_SHORT).show();
         }
+
     }
 }
