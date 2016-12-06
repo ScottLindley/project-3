@@ -47,7 +47,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     private TwitterLoginButton mLoginButton;
     private SwipeRefreshLayout mRefreshLayout;
     private NetworkConnectionDetector mNetworkDetector;
-    private CurrentWeather mWeather;
+    private CardContent mWeather;
     private CardRecyclerViewAdapter mAdapter;
     private List<CardContent> mCardList;
 
@@ -93,7 +93,11 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         String cityConditions = preferences.getString("city conditions", "error");
         String cityTemp = preferences.getString("city temp", "error");
 
-        mWeather = new CurrentWeather(cityName, cityConditions, cityTemp);
+        if(cityName.equals("error")){
+            mWeather = new CurrentWeatherNoData();
+        } else {
+            mWeather = new CurrentWeather(cityName, cityConditions, cityTemp);
+        }
 
         mCardList = ContentDBHelper.getInstance(getContext()).getCardList(mWeather);
 
