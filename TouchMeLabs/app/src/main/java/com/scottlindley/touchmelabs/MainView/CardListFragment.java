@@ -13,6 +13,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ import android.widget.Toast;
 import com.scottlindley.touchmelabs.ContentDBHelper;
 import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherNoData;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherPermissionDenied;
 import com.scottlindley.touchmelabs.NetworkConnectionDetector;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.RecyclerViewComponents.CardRecyclerViewAdapter;
@@ -43,6 +46,7 @@ import retrofit2.Call;
  */
 
 public class CardListFragment extends Fragment implements CardRecyclerViewAdapter.OnShareContentListener{
+    private static final String TAG = "CardListFragment";
 
     private TwitterLoginButton mLoginButton;
     private SwipeRefreshLayout mRefreshLayout;
@@ -50,6 +54,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     private CardContent mWeather;
     private CardRecyclerViewAdapter mAdapter;
     private List<CardContent> mCardList;
+    private WeatherUpdateListener mListener;
 
     //Required empty public constructor
     public CardListFragment() {}
@@ -88,15 +93,18 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
 
         checkForTwitterLogin();
 
-        SharedPreferences preferences = getContext().getSharedPreferences("mWeather", Context.MODE_PRIVATE);
+        SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
         String cityName = preferences.getString("city name", "error");
         String cityConditions = preferences.getString("city conditions", "error");
         String cityTemp = preferences.getString("city temp", "error");
+        String denied = preferences.getString("isDenied", "error");
 
-        if(cityName.equals("error")){
+        if(cityName.equals("error") && denied.equals("error")){
             mWeather = new CurrentWeatherNoData();
-        } else {
+        } else if(denied.equals("error")){
             mWeather = new CurrentWeather(cityName, cityConditions, cityTemp);
+        } else {
+            mWeather = new CurrentWeatherPermissionDenied();
         }
 
         mCardList = ContentDBHelper.getInstance(getContext()).getCardList(mWeather);
@@ -116,17 +124,29 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "onReceive: HEARD YA LOUD AND CLEAR");
                 String cityName = intent.getStringExtra("city name");
                 String description = intent.getStringExtra("description");
                 String temp = intent.getStringExtra("temperature");
 
+                Log.d(TAG, "onReceive: "+cityName);
+                Log.d(TAG, "onReceive: "+description);
+                Log.d(TAG, "onReceive: "+temp);
+
                 mCardList.set(0, new CurrentWeather(cityName, description, temp));
-                mAdapter.notifyItemChanged(0);
+                Log.d(TAG, "onReceive: "+mCardList.get(0).getTitle());
 
                 SharedPreferences preferences = getActivity().getSharedPreferences("weather", Context.MODE_PRIVATE);
-                preferences.edit().putString("city name", cityName);
-                preferences.edit().putString("description", description);
-                preferences.edit().putString("temperature", temp);
+                SharedPreferences.Editor editor = preferences.edit();
+
+                editor.putString("city name", cityName)
+                        .putString("description", description)
+                        .putString("temperature", temp)
+                        .putString("isDenied", "error")
+                        .apply();
+
+
+                mListener.redrawFragment();
             }
         };
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("weather service"));
@@ -223,8 +243,10 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     }
 
     public void handlePermissionDenied(){
-        mCardList.set(0, new CurrentWeatherPermissionDenied());
-        mAdapter.notifyItemChanged(0);
+        SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("isDenied", "yes").apply();
+        mListener.redrawFragment();
     }
 
 
@@ -260,6 +282,23 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         });
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof WeatherUpdateListener) {
+            mListener = (WeatherUpdateListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement WeatherUpdateListener methods");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     /**
      * Necessary override to notify the login button a successful login occurred.
      *
@@ -271,5 +310,9 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         mLoginButton.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public interface WeatherUpdateListener{
+        void redrawFragment();
     }
 }

@@ -7,10 +7,6 @@ package com.scottlindley.touchmelabs.GsonObjects;
 public class GsonWeather {
     private String description;
 
-    public GsonWeather(String description) {
-        this.description = description;
-    }
-
     public String getDescription() {
         return description;
     }

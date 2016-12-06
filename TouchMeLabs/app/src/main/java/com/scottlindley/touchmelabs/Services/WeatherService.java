@@ -15,6 +15,7 @@ import android.os.PersistableBundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.scottlindley.touchmelabs.GsonObjects.GsonCurrentWeather;
 
@@ -24,17 +25,21 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.scottlindley.touchmelabs.R.string.temperature;
+
 /**
  * Created by Scott Lindley on 12/1/2016.
  */
 
 public class WeatherService extends JobService {
-    private static final String WEATHER_BASE_URL = "api.openweathermap.org/data/2.5/";
+    private static final String TAG = "WeatherService";
+    private static final String WEATHER_BASE_URL = "http://api.openweathermap.org/";
     private static final String API_KEY = "8125261db99aefc2183578b967646acc";
 
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
+        Log.d(TAG, "onStartJob: ");
         //Pulls the location from the jobParameters
         PersistableBundle bundle = jobParameters.getExtras();
         String zip = bundle.getString("zip");
@@ -52,6 +57,7 @@ public class WeatherService extends JobService {
         } else if (zip == null && latLong != null) {
             requestWithLongLat(latLong, jobParameters);
         } else {
+            Log.d(TAG, "onStartJob: BOTH NULL");
             jobFinished(jobParameters, false);
         }
         return false;
@@ -69,17 +75,20 @@ public class WeatherService extends JobService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+        Log.d(TAG, "requestWithZip: ");
         OpenWeatherMapService service = retrofit.create(OpenWeatherMapService.class);
         //Make the api call using the provided zip code
-        Call<GsonCurrentWeather> call = service.getWeatherByZip(API_KEY, zip);
+        Call<GsonCurrentWeather> call = service.getWeatherByZip(zip, API_KEY);
         call.enqueue(new Callback<GsonCurrentWeather>() {
             @Override
             public void onResponse(Call<GsonCurrentWeather> call, Response<GsonCurrentWeather> response) {
                 if (response.isSuccessful()) {
                     //See helper method
                     handleResponse(response);
+                    Log.d(TAG, "onResponse: ");
                     jobFinished(jobParameters, false);
                 }
+                Log.d(TAG, "onResponse: BAD RESPONSE");
             }
 
             @Override
@@ -96,15 +105,17 @@ public class WeatherService extends JobService {
     }
 
     public void requestWithLongLat(String latLong, final JobParameters jobParameters) {
+        Log.d(TAG, "requestWithLongLat: ");
         String latitude;
         String longitude;
 
         LocationManager manager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         if (latLong.equals("lat long")) {
+            Log.d(TAG, "requestWithLongLat: in the IF");
             Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             latitude = Double.toString(location.getLatitude());
             longitude = Double.toString(location.getLongitude());
-        } else
+        } else 
             return;
 
         //Build retrofit request
@@ -113,23 +124,29 @@ public class WeatherService extends JobService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+        Log.d(TAG, "requestWithLongLat: BUILT REQUEST");
         OpenWeatherMapService service = retrofit.create(OpenWeatherMapService.class);
-        Call<GsonCurrentWeather> call = service.getWeatherByLongLat(API_KEY, latitude, longitude);
+        Call<GsonCurrentWeather> call = service.getWeatherByLongLat(latitude, longitude, API_KEY);
         call.enqueue(new Callback<GsonCurrentWeather>() {
             @Override
             public void onResponse(Call<GsonCurrentWeather> call, Response<GsonCurrentWeather> response) {
-                if(response.isSuccessful()){
+                if(response.isSuccessful()) {
+                    Log.d(TAG, "onResponse: WEATHER SERVICE");
                     //see helper method
                     handleResponse(response);
                     jobFinished(jobParameters, false);
+                }else {
+                    Log.d(TAG, "onResponse: RESPONSE IS GARBAGE "+response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<GsonCurrentWeather> call, Throwable t) {
+                t.printStackTrace();
                 //Send a name of 'failure' that will trigger the default case in the BroadcastReceiver
                 Intent intent = new Intent("service intent");
                 intent.putExtra("service name", "failure");
+                Log.d(TAG, "onFailure: ");
 
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 jobFinished(jobParameters, false);
@@ -141,10 +158,11 @@ public class WeatherService extends JobService {
         /*Regardless of the api call (zip or longitude/latitude), the pieces we need in the JSON respose
         are identical. Therefore we can use this block of code for both responses.
         */
+        Log.d(TAG, "handleResponse: ");
 
         GsonCurrentWeather gsonWeather = response.body();
         String cityName = gsonWeather.getName();
-        String description = gsonWeather.getWeather().getDescription();
+        String description = gsonWeather.getWeather().get(0).getDescription();
         String temperature = gsonWeather.getMain().getTemp();
 
         showPersistentWeatherNotification(cityName, temperature);
@@ -159,6 +177,7 @@ public class WeatherService extends JobService {
     }
 
     public void showPersistentWeatherNotification(String cityName, String temperature) {
+        Log.d(TAG, "showPersistentWeatherNotification: ");
         String cityInNotification = "Weather for "+cityName+":";
         String currentTempNotification = "Current temperature: "+temperature;
 
@@ -166,6 +185,7 @@ public class WeatherService extends JobService {
         builder.setPriority(NotificationCompat.PRIORITY_MAX);
         builder.setContentTitle(cityInNotification);
         builder.setContentInfo(currentTempNotification);
+        builder.setSmallIcon(android.support.v7.appcompat.R.drawable.notify_panel_notification_icon_bg);
         builder.setOngoing(true);
 
         NotificationManager manager = (NotificationManager) getApplicationContext()

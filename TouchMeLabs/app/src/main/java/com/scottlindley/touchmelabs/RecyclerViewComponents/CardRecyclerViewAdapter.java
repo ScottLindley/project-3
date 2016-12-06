@@ -7,8 +7,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.PersistableBundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,12 +28,11 @@ import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.Services.WeatherService;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
+import static android.content.ContentValues.TAG;
 import static com.scottlindley.touchmelabs.R.layout.news_card_light_layout;
 import static com.scottlindley.touchmelabs.R.layout.twitter_card_light_layout;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_data_added;
-import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_no_data;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_no_permission;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
@@ -64,18 +65,18 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                 return new TweetInfoViewHolder(inflater.inflate(twitter_card_light_layout, parent, false));
             case news_card_light_layout:
                 return new NewsStoryViewHolder(inflater.inflate(news_card_light_layout, parent, false));
-            case weather_card_light_layout:
-                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_light_layout, parent, false));
             case weather_card_no_data:
-                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_no_data, parent, false));
+                return new CurrentWeatherNoDataViewHolder(inflater.inflate(weather_card_no_data, parent, false));
             case weather_card_no_permission:
-                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_no_permission, parent, false));
+                return new CurrentWeatherPermissionDeniedViewHolder(inflater.inflate(weather_card_no_permission, parent, false));
             case weather_card_data_added:
                 return new CurrentWeatherViewHolder(inflater.inflate(weather_card_data_added, parent, false));
             default:
                 return null;
         }
     }
+
+
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
@@ -156,16 +157,21 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     @Override
                     public void onClick(View view) {
                         String zip = ((CurrentWeatherPermissionDeniedViewHolder)holder).mZipCode.getText().toString();
-                        if(Pattern.matches("\\d", zip)&&zip.length()==5) {
+                        if(zip.length()==5) {
+                            PersistableBundle bundle = new PersistableBundle();
+                            bundle.putString("zip", zip);
+
                             JobScheduler scheduler = (JobScheduler)holder.itemView.getContext()
                                     .getSystemService(Context.JOB_SCHEDULER_SERVICE);
                             JobInfo weatherZip = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
                                     new ComponentName(holder.itemView.getContext(), WeatherService.class))
                                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                                     .setPeriodic(600000)
+                                    .setExtras(bundle)
                                     .build();
                             scheduler.schedule(weatherZip);
-                        }
+                        }else
+                            Log.d(TAG, "onClick: WE DONE FUCKED UP");
                     }
                 });
                 break;
@@ -209,6 +215,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
 
     @Override
     public int getItemViewType(int position) {
+
         if(mCardList.get(position) instanceof CurrentWeather){
             return WEATHER_VIEW_TYPE;
         } else if (mCardList.get(position) instanceof NewsStory){

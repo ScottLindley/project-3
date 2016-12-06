@@ -22,9 +22,9 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder{
     public CurrentWeatherViewHolder(View itemView) {
         super(itemView);
 
-        mCityName = (TextView)itemView.findViewById(R.id.city_name_light);
-        mTemperature = (TextView)itemView.findViewById(R.id.temperature_light);
-        mDescription = (TextView)itemView.findViewById(R.id.weather_conditions_light);
-        mWeatherCard = (RelativeLayout)itemView.findViewById(R.id.weather_card_light);
+        mCityName = (TextView)itemView.findViewById(R.id.weather_city);
+        mTemperature = (TextView)itemView.findViewById(R.id.weather_temp);
+        mDescription = (TextView)itemView.findViewById(R.id.weather_desc);
+        mWeatherCard = (RelativeLayout)itemView.findViewById(R.id.weather_data_layout);
     }
 }

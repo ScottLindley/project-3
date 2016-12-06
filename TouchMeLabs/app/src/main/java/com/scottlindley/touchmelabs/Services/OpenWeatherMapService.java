@@ -12,13 +12,13 @@ import retrofit2.http.Query;
 
 public interface OpenWeatherMapService {
 
-    String string = "api.openweathermap.org/data/2.5/weather?lat=35&lon=139";
-    @GET("weather")
+    @GET("/data/2.5/weather")
     Call<GsonCurrentWeather> getWeatherByLongLat(
-            @Query("apikey") String apiKey,
             @Query("lat") String lat,
-            @Query("lon") String lon);
+            @Query("lon") String lon,
+            @Query("appid") String appid);
+    @GET("/data/2.5/weather")
     Call<GsonCurrentWeather> getWeatherByZip(
-            @Query("apikey") String apiKey,
-            @Query("zip") String zip);
+            @Query("zip") String zip,
+            @Query("appid") String appid);
 }

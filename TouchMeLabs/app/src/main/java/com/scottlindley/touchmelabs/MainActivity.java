@@ -27,6 +27,7 @@ import com.scottlindley.touchmelabs.DetailView.AboutUsFragment;
 import com.scottlindley.touchmelabs.DetailView.SettingsFragment;
 import com.scottlindley.touchmelabs.MainView.CardListFragment;
 import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
+import com.scottlindley.touchmelabs.Services.WeatherService;
 import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
 import com.squareup.picasso.Picasso;
 import com.twitter.sdk.android.Twitter;
@@ -45,8 +46,10 @@ import retrofit2.Call;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.WEATHER_JOB_SERVICE_ID;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-
+public class MainActivity extends AppCompatActivity implements CardListFragment.WeatherUpdateListener, NavigationView.OnNavigationItemSelectedListener{
+    private static final String TAG = "MainActivity";
+    
+    
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,22 +158,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final TextView handleName =(TextView) headerView.findViewById(R.id.twitter_handle_drawer);
 
         TwitterSession session = Twitter.getSessionManager().getActiveSession();
-        Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(false, false);
-        userCall.enqueue(new Callback<User>() {
-            @Override
-            public void success(Result<User> result) {
-                User user = result.data;
-                Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
-                userName.setText(user.name);
-                handleName.setText("@"+user.screenName);
-            }
+        if(session!=null) {
+            Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(false, false);
+            userCall.enqueue(new Callback<User>() {
+                @Override
+                public void success(Result<User> result) {
+                    User user = result.data;
+                    Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
+                    userName.setText(user.name);
+                    handleName.setText("@" + user.screenName);
+                }
 
-            @Override
-            public void failure(TwitterException exception) {
-                exception.printStackTrace();
-            }
-        });
-
+                @Override
+                public void failure(TwitterException exception) {
+                    exception.printStackTrace();
+                }
+            });
+        }
     }
 
 
@@ -202,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     JobScheduler scheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
                     JobInfo locationInfo = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
-                            new ComponentName(this, "weather service"))
+                            new ComponentName(this, WeatherService.class))
                             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                             .setPeriodic(600000)
                             .setExtras(pb)
@@ -217,6 +221,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default:
                 Toast.makeText(this, "Only location permission needed", Toast.LENGTH_SHORT).show();
         }
+    }
 
+    @Override
+    public void redrawFragment() {
+        Log.d(TAG, "redrawFragment: ");
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        CardListFragment cardFragment = CardListFragment.newInstance();
+
+        transaction.replace(R.id.main_fragment_container, cardFragment);
+        transaction.commit();
     }
 }

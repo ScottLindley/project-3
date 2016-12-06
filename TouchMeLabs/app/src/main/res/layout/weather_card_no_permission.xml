@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <EditText
         android:id="@+id/zip_code_entry"
@@ -10,9 +13,10 @@
         android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/set_zip_code_btn"
+        android:id="@+id/find_zip_code_btn"
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+    </RelativeLayout>
 
-</RelativeLayout>
+</android.support.v7.widget.CardView>
