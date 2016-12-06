@@ -4,6 +4,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -60,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
 
         DBAssetHelper dbSetup = new DBAssetHelper(MainActivity.this);
         dbSetup.getReadableDatabase();
+
+        SharedPreferences.Editor prefEditor = getSharedPreferences("weather", MODE_PRIVATE).edit();
+        prefEditor.apply();
 
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
@@ -232,5 +236,10 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
 
         transaction.replace(R.id.main_fragment_container, cardFragment);
         transaction.commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
     }
 }

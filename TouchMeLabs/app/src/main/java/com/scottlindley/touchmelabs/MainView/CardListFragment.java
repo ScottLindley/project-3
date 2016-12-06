@@ -120,6 +120,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         setUpBroadcastReceiverForWeatherData();
     }
 
+
     public void setUpBroadcastReceiverForWeatherData(){
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -136,7 +137,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                 mCardList.set(0, new CurrentWeather(cityName, description, temp));
                 Log.d(TAG, "onReceive: "+mCardList.get(0).getTitle());
 
-                SharedPreferences preferences = getActivity().getSharedPreferences("weather", Context.MODE_PRIVATE);
+                SharedPreferences preferences = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
 
                 editor.putString("city name", cityName)
@@ -285,7 +286,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof WeatherUpdateListener) {
+        if (getContext() instanceof WeatherUpdateListener) {
             mListener = (WeatherUpdateListener) context;
         } else {
             throw new RuntimeException(context.toString()
