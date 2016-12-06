@@ -146,7 +146,6 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                         .putString("isDenied", "error")
                         .apply();
 
-
                 mListener.redrawFragment();
             }
         };
@@ -287,18 +286,13 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     public void onAttach(Context context) {
         super.onAttach(context);
         if (getContext() instanceof WeatherUpdateListener) {
-            mListener = (WeatherUpdateListener) context;
+            mListener = (WeatherUpdateListener) getContext();
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement WeatherUpdateListener methods");
         }
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 
     /**
      * Necessary override to notify the login button a successful login occurred.
