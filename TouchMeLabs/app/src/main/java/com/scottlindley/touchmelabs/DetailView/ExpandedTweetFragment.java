@@ -3,6 +3,7 @@ package com.scottlindley.touchmelabs.DetailView;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import retrofit2.Call;
 
 
 public class ExpandedTweetFragment extends Fragment {
+    private static final String TAG = "ExpandedTweetFragment";
 
     private static final String ARG_ID = "id";
 
@@ -57,14 +59,10 @@ public class ExpandedTweetFragment extends Fragment {
             if(longID != -1){
                 mID = longID;
             }
+            Log.d(TAG, "onCreate: "+mID);
         }
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setRetainInstance(true);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -97,11 +95,13 @@ public class ExpandedTweetFragment extends Fragment {
                             selectedTweet = tweet;
                         }
                     }
+                    Log.d(TAG, "success: "+selectedTweet.id);
                     mTweetContainer.addView(new TweetView(getActivity(), selectedTweet));
                 }
 
                 @Override
                 public void failure(TwitterException exception) {
+                    exception.printStackTrace();
                 }
             });
         }else{
