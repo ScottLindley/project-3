@@ -17,6 +17,9 @@
     <!-- @background: be sure we match this color to match the overall
     app theme, prior to presentation -->
 
+    <!-- the color is slightly different, but I used it in order to
+    provide a bit of contrast ~ Jay -->
+
     <ImageView
         android:id="@+id/twitter_profile_picture_drawer"
         android:layout_width="65dp"
