@@ -1,13 +1,9 @@
 package com.scottlindley.touchmelabs.RecyclerViewComponents;
 
 import android.Manifest;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.PersistableBundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,7 +21,6 @@ import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherPermissionDenied;
 import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
 import com.scottlindley.touchmelabs.ModelObjects.TweetInfo;
 import com.scottlindley.touchmelabs.R;
-import com.scottlindley.touchmelabs.Services.WeatherService;
 
 import java.util.List;
 
@@ -36,7 +31,6 @@ import static com.scottlindley.touchmelabs.R.layout.weather_card_data_added;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_no_data;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_no_permission;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
-import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.WEATHER_JOB_SERVICE_ID;
 
 /**
  * Created by jonlieblich on 12/1/16.
@@ -44,7 +38,7 @@ import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeather
 
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     private List<CardContent> mCardList;
-    private OnShareContentListener mListener;
+    private CommunicateWithFragmentListener mListener;
 
     private static final int TWEET_VIEW_TYPE = twitter_card_light_layout;
     private static final int NEWS_VIEW_TYPE = news_card_light_layout;
@@ -52,7 +46,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     private static final int WEATHER_VIEW_NO_DATA = weather_card_no_data;
     private static final int WEATHER_VIEW_PERMISSION_DENIED = weather_card_no_permission;
 
-    public CardRecyclerViewAdapter(List<CardContent> list, OnShareContentListener listener) {
+    public CardRecyclerViewAdapter(List<CardContent> list, CommunicateWithFragmentListener listener) {
         mCardList = list;
         mListener = listener;
     }
@@ -134,7 +128,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     String desc = sp.getString("description", null);
 
                     ((CurrentWeatherViewHolder)holder).mCityName.setText(name);
-                    ((CurrentWeatherViewHolder)holder).mTemperature.setText(temp);
+                    ((CurrentWeatherViewHolder)holder).mTemperature.setText(temp+"\u2109");
                     ((CurrentWeatherViewHolder)holder).mDescription.setText(desc);
                 }
                 break;
@@ -158,18 +152,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     public void onClick(View view) {
                         String zip = ((CurrentWeatherPermissionDeniedViewHolder)holder).mZipCode.getText().toString();
                         if(zip.length()==5) {
-                            PersistableBundle bundle = new PersistableBundle();
-                            bundle.putString("zip", zip);
-
-                            JobScheduler scheduler = (JobScheduler)holder.itemView.getContext()
-                                    .getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                            JobInfo weatherZip = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
-                                    new ComponentName(holder.itemView.getContext(), WeatherService.class))
-                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                                    .setPeriodic(600000)
-                                    .setExtras(bundle)
-                                    .build();
-                            scheduler.schedule(weatherZip);
+                            mListener.requestUpdatedWeatherZip(zip);
                         }else
                             Log.d(TAG, "onClick: WE DONE FUCKED UP");
                     }
@@ -231,9 +214,10 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
         }
     }
 
-    public interface OnShareContentListener{
+    public interface CommunicateWithFragmentListener {
         void shareNews(String headline, String URL);
         void replyTweet(String handle);
         void retweet(long id, int position);
+        void requestUpdatedWeatherZip(String zip);
     }
 }

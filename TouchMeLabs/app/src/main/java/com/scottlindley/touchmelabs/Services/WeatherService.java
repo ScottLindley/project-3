@@ -18,6 +18,7 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.scottlindley.touchmelabs.GsonObjects.GsonCurrentWeather;
+import com.scottlindley.touchmelabs.R;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,6 +36,7 @@ public class WeatherService extends JobService {
     private static final String TAG = "WeatherService";
     private static final String WEATHER_BASE_URL = "http://api.openweathermap.org/";
     private static final String API_KEY = "8125261db99aefc2183578b967646acc";
+    private static final String IMPERIAL_UNITS = "imperial";
 
 
     @Override
@@ -78,7 +80,7 @@ public class WeatherService extends JobService {
         Log.d(TAG, "requestWithZip: ");
         OpenWeatherMapService service = retrofit.create(OpenWeatherMapService.class);
         //Make the api call using the provided zip code
-        Call<GsonCurrentWeather> call = service.getWeatherByZip(zip, API_KEY);
+        Call<GsonCurrentWeather> call = service.getWeatherByZip(zip, API_KEY, IMPERIAL_UNITS);
         call.enqueue(new Callback<GsonCurrentWeather>() {
             @Override
             public void onResponse(Call<GsonCurrentWeather> call, Response<GsonCurrentWeather> response) {
@@ -126,7 +128,7 @@ public class WeatherService extends JobService {
 
         Log.d(TAG, "requestWithLongLat: BUILT REQUEST");
         OpenWeatherMapService service = retrofit.create(OpenWeatherMapService.class);
-        Call<GsonCurrentWeather> call = service.getWeatherByLongLat(latitude, longitude, API_KEY);
+        Call<GsonCurrentWeather> call = service.getWeatherByLongLat(latitude, longitude, API_KEY, IMPERIAL_UNITS);
         call.enqueue(new Callback<GsonCurrentWeather>() {
             @Override
             public void onResponse(Call<GsonCurrentWeather> call, Response<GsonCurrentWeather> response) {
@@ -185,7 +187,7 @@ public class WeatherService extends JobService {
         builder.setPriority(NotificationCompat.PRIORITY_MAX);
         builder.setContentTitle(cityInNotification);
         builder.setContentInfo(currentTempNotification);
-        builder.setSmallIcon(android.support.v7.appcompat.R.drawable.notify_panel_notification_icon_bg);
+        builder.setSmallIcon(R.drawable.ic_wb_cloudy_black_24dp);
         builder.setOngoing(true);
 
         NotificationManager manager = (NotificationManager) getApplicationContext()

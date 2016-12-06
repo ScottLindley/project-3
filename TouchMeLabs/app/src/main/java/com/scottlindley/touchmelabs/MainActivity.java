@@ -3,6 +3,7 @@ package com.scottlindley.touchmelabs;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -187,6 +188,52 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         setUserNavInfo((NavigationView) findViewById(R.id.nav_view));
     }
 
+    @Override
+    public void getUpdatedWeatherZip(String zip){
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putString("zip", zip);
+
+        JobScheduler scheduler = (JobScheduler)this
+                .getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobInfo weatherZip = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                new ComponentName(this, WeatherService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(600000)
+                .setExtras(bundle)
+                .build();
+        scheduler.schedule(weatherZip);
+
+        SharedPreferences preferences = getSharedPreferences("weather", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit()
+                .putString("permission", "denied")
+                .putString("zipcode", zip);
+        editor.commit();
+
+        redrawFragment();
+    }
+
+    @Override
+    public void getUpdatedWeatherLongLat(){
+        PersistableBundle pb = new PersistableBundle();
+        pb.putString("long lat", "lat long");
+
+        JobScheduler scheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
+        JobInfo locationInfo = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                new ComponentName(this, WeatherService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(600000)
+                .setExtras(pb)
+                .build();
+        scheduler.schedule(locationInfo);
+
+        SharedPreferences preferences = getSharedPreferences("weather", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit()
+                .putString("permission", "granted");
+        editor.commit();
+
+        redrawFragment();
+    }
+
     /**
      * Necessary override to notify the login button a successful login occurred.
      *
@@ -210,17 +257,11 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         switch(requestCode) {
             case PERMISSION_LOCATION_REQUEST_CODE:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    PersistableBundle pb = new PersistableBundle();
-                    pb.putString("long lat", "lat long");
-
-                    JobScheduler scheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
-                    JobInfo locationInfo = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
-                            new ComponentName(this, WeatherService.class))
-                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                            .setPeriodic(600000)
-                            .setExtras(pb)
-                            .build();
-                    scheduler.schedule(locationInfo);
+                    getUpdatedWeatherLongLat();
+                    SharedPreferences preferences = getSharedPreferences("weather", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit()
+                            .putString("permission", "granted");
+                    editor.commit();
                 } else {
                     CardListFragment fragment = (CardListFragment)
                             getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
@@ -247,4 +288,5 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
     protected void onSaveInstanceState(Bundle outState) {
 
     }
+
 }

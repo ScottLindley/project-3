@@ -45,7 +45,7 @@ import retrofit2.Call;
  * "Home screen" fragment. Main purpose is to display the RecyclerView of {@link CardContent} objects.
  */
 
-public class CardListFragment extends Fragment implements CardRecyclerViewAdapter.OnShareContentListener{
+public class CardListFragment extends Fragment implements CardRecyclerViewAdapter.CommunicateWithFragmentListener {
     private static final String TAG = "CardListFragment";
 
     private TwitterLoginButton mLoginButton;
@@ -126,7 +126,6 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d(TAG, "onReceive: HEARD YA LOUD AND CLEAR");
                 String cityName = intent.getStringExtra("city name");
                 String description = intent.getStringExtra("description");
                 String temp = intent.getStringExtra("temperature");
@@ -147,6 +146,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                         .putString("isDenied", "error")
                         .apply();
 
+                mRefreshLayout.setRefreshing(false);
                 mListener.redrawFragment();
             }
         };
@@ -228,6 +228,18 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                 if(mNetworkDetector.isConnected()) {
                     //This prevents a refresh request if the user is not logged into Twitter
                     if(Twitter.getSessionManager().getActiveSession() != null) {
+                        SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
+                        String permission = preferences.getString("permission", "error");
+                        if(permission.equals("denied")){
+                            String zip = preferences.getString("zipcode", "error");
+                            if(zip!=null) {
+                                mListener.getUpdatedWeatherZip(zip);
+                            }
+                        }else if(permission.equals("granted")){
+                            mListener.getUpdatedWeatherLongLat();
+                        }else{
+                            Log.d(TAG, "onRefresh: GARBAGE");
+                        }
                         ContentDBHelper.getInstance(getContext()).refreshDB();
                     } else {
                         checkForTwitterLogin();
@@ -238,16 +250,14 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                 }
             }
         });
-
-        if(mNetworkDetector.isConnected()) {
-            checkForTwitterLogin();
-        }
     }
 
     public void handlePermissionDenied(){
         SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("isDenied", "yes").apply();
+        editor.putString("isDenied", "yes")
+                .putString("permission", "denied");
+        editor.commit();
         mListener.redrawFragment();
     }
 
@@ -314,8 +324,15 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         mLoginButton.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void requestUpdatedWeatherZip(String zip) {
+        mListener.getUpdatedWeatherZip(zip);
+    }
+
     public interface WeatherUpdateListener{
         void redrawFragment();
+        void getUpdatedWeatherLongLat();
+        void getUpdatedWeatherZip(String zip);
     }
 
     public interface LoggedInListener{
