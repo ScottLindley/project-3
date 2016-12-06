@@ -47,7 +47,8 @@ import retrofit2.Call;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.WEATHER_JOB_SERVICE_ID;
 
-public class MainActivity extends AppCompatActivity implements CardListFragment.WeatherUpdateListener, NavigationView.OnNavigationItemSelectedListener,  CardListFragment.LoggedInListener{
+public class MainActivity extends AppCompatActivity implements CardListFragment.WeatherUpdateListener,
+        NavigationView.OnNavigationItemSelectedListener,  CardListFragment.LoggedInListener{
     private static final String TAG = "MainActivity";
 
 
