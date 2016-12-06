@@ -54,6 +54,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     private CardContent mWeather;
     private CardRecyclerViewAdapter mAdapter;
     private List<CardContent> mCardList;
+    private LoggedInListener mLogInListener;
     private WeatherUpdateListener mListener;
 
     //Required empty public constructor
@@ -206,6 +207,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                 public void success(Result<TwitterSession> result) {
                     requestDataRefresh(getContext());
                     dialog.dismiss();
+                    mLogInListener.assignNavBarValues();
                 }
 
                 @Override
@@ -290,6 +292,11 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement WeatherUpdateListener methods");
+        } if (getContext() instanceof CardListFragment.LoggedInListener) {
+            mLogInListener = (CardListFragment.LoggedInListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement LoggedInListener methods");
         }
     }
 
@@ -309,5 +316,9 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
 
     public interface WeatherUpdateListener{
         void redrawFragment();
+    }
+
+    public interface LoggedInListener{
+        void assignNavBarValues();
     }
 }

@@ -47,10 +47,10 @@ import retrofit2.Call;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.WEATHER_JOB_SERVICE_ID;
 
-public class MainActivity extends AppCompatActivity implements CardListFragment.WeatherUpdateListener, NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements CardListFragment.WeatherUpdateListener, NavigationView.OnNavigationItemSelectedListener,  CardListFragment.LoggedInListener{
     private static final String TAG = "MainActivity";
-    
-    
+
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,6 +181,10 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         }
     }
 
+    @Override
+    public void assignNavBarValues() {
+        setUserNavInfo((NavigationView) findViewById(R.id.nav_view));
+    }
 
     /**
      * Necessary override to notify the login button a successful login occurred.
