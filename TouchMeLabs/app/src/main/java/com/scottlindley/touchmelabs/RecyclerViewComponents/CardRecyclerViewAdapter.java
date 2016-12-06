@@ -135,8 +135,6 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     ((CurrentWeatherViewHolder)holder).mCityName.setText(name);
                     ((CurrentWeatherViewHolder)holder).mTemperature.setText(temp);
                     ((CurrentWeatherViewHolder)holder).mDescription.setText(desc);
-                } else {
-                    ((CurrentWeatherViewHolder) holder).bindDataToViews((holder.itemView.getContext()));
                 }
                 break;
 
