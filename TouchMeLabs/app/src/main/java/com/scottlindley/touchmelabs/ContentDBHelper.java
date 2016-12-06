@@ -280,7 +280,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
         values.put(COL_USERNAME, username);
         values.put(COL_TIME, time);
         values.put(COL_TWEET_ID, id);
-        return db.insertOrThrow(TABLE_TWEETS, null, values);
+        return db.insert(TABLE_TWEETS, null, values);
     }
 
     private long addNews(SQLiteDatabase db, String title, String summary, String link) {
@@ -288,7 +288,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
         values.put(COL_NAME, title);
         values.put(COL_CONTENT, summary);
         values.put(COL_URL, link);
-        return db.insertOrThrow(TABLE_NEWS, null, values);
+        return db.insert(TABLE_NEWS, null, values);
     }
 
     private List<CardContent> combineResults(List<CardContent> cards, Cursor tweetCursor, Cursor newsCursor) {
