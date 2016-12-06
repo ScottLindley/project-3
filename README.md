@@ -1,33 +1,9 @@
-# ![](https://ga-dash.s3.amazonaws.com/production/assets/logo-9f88ae6c9c3871690e33280fcf557f33.png) Project #3
+#### Project 3 - TouchLabs
 
-#### Overview
+It is well-known to many that there are a huge number of different news sources readily available online for free. To some more casual readers who lack the time or motivation to read articles from multiple sources, finding the best article and topic to read at any given time can be an overwhelming endeavour. To add to the already massive number of professional news outlets, more and more people have found themselves getting quick news updates through various forms of social media. Our goal with this app was to provide users with an easy to read flow of news updates through news article summaries and tweets of users they have shown interest in.
 
-During Project 3, ADI students will work in groups to design and build an application that meets a set of technical and design specifications. Each set of specifications has been provided by the Android team at a real company--the idea is for students to work as part of a team on a real-world challenge. Each group of students will be assigned a project from the following list of project briefs:  
+Our app has a short list of summarized news articles intertwined with tweets, giving them the ability to obtain a large amount of information in a short amount of time. This summarized format of news articles does not form a barrier against those who may be interested in reading the full story or will want access to other articles from a source. Any news story or tweet available in our app includes a direct link to the source of that content.
 
-* [Vice](Vice)
-* [TouchLab](TouchLab)
-* [Yelp](Yelp)
+In addition to written articles/tweets, one category of content that is easily summarized and strongly relevant to most users is weather. For this reason, our app includes a current weather card along with the ability to either set the current location via GPS or manually enter a zip code for any location.
 
-These projects have been designed to be fairly open-ended and will allow for a great deal of creativity with regard to design, implementation and interaction. Students will have approximately two and a half weeks to work on this project. Please see the individual project briefs for more information on project requirements.
-
----
-
-#### Code of Conduct
-
-As always, your app must adhere to General Assembly's [student code of conduct guidelines](https://charlesdrews.gitbooks.io/ga-adi-macaron/content/markdown/code-of-conduct.html).
-
-If you have questions about whether or not your work adheres to these guidelines, please speak with a member of your instructional team.
-
----
-
-#### Team & Project Assignments
-
-- Colin, David, Joe, Kenny - [Vice](Vice)
-- Ezequiel, Justin, Nikita, Serkan - [Yelp](Yelp)
-- Jay, Jon, Scott - [TouchLab](TouchLab)
-
----
-
-## Licensing
-1. All content is licensed under a CC­BY­NC­SA 4.0 license.
-2. All software code is licensed under GNU GPLv3. For commercial use or alternative licensing, please contact [legal@ga.co](mailto:legal@ga.co).
+If a user is looking to get the most out of the "social" aspect of social media included in our app, they have the ability to share any tweet or article listed directly through their Twitter account.
