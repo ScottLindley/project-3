@@ -36,8 +36,6 @@ import java.util.regex.Pattern;
 public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements OnLocationPermissionResponseListener{
     public TextView mCityName, mTemperature, mDescription;
     public RelativeLayout mWeatherCard;
-    public Button mSetLocation, mSetZipCode;
-    public EditText mZipCode;
 
     public static final int WEATHER_JOB_SERVICE_ID = 49;
     private static final int TEN_MINUTE_REFRESH = 600000;
@@ -50,11 +48,6 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
         mTemperature = (TextView)itemView.findViewById(R.id.temperature_light);
         mDescription = (TextView)itemView.findViewById(R.id.weather_conditions_light);
         mWeatherCard = (RelativeLayout)itemView.findViewById(R.id.weather_card_light);
-        //TODO: make weather card button (A.K.A. THE BUTTON)
-        //TODO: make weather card editText
-        mSetLocation = (Button)itemView.findViewById(R.id.find_location_btn);
-        mZipCode = (EditText)itemView.findViewById(R.id.zip_code_entry);
-        mSetZipCode = (Button)itemView.findViewById(R.id.find_zip_code_btn);
     }
 
     /**
@@ -98,14 +91,6 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
             mCityName.setText(city);
             mDescription.setText(description);
             mTemperature.setText(temperature);
-
-            mSetLocation.setVisibility(View.GONE);
-            mSetZipCode.setVisibility(View.GONE);
-            mZipCode.setVisibility(View.GONE);
-
-            mCityName.setVisibility(View.VISIBLE);
-            mTemperature.setVisibility(View.VISIBLE);
-            mDescription.setVisibility(View.VISIBLE);
         }
     }
 
@@ -129,14 +114,6 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
                 mCityName.setText(name);
                 mTemperature.setText(temperature);
                 mDescription.setText(description);
-
-                mSetZipCode.setVisibility(View.GONE);
-                mSetLocation.setVisibility(View.GONE);
-                mZipCode.setVisibility(View.GONE);
-
-                mCityName.setVisibility(View.VISIBLE);
-                mTemperature.setVisibility(View.VISIBLE);
-                mDescription.setVisibility(View.VISIBLE);
             }
         };
 
@@ -152,26 +129,6 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
             updateWeatherCard(mCityName.getContext());
         } else {
             showZipCodeEntry();
-            mSetZipCode.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(mZipCode.getText().length() != 5) {
-                        mZipCode.setError("Enter Zip Code");
-                    } else {
-                        if(Pattern.matches("\\d", mZipCode.getText())) {
-                            SharedPreferences pref = mCityName.getContext()
-                                    .getSharedPreferences("weather", Context.MODE_PRIVATE);
-                            pref.edit().putString("zip", mZipCode.getText().toString()).apply();
-
-                            JobScheduler scheduler = (JobScheduler) mCityName.getContext()
-                                    .getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                            scheduler.schedule(scheduleWeather(mCityName.getContext(), "zip"));
-                        } else {
-                            mZipCode.setError("Invalid format");
-                        }
-                    }
-                }
-            });
         }
     }
 
@@ -190,14 +147,5 @@ public class CurrentWeatherViewHolder extends RecyclerView.ViewHolder implements
                 .setExtras(pb)
                 .build();
         return info;
-    }
-
-    private void showLocationButton() {
-        mSetLocation.setVisibility(View.VISIBLE);
-    }
-
-    private void showZipCodeEntry() {
-        mZipCode.setVisibility(View.VISIBLE);
-        mSetZipCode.setVisibility(View.VISIBLE);
     }
 }

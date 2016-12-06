@@ -1,11 +1,13 @@
 package com.scottlindley.touchmelabs.RecyclerViewComponents;
 
+import android.Manifest;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,15 +15,17 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.DetailView.DetailActivity;
+import com.scottlindley.touchmelabs.MainActivity;
 import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherNoData;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherPermissionDenied;
 import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
 import com.scottlindley.touchmelabs.ModelObjects.TweetInfo;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.Services.WeatherService;
 
 import java.util.List;
-import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import static com.scottlindley.touchmelabs.R.layout.news_card_light_layout;
@@ -30,6 +34,7 @@ import static com.scottlindley.touchmelabs.R.layout.weather_card_data_added;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_no_data;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_no_permission;
+import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
 import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.WEATHER_JOB_SERVICE_ID;
 
 /**
@@ -42,7 +47,9 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
 
     private static final int TWEET_VIEW_TYPE = twitter_card_light_layout;
     private static final int NEWS_VIEW_TYPE = news_card_light_layout;
-    private static final int WEATHER_VIEW_TYPE = weather_card_light_layout;
+    private static final int WEATHER_VIEW_TYPE = weather_card_data_added;
+    private static final int WEATHER_VIEW_NO_DATA = weather_card_no_data;
+    private static final int WEATHER_VIEW_PERMISSION_DENIED = weather_card_no_permission;
 
     public CardRecyclerViewAdapter(List<CardContent> list, OnShareContentListener listener) {
         mCardList = list;
@@ -135,20 +142,22 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
 
             //Request location permission and launch weather service with lat/long
             case weather_card_no_data:
-                ((CurrentWeatherViewHolder)holder).mSetLocation.setOnClickListener(new View.OnClickListener() {
+                ((CurrentWeatherNoDataViewHolder)holder).mSetLocation.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        ActivityCompat.requestPermissions((MainActivity)((CurrentWeatherNoDataViewHolder)holder).mSetLocation
+                        .getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                PERMISSION_LOCATION_REQUEST_CODE);
                     }
                 });
                 break;
 
             //After user denies location permission, show this, then launch weather service with zip code
             case weather_card_no_permission:
-                ((CurrentWeatherViewHolder)holder).mSetZipCode.setOnClickListener(new View.OnClickListener() {
+                ((CurrentWeatherPermissionDeniedViewHolder)holder).mSetZipCode.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String zip = ((CurrentWeatherViewHolder)holder).mZipCode.getText().toString();
+                        String zip = ((CurrentWeatherPermissionDeniedViewHolder)holder).mZipCode.getText().toString();
                         if(Pattern.matches("\\d", zip)&&zip.length()==5) {
                             JobScheduler scheduler = (JobScheduler)holder.itemView.getContext()
                                     .getSystemService(Context.JOB_SCHEDULER_SERVICE);
@@ -203,11 +212,15 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     @Override
     public int getItemViewType(int position) {
         if(mCardList.get(position) instanceof CurrentWeather){
-            return weather_card_no_data;
+            return WEATHER_VIEW_TYPE;
         } else if (mCardList.get(position) instanceof NewsStory){
             return NEWS_VIEW_TYPE;
         } else if (mCardList.get(position) instanceof TweetInfo){
             return TWEET_VIEW_TYPE;
+        } else if (mCardList.get(position) instanceof CurrentWeatherNoData){
+            return WEATHER_VIEW_NO_DATA;
+        } else if (mCardList.get(position) instanceof CurrentWeatherPermissionDenied) {
+            return WEATHER_VIEW_PERMISSION_DENIED;
         } else {
             return -1;
         }
