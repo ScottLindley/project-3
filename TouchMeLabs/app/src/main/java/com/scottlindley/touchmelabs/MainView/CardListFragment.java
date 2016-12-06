@@ -105,8 +105,28 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
 
         setUpBroadcastReceiverForRecyclerView();
         setUpBroadCastReceiverForShareButtons();
+        setUpBroadcastReceiverForWeatherData();
     }
 
+    public void setUpBroadcastReceiverForWeatherData(){
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String cityName = intent.getStringExtra("city name");
+                String description = intent.getStringExtra("description");
+                String temp = intent.getStringExtra("temperature");
+
+                mCardList.set(0, new CurrentWeather(cityName, description, temp));
+                mAdapter.notifyItemChanged(0);
+
+                SharedPreferences preferences = getActivity().getSharedPreferences("weather", Context.MODE_PRIVATE);
+                preferences.edit().putString("city name", cityName);
+                preferences.edit().putString("description", description);
+                preferences.edit().putString("temperature", temp);
+            }
+        };
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("weather service"));
+    }
 
     public void setUpBroadcastReceiverForRecyclerView() {
         BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -196,6 +216,11 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         if(mNetworkDetector.isConnected()) {
             checkForTwitterLogin();
         }
+    }
+
+    public void handlePermissionDenied(){
+        mCardList.set(0, new CurrentWeatherPermissionDenied());
+        mAdapter.notifyItemChanged(0);
     }
 
 

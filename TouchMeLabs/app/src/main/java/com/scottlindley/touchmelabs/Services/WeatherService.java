@@ -149,8 +149,7 @@ public class WeatherService extends JobService {
 
         showPersistentWeatherNotification(cityName, temperature);
 
-        Intent intent = new Intent("service intent");
-        intent.putExtra("service name", "weather service");
+        Intent intent = new Intent("weather service");
         intent.putExtra("city name", cityName);
         intent.putExtra("description", description);
         intent.putExtra("temperature", temperature);
