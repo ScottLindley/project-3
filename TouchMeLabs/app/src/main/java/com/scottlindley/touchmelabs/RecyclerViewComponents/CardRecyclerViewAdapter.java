@@ -21,6 +21,7 @@ import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.Services.WeatherService;
 
 import java.util.List;
+import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import static com.scottlindley.touchmelabs.R.layout.news_card_light_layout;
@@ -114,6 +115,8 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     }
                 });
                 break;
+
+            //Job service will update with given location info every 10 min
             case weather_card_data_added:
                 SharedPreferences sp = holder.itemView.getContext()
                         .getSharedPreferences("weather", Context.MODE_PRIVATE);
@@ -129,6 +132,8 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     ((CurrentWeatherViewHolder) holder).bindDataToViews((holder.itemView.getContext()));
                 }
                 break;
+
+            //Request location permission and launch weather service with lat/long
             case weather_card_no_data:
                 ((CurrentWeatherViewHolder)holder).mSetLocation.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -137,16 +142,25 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     }
                 });
                 break;
+
+            //After user denies location permission, show this, then launch weather service with zip code
             case weather_card_no_permission:
-                String zip = ((CurrentWeatherViewHolder)holder).mZipCode.getText().toString();
-                if(Pattern.matches("\\d", zip) && zip.length() == 5) {
-                    JobScheduler scheduler = (JobScheduler) holder.itemView.getContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                    JobInfo weather = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
-                            new ComponentName(holder.itemView.getContext(), WeatherService.class))
-                            .setPeriodic(600000)
-                            .build();
-                    scheduler.schedule(weather);
-                }
+                ((CurrentWeatherViewHolder)holder).mSetZipCode.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String zip = ((CurrentWeatherViewHolder)holder).mZipCode.getText().toString();
+                        if(Pattern.matches("\\d", zip)&&zip.length()==5) {
+                            JobScheduler scheduler = (JobScheduler)holder.itemView.getContext()
+                                    .getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                            JobInfo weatherZip = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                                    new ComponentName(holder.itemView.getContext(), WeatherService.class))
+                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                                    .setPeriodic(600000)
+                                    .build();
+                            scheduler.schedule(weatherZip);
+                        }
+                    }
+                });
                 break;
             default:
                 Toast.makeText(holder.itemView.getContext(), "Whoops!", Toast.LENGTH_SHORT).show();
@@ -189,7 +203,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     @Override
     public int getItemViewType(int position) {
         if(mCardList.get(position) instanceof CurrentWeather){
-            return WEATHER_VIEW_TYPE;
+            return weather_card_no_data;
         } else if (mCardList.get(position) instanceof NewsStory){
             return NEWS_VIEW_TYPE;
         } else if (mCardList.get(position) instanceof TweetInfo){
