@@ -1,7 +1,6 @@
 package com.scottlindley.touchmelabs.DetailView;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -70,8 +69,6 @@ public class ExpandedTweetFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_expanded_tweet, container, false);
         mTweetContainer = (FrameLayout)rootView.findViewById(R.id.tweet_container);
         return rootView;
@@ -110,10 +107,5 @@ public class ExpandedTweetFragment extends Fragment {
         }else{
             Toast.makeText(context, "No Network Connection", Toast.LENGTH_SHORT).show();
         }
-    }
-
-
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
     }
 }
