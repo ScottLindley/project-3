@@ -2,6 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -19,5 +20,20 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <!-- TODO: SET UP DARK THEME HERE IF TIME ~ Jay -->
+
+    <!-- Dark Theme-->
+    <!-- <style name="AppTheme.Dark" parent="Theme.AppCompat">
+         Will be able to use these to hardcode the color values in the colors.xml file
+        <item name="colorPrimary">@color/darkColorPrimary</item>
+        <item name="colorPrimaryDark">@color/darkColorPrimaryDark</item>
+        <item name="colorAccent">@color/darkColorAccent</item>
+    </style>
+
+    <style name="AppTheme.Dark.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.Dark.PopupOverlay" parent="ThemeOverlay.AppCompat"/> -->
 
 </resources>

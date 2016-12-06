@@ -30,7 +30,6 @@ public class DetailActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-
         Intent receivedIntent = getIntent();
         String intentID = receivedIntent.getStringExtra("card identifier");
         switch (intentID) {

@@ -4,6 +4,10 @@
     <color name="colorPrimaryDark">#880E4F</color>
     <color name="colorAccent">#64DD17</color>
     <color name="card_material_dark">#212121</color>
+    <!--
+    <color name="darkColorPrimary">#FF5722</color>
+    <color name="darkColorPrimaryDark">#F4511E</color>
+    <color name="darkColorAccent">#1565C0</color> -->
 </resources>
 
 <!-- basic app color scheme-->

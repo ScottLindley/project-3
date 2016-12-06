@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -176,13 +178,22 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     }
 
     public void setRefreshListener(){
+
+        /**
+         * TRYING TO THEME THE REFRESH SPINNER HERE...SERIOUSLY, WHAT.THE.FUCK?! -_-
+         * */
+        //mRefreshLayout.getResources().getColor(android.R.color.holo_purple);
+
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
             @Override
             public void onRefresh() {
+
                 if(mNetworkDetector.isConnected()) {
                     //This prevents a refresh request if the user is not logged into Twitter
                     if(Twitter.getSessionManager().getActiveSession() != null) {
                         ContentDBHelper.getInstance(getContext()).refreshDB();
+
                     } else {
                         checkForTwitterLogin();
                         mRefreshLayout.setRefreshing(false);

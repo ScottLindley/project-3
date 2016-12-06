@@ -1,6 +1,7 @@
 package com.scottlindley.touchmelabs;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -14,7 +15,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.scottlindley.touchmelabs.DetailView.AboutUsFragment;
@@ -41,11 +44,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ExpandedTweetFragment.OnFragmentInteractionListener, SettingsFragment.OnFragmentInteractionListener,
         AboutUsFragment.OnFragmentInteractionListener {
 
+    // setting parameters for the dark theme to be switched
+    private static final String PREFS_NAME = "prefs";
+    private static final String PREF_DARK_THEME = "dark theme";
+
+    // setting the intent for the switch toggle to change the theme from light to dark
+    private void toggleTheme(boolean darkTheme) {
+        SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+        editor.putBoolean(PREF_DARK_THEME, darkTheme);
+        editor.apply();
+
+        Intent intent = getIntent();
+        finish();
+
+        startActivity(intent);
+    }
+
         @Override
         protected void onCreate (Bundle savedInstanceState) {
+
             super.onCreate(savedInstanceState);
-            TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
-            Fabric.with(this, new Twitter(authConfig),new TweetUi(), new TweetComposer());
+
+            TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY, TwitterAppInfo.CONSUMER_SECRET);
+            Fabric.with(this, new Twitter(authConfig), new TweetUi(), new TweetComposer());
 
             setContentView(R.layout.activity_main);
 
@@ -64,16 +85,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+            ActionBarDrawerToggle ABtoggle = new ActionBarDrawerToggle(
                     this,
                     drawer,
                     toolbar,
                     R.string.navigation_drawer_open,
                     R.string.navigation_drawer_close);
 
-            drawer.setDrawerListener(toggle);
-            toggle.syncState();
+            drawer.setDrawerListener(ABtoggle);
+            ABtoggle.syncState();
 
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             setUserNavInfo(navigationView);
@@ -82,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void onBackPressed () {
+
             //implementing the popBackstack method to remove fragments from
             //backStack
 
@@ -108,7 +129,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
