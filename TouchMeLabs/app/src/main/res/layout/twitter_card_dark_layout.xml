@@ -89,3 +89,7 @@
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>
+
+
+    <!-- Dark layout for the twitter card. 3 ImageViews and 4 TextViews are present.
+         Depending on time, this layout may not be used. -->

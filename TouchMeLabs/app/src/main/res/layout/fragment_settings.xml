@@ -219,3 +219,6 @@
     </LinearLayout>
 
 </FrameLayout>
+
+<!-- xml layout for the Settings fragment. There are 18 TextViews,
+2 seekBars, and 2 switches to handle all of the preferences -->

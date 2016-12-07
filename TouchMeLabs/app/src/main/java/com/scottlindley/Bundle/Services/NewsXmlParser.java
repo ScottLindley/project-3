@@ -26,7 +26,6 @@ public class NewsXmlParser {
     private final String mUrl = "https://news.google.com/news?cf=all&hl=en&pz=1&ned=us&output=rss";
     private List<String> mStoryLinks;
 
-    //Constructor
     public NewsXmlParser(ParseFinishedListener listener) {
         mStoryLinks = new ArrayList<>();
         mListener = listener;
@@ -121,7 +120,7 @@ public class NewsXmlParser {
         return mStoryLinks;
     }
 
-    //Here is the interface that is implemented by NewsService
+    //The interface that is implemented by NewsService
     public interface ParseFinishedListener {
         void onXmlParseFinished();
     }

@@ -174,7 +174,7 @@ public class WeatherService extends JobService {
     public void showPersistentWeatherNotification(String cityName, String temperature) {
         Log.d(TAG, "showPersistentWeatherNotification: ");
         String cityInNotification = "Weather for "+cityName+":";
-        String currentTempNotification = "Current temperature: "+temperature;
+        String currentTempNotification = "Current temperature: "+ temperature +"\u2109";
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
         builder.setPriority(NotificationCompat.PRIORITY_MAX);

@@ -14,6 +14,8 @@ import com.scottlindley.Bundle.R;
  * Created by jay on 12/3/16.
  */
 
+// This activity is used to define how the splash screen animation will behave
+// The animation is set (in Manifest) to LAUNCHER, so it runs prior to the CardListFragment being loaded
 public class SplashScreen extends Activity {
 
     @Override
@@ -31,29 +33,18 @@ public class SplashScreen extends Activity {
 
             @Override
             public void onAnimationStart(Animation animation) {
-
-
-
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
 
-                // Running logo rotate animation
+                // Running logo rotation animation
                 iv.startAnimation(an2);
 
                 finish();
 
                 Intent i = new Intent(SplashScreen.this, MainActivity.class);
                 startActivity(i);
-
-                /** TODO - trying to start the second animation to fade in the app name text
-                tv.startAnimation(an3);
-
-                finish();
-
-                Intent fi = new Intent(SplashScreen.this, MainActivity.class);
-                startActivity(fi);*/
             }
 
             @Override
