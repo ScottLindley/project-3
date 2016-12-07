@@ -1,0 +1,27 @@
+Manual testing is based on user stories and conditions, and our experiences as they relate to them.
+
+1.) Displaying headlines from Google News:
+    
+    - The app meets the conditions and user story for this feature to a 'T'. News stories and headlines are pulled in using the Google News RSS ans SUMMRY API's, and each story is displayed as it comes in. A given news card will have a headline, an image (if applicable), and a brief summary of the article's content. We have chosen not to include a bookmark feature due to time constraints and database restrictions. 
+    
+2.) Display a summary of an article and a link to the full article:
+
+    - We met this challenge by wrapping each news article inside its own webView, so the user doesn't have to leave the app to read the full content. This is being done in order to create a ore immersive UX.
+    
+3.) Display social media posts related to news stories:
+
+    - Unfortunately, we didn't quite "get there" with this feature, mainly due to the fact that we didn't have the time nor the means to design an algorithm to suit these needs. We have however, included a fairly full-featured implementation of Twitter in the app, which allows the user to log-in, view their Twitter feed, retweet, reply, and share with their followers.
+    
+4.) Bookmark implementation:
+
+    - As previously mentioned, we opted against including the bookmark feature due to resource constraints.
+    
+5.) Twitter sign-in:
+
+    - This test has been passed. Log-in is simple and seamless and allows the user to interact with tweets in a way they would expect. Each tweet is opened inside its own fragment, and the user's login info (as well as their bearer token) is retained across application sessions.
+    
+6.) Display content in both portrait and landscape:
+
+    - This has been quite challenging, but this test has been passed as well. When rotating the screen, the content is retained and the services not interrupted. We have not included any additional layouts however, as the main feed of the app only displays 27 items at a time. This limited our ability to create a second layout, as we simply don't have a large amount of content to display at one time. The app does display and function normally in landscape mode though, so usability is not an issue. 
+
+    
