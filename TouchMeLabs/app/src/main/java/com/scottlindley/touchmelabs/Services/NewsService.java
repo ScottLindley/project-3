@@ -39,7 +39,6 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
         mStories = new ArrayList<>();
         mJobParameters = jobParameters;
 
-        //See NewsXmlParser class
         mParser = new NewsXmlParser(this);
         mParser.getXML();
         return false;
@@ -50,7 +49,9 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
         return false;
     }
 
-    //Implemented from OnParseFinished interface, only takes action once NewsXmlParser is finished
+    /**
+     * Implemented from OnParseFinished interface, only takes action once NewsXmlParser is finished.
+     */
     @Override
     public void onXmlParseFinished() {
         mStoryLinks = mParser.getStoryLinks();
@@ -67,7 +68,11 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
         }
     }
 
-    //Makes a call using retrofit with a single story url
+    /**
+     * Makes a call using retrofit with a single story url
+     * @param link
+     * @param jobParameters
+     */
     private void makeRetroFitCall(final String link, final JobParameters jobParameters){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(mBaseURL)
@@ -82,7 +87,7 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
                 if(response.isSuccessful()) {
                     //Takes the GsonStory response and adds it to mStories
                     GsonNewsStory gsonStory = (response.body());
-
+                    //Removes backslash special characters from the story's headline
                     String title = gsonStory.getTitle().replace("\\", "");
 
                     mGsonStories.add(gsonStory);
@@ -109,6 +114,9 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
 
             @Override
             public void onFailure(Call<GsonNewsStory> call, Throwable t) {
+                //This is currently commented out so that the whole refresh doesn't fail if only
+                // one Smmry API call fails.
+
 //                Intent intent = new Intent("service intent");
 //                intent.putExtra("service name", "failure");
 //
@@ -118,6 +126,10 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
         });
     }
 
+    /**
+     * Helper method to convert the story objects' data to string arrays.
+     * This is so the data can be broadcasted through an intent.
+     */
     public void convertStoryToStringArrays(){
         int arraySize = mStories.size();
 

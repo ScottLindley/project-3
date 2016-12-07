@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,6 @@ import com.scottlindley.touchmelabs.R;
 
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
 import static com.scottlindley.touchmelabs.R.layout.news_card_light_layout;
 import static com.scottlindley.touchmelabs.R.layout.twitter_card_light_layout;
 import static com.scottlindley.touchmelabs.R.layout.weather_card_data_added;
@@ -51,6 +49,12 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
         mListener = listener;
     }
 
+    /**
+     * Creates the appropriate ViewHolders Given a list of CardContent objects
+     * @param parent
+     * @param viewType
+     * @return
+     */
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -75,21 +79,25 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         int type = getItemViewType(position);
+        //Check wich viewholder is found at this position and then set up its views and click listeners
         switch(type) {
             case twitter_card_light_layout:
                 ((TweetInfoViewHolder)holder).bindDataToView((TweetInfo) mCardList.get(position));
+                //Card click listener to start new detail activity
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         cardClick(holder);
                     }
                 });
+                //Share button click listener to reply to a tweet
                 ((TweetInfoViewHolder)holder).mReplyButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         mListener.replyTweet(((TweetInfo) mCardList.get(position)).getUsername());
                     }
                 });
+                //Share button click listener to retweet a tweet
                 ((TweetInfoViewHolder)holder).mRetweetButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -100,8 +108,8 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                 });
                 break;
             case news_card_light_layout:
-                //Card click listener to start new detail activity
                 ((NewsStoryViewHolder)holder).bindDataToViews((NewsStory) mCardList.get(position));
+                //Card click listener to start new detail activity
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -153,9 +161,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                         String zip = ((CurrentWeatherPermissionDeniedViewHolder)holder).mZipCode.getText().toString();
                         if(zip.length()==5) {
                             mListener.requestUpdatedWeatherZip(zip);
-                        }else
-                            Log.d(TAG, "onClick: WE DONE FUCKED UP");
-                    }
+                        }}
                 });
                 break;
             default:
@@ -168,6 +174,10 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
         return mCardList.size();
     }
 
+    /**
+     * Starts a DetailActivity. What data is sent in the intend depends upon which card was clicked.
+     * @param holder
+     */
     private void cardClick(RecyclerView.ViewHolder holder) {
         View view = holder.itemView;
         switch(view.getId()) {
@@ -181,7 +191,6 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
             case R.id.news_card_bg:
                 Intent newsIntent = new Intent(view.getContext(), DetailActivity.class);
                 String link = ((NewsStory)mCardList.get(holder.getAdapterPosition())).getURL();
-
                 newsIntent.putExtra("card identifier", "story");
                 newsIntent.putExtra("link", link);
                 view.getContext().startActivity(newsIntent);
@@ -190,12 +199,22 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
         }
     }
 
+    /**
+     * replaces all data in this adapter
+     * @param newContent
+     */
     public void replaceData(List<CardContent> newContent){
         mCardList.clear();
         mCardList.addAll(newContent);
         notifyDataSetChanged();
     }
 
+    /**
+     * Overrided method. Returns unique values determined by the type of object that lies in the
+     * given position.
+     * @param position
+     * @return
+     */
     @Override
     public int getItemViewType(int position) {
 
@@ -214,6 +233,9 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
         }
     }
 
+    /**
+     * Interface that communicates info back to the CardListFragment
+     */
     public interface CommunicateWithFragmentListener {
         void shareNews(String headline, String URL);
         void replyTweet(String handle);

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,8 +13,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +45,6 @@ import retrofit2.Call;
  */
 
 public class CardListFragment extends Fragment implements CardRecyclerViewAdapter.CommunicateWithFragmentListener {
-    private static final String TAG = "CardListFragment";
 
     private TwitterLoginButton mLoginButton;
     private SwipeRefreshLayout mRefreshLayout;
@@ -87,31 +83,39 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        //Check for network connection
         mNetworkDetector = new NetworkConnectionDetector(getContext());
         if (!mNetworkDetector.isConnected()){
             Toast.makeText(getContext(), "No Network Detected", Toast.LENGTH_SHORT).show();
         }
+        //set up swipe down to refresh
         mRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipeRefreshLayout);
         setRefreshListener();
 
+        //Check to see if the user is logged into twitter
         checkForTwitterLogin();
 
+        //Grab weather data that may have been stored locally
         SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
         String cityName = preferences.getString("city name", "error");
         String cityConditions = preferences.getString("city conditions", "error");
         String cityTemp = preferences.getString("city temp", "error");
         String denied = preferences.getString("isDenied", "error");
 
+        //Create weather objects bases on what is or isn't stored in shared preferences
         if(cityName.equals("error") && denied.equals("error")){
             mWeather = new CurrentWeatherNoData();
-        } else if(denied.equals("error")){
+        }
+        else if(denied.equals("error")){
             mWeather = new CurrentWeather(cityName, cityConditions, cityTemp);
         } else {
             mWeather = new CurrentWeatherPermissionDenied();
         }
 
+        //Pull the cards that are stored locally in the database
         mCardList = ContentDBHelper.getInstance(getContext()).getCardList(mWeather);
 
+        //Set up the recycler view and its adapter
         RecyclerView cardRecycler = (RecyclerView)getView().findViewById(R.id.fragment_recyclerview);
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         cardRecycler.setLayoutManager(manager);
@@ -123,7 +127,12 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         setUpBroadcastReceiverForWeatherData();
     }
 
-
+    /**
+     * Makes a broadcast receiver that receives a broadcast once the WeatherService has
+     * completed. Data is pulled from the received intent and a new CurrentWeather card takes
+     * the place of the previous weather card on the list. The weather data is then added to
+     * shared preferences. Finally, the fragment is recreated.
+     */
     public void setUpBroadcastReceiverForWeatherData(){
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -132,12 +141,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                 String description = intent.getStringExtra("description");
                 String temp = intent.getStringExtra("temperature");
 
-                Log.d(TAG, "onReceive: "+cityName);
-                Log.d(TAG, "onReceive: "+description);
-                Log.d(TAG, "onReceive: "+temp);
-
                 mCardList.set(0, new CurrentWeather(cityName, description, temp));
-                Log.d(TAG, "onReceive: "+mCardList.get(0).getTitle());
 
                 SharedPreferences preferences = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
@@ -148,13 +152,20 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                         .putString("isDenied", "error")
                         .apply();
 
-                mRefreshLayout.setRefreshing(false);
+                if(mRefreshLayout.isRefreshing()) {
+                    mRefreshLayout.setRefreshing(false);
+                }
                 mListener.redrawFragment();
             }
         };
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("weather service"));
     }
 
+    /**
+     * Sets up a broadcast receiver that is notified only once BOTH the NewsService and the
+     * TwitterService are completed. The data in the adapter is replaced with the new data that
+     * is found in the database.
+     */
     public void setUpBroadcastReceiverForRecyclerView() {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -167,6 +178,10 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("card list"));
     }
 
+    /**
+     * Sets up a broadcast receiver that is notified when a user attempts to post a tweet.
+     * The result (success or failure) is displayed to the user in a Toast.
+     */
     public void setUpBroadCastReceiverForShareButtons() {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -186,6 +201,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, filter);
     }
 
+    //Requests the database to refresh its data
     public void requestDataRefresh(Context context){
         ContentDBHelper.getInstance(context).refreshDB();
     }
@@ -223,6 +239,11 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         }
     }
 
+    /**
+     * Handles what data needs to be refreshed and how. Conditional statments determine which version
+     * of the WeatherService to call (Have location permissions or not). This list will not refresh if
+     * either the user is not logged into Twitter, or if there is no network connection.
+     */
     public void setRefreshListener(){
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -230,30 +251,41 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                 if(mNetworkDetector.isConnected()) {
                     //This prevents a refresh request if the user is not logged into Twitter
                     if(Twitter.getSessionManager().getActiveSession() != null) {
+                        //Get permission status
                         SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
                         String permission = preferences.getString("permission", "error");
                         if(permission.equals("denied")){
+                            //If we don't have location permissions, the user may have already entered
+                            //in a zip code
                             String zip = preferences.getString("zipcode", "error");
                             if(zip!=null) {
                                 mListener.getUpdatedWeatherZip(zip);
                             }
                         }else if(permission.equals("granted")){
+                            //If we have location permissions, refresh the weather data with the users
+                            //current location
                             mListener.getUpdatedWeatherLongLat();
-                        }else{
-                            Log.d(TAG, "onRefresh: GARBAGE");
                         }
+                        //Request a refresh for the news and tweets
                         ContentDBHelper.getInstance(getContext()).refreshDB();
                     } else {
+                        //If the user isn't logged into twitter launch the login dialog
                         checkForTwitterLogin();
                         mRefreshLayout.setRefreshing(false);
                     }
                 } else {
+                    //if no network is detected
                     mRefreshLayout.setRefreshing(false);
                 }
             }
         });
     }
 
+    /**
+     * Called if the user denies location permissions. This saves the permission status into shared
+     * preferences and then recreates the fragment. Upon being recreated the fragment will create
+     * a CurrentWeatherPermissionDenied object to prompt the user to enter his/her zip code instead.
+     */
     public void handlePermissionDenied(){
         SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -264,6 +296,12 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     }
 
 
+    /**
+     * Opens a tweet composition screen with the article's headline and URL already included in
+     * the tweet. The user can edit the contents of the tweet and then attempt to post the tweet.
+     * @param headline
+     * @param URL
+     */
     @Override
     public void shareNews(String headline, String URL) {
         TweetComposer.Builder tweetBuilder = new TweetComposer.Builder(getContext())
@@ -271,6 +309,11 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         tweetBuilder.show();
     }
 
+    /**
+     * Opens a tweet composition screen with the user's handle already included in the tweet.
+     * The user can edit the contents of the tweet and then attempt to post the tweet.
+     * @param handle
+     */
     @Override
     public void replyTweet(String handle) {
         TweetComposer.Builder replyBuilder = new TweetComposer.Builder(getContext())
@@ -278,6 +321,12 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         replyBuilder.show();
     }
 
+    /**
+     * Retweets the selected tweet. Because retweets are not displayed in a user's timeline, the
+     * success or failure of the retweet attempt is displayed through a Toast to the user.
+     * @param id
+     * @param position
+     */
     @Override
     public void retweet(long id, final int position) {
         TwitterSession session = Twitter.getSessionManager().getActiveSession();
@@ -337,6 +386,10 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         void getUpdatedWeatherZip(String zip);
     }
 
+    /**
+     * Notifies the MainActivity when the user has successfully logged into Twitter.
+     * The MainActivity then uses the user's info to populate the navbar's header views.
+     */
     public interface LoggedInListener{
         void assignNavBarValues();
     }

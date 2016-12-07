@@ -52,6 +52,7 @@ public class ExpandedNewsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_expanded_news, container, false);
         mWebView = (WebView)rootView.findViewById(R.id.article_webView);
         mWebView.getSettings().setJavaScriptEnabled(true);
+        //Only attempt to load the url in the webView if there is a network connection
         NetworkConnectionDetector detector = new NetworkConnectionDetector(getContext());
         if(detector.isConnected()){
             mWebView.loadUrl(mURL);

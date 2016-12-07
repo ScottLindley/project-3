@@ -3,7 +3,6 @@ package com.scottlindley.touchmelabs.DetailView;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,6 @@ import retrofit2.Call;
 
 
 public class ExpandedTweetFragment extends Fragment {
-    private static final String TAG = "ExpandedTweetFragment";
 
     private static final String ARG_ID = "id";
 
@@ -56,7 +54,6 @@ public class ExpandedTweetFragment extends Fragment {
             if(longID != -1){
                 mID = longID;
             }
-            Log.d(TAG, "onCreate: "+mID);
         }
     }
 
@@ -74,22 +71,24 @@ public class ExpandedTweetFragment extends Fragment {
     public void onAttach(final Context context) {
         super.onAttach(getContext());
 
+        //Check for network connection
         NetworkConnectionDetector detector = new NetworkConnectionDetector(context);
         if(detector.isConnected()){
             TwitterSession session = Twitter.getSessionManager().getActiveSession();
-
+            //Make an api call to grab the users timeline
             Call<List<Tweet>> timelineCall = Twitter.getApiClient(session).getStatusesService().homeTimeline(
                     18, null, null, null, null, null, null);
             timelineCall.enqueue(new Callback<List<Tweet>>(){
                 @Override
                 public void success(Result<List<Tweet>> result) {
                     Tweet selectedTweet = null;
+                    //Loop through the timeline and find the tweet with the matching ID
                     for(Tweet tweet : result.data){
                         if (tweet.id == mID){
                             selectedTweet = tweet;
                         }
                     }
-                    Log.d(TAG, "success: "+selectedTweet.id);
+                    //Display the tweet in a new TweetView
                     mTweetContainer.addView(new TweetView(getActivity(), selectedTweet));
                 }
 
