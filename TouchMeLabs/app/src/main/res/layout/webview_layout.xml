@@ -10,3 +10,8 @@
     </WebView>
 
 </FrameLayout>
+
+<!-- Simple wrapper for loading our web pages internally
+instead of handing them off to an external browser like Chrome.
+The idea behind having internal web rendering was to keep the user
+ actively inside the app, thus retaining immersion.-->

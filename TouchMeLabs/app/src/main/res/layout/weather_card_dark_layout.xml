@@ -73,3 +73,7 @@
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>
+
+
+    <!-- Dark layout for the weather card. 3 TextViews are present.
+         Depending on time this layout may not be used. -->

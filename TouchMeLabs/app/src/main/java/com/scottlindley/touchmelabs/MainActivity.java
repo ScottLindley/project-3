@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -304,12 +305,17 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
      */
     @Override
     public void redrawFragment() {
-        FragmentManager manager = getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        CardListFragment cardFragment = CardListFragment.newInstance();
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                FragmentManager manager = getSupportFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
+                CardListFragment cardFragment = CardListFragment.newInstance();
 
-        transaction.replace(R.id.main_fragment_container, cardFragment);
-        transaction.commit();
+                transaction.replace(R.id.main_fragment_container, cardFragment);
+                transaction.commit();
+            }
+        });
     }
 
 
