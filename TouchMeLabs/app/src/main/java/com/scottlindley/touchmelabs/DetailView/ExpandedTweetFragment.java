@@ -75,7 +75,7 @@ public class ExpandedTweetFragment extends Fragment {
 
     @Override
     public void onAttach(final Context context) {
-        super.onAttach(context);
+        super.onAttach(getContext());
 
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
         Fabric.with(getContext(), new Twitter(authConfig),new TweetUi());

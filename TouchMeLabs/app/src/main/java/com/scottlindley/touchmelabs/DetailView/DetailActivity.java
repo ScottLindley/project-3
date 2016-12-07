@@ -21,7 +21,6 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mLongID = -1;
         setContentView(R.layout.activity_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -35,6 +34,10 @@ public class DetailActivity extends AppCompatActivity {
         getIntentInfo();
     }
 
+    /**
+     * This method creates an instance of a fragment.
+     * The received intent informs the method wich fragment type to create.
+     */
     private void getIntentInfo(){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
