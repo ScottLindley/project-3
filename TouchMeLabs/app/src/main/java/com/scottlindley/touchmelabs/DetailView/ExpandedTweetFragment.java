@@ -3,6 +3,7 @@ package com.scottlindley.touchmelabs.DetailView;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,24 +12,21 @@ import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.NetworkConnectionDetector;
 import com.scottlindley.touchmelabs.R;
-import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.Tweet;
-import com.twitter.sdk.android.tweetui.TweetUi;
 import com.twitter.sdk.android.tweetui.TweetView;
 
 import java.util.List;
 
-import io.fabric.sdk.android.Fabric;
 import retrofit2.Call;
 
 
 public class ExpandedTweetFragment extends Fragment {
+    private static final String TAG = "ExpandedTweetFragment";
 
     private static final String ARG_ID = "id";
 
@@ -53,18 +51,15 @@ public class ExpandedTweetFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            //Check that we've received a valid tweet id
             long longID = getArguments().getLong(ARG_ID);
             if(longID != -1){
                 mID = longID;
             }
+            Log.d(TAG, "onCreate: "+mID);
         }
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setRetainInstance(true);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,13 +69,10 @@ public class ExpandedTweetFragment extends Fragment {
         return rootView;
     }
 
-
+    //
     @Override
     public void onAttach(final Context context) {
-        super.onAttach(context);
-
-        TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
-        Fabric.with(getContext(), new Twitter(authConfig),new TweetUi());
+        super.onAttach(getContext());
 
         NetworkConnectionDetector detector = new NetworkConnectionDetector(context);
         if(detector.isConnected()){
@@ -97,11 +89,13 @@ public class ExpandedTweetFragment extends Fragment {
                             selectedTweet = tweet;
                         }
                     }
+                    Log.d(TAG, "success: "+selectedTweet.id);
                     mTweetContainer.addView(new TweetView(getActivity(), selectedTweet));
                 }
 
                 @Override
                 public void failure(TwitterException exception) {
+                    exception.printStackTrace();
                 }
             });
         }else{

@@ -50,23 +50,26 @@ import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeather
 
 public class MainActivity extends AppCompatActivity implements CardListFragment.WeatherUpdateListener,
         NavigationView.OnNavigationItemSelectedListener,  CardListFragment.LoggedInListener{
-    private static final String TAG = "MainActivity";
 
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Set up Fabric for all Twitter API calls
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
         Fabric.with(this, new Twitter(authConfig),new TweetUi(), new TweetComposer());
 
         setContentView(R.layout.activity_main);
 
+        //Set up the local database file
         DBAssetHelper dbSetup = new DBAssetHelper(MainActivity.this);
         dbSetup.getReadableDatabase();
 
+        //Create shared preferences "weather"
         SharedPreferences.Editor prefEditor = getSharedPreferences("weather", MODE_PRIVATE).edit();
         prefEditor.apply();
 
+        //Create a cardlist fragment
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         CardListFragment cardFragment = CardListFragment.newInstance();
@@ -74,9 +77,11 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         transaction.replace(R.id.main_fragment_container, cardFragment);
         transaction.commit();
 
+        //Set up the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Set up the drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,
@@ -88,11 +93,12 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            setUserNavInfo(navigationView);
-            navigationView.setNavigationItemSelectedListener(this);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        setUserNavInfo(navigationView);
+        navigationView.setNavigationItemSelectedListener(this);
         }
 
+        //Closes nav drawer if it is open
         @Override
         public void onBackPressed () {
 
@@ -120,8 +126,7 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         }
     }
 
-
-    @SuppressWarnings("StatementWithEmptyBody")
+    //Loads navdrawer fragments when nav buttons are clicked
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -157,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         return true;
     }
 
+    //Sets the navdrawer header views to reflect User's Twitter profile
     private void setUserNavInfo(NavigationView navigationView){
         View headerView = navigationView.getHeaderView(0);
         final ImageView userPhoto = (ImageView) headerView.findViewById(R.id.twitter_profile_picture_drawer);
@@ -183,11 +189,17 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         }
     }
 
+    //Listener method to trigger setUserNavInfo() when the user has finished logging in
     @Override
     public void assignNavBarValues() {
         setUserNavInfo((NavigationView) findViewById(R.id.nav_view));
     }
 
+    /**
+     * Requests a weather data refresh using WeatherService. It is used only when the user
+     * has denied location permissions.
+     * @param zip
+     */
     @Override
     public void getUpdatedWeatherZip(String zip){
         PersistableBundle bundle = new PersistableBundle();
@@ -212,6 +224,11 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         redrawFragment();
     }
 
+
+    /**
+     * Request a weather data refresh using the WeatherService. It is used only when the
+     * user has granted location permissions
+     */
     @Override
     public void getUpdatedWeatherLongLat(){
         PersistableBundle pb = new PersistableBundle();
@@ -251,6 +268,15 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         }
     }
 
+    /**
+     * Is called immediately after the user responds to the location permissions request.
+     * First a weather data refresh is requested and then the permissions status is saved
+     * into shared preferences.
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull final int[] grantResults) {
@@ -273,9 +299,11 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         }
     }
 
+    /**
+     * Replaces the current fragment with a new instance of the same fragment
+     */
     @Override
     public void redrawFragment() {
-        Log.d(TAG, "redrawFragment: ");
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         CardListFragment cardFragment = CardListFragment.newInstance();
@@ -283,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements CardListFragment.
         transaction.replace(R.id.main_fragment_container, cardFragment);
         transaction.commit();
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
