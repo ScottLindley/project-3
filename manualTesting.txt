@@ -1,0 +1,147 @@
+###Manual testing is based on user stories and conditions, and our experiences as they relate to them. The user stories have been included here in order to provide easier reference.###
+
+## Throughout the design and development process, we set a couple of very lofty goals - namely the inclusion of a way to poll trending article and social media keywords, and display card which returned the most globally popular content as a result. Regardless of our inability to incorporate this feature, we are very happy with the end result - an app that provides content that is relevant to the individual user - top news articles, their own personal Twitter feed, and the weather in their current location. As a result the user is pressented with an application that is ideal for a commuter or anyone else who wants to have quick and easy access to the information that matters most to them. 
+
+Display headlines from Google News
+
+	Conditions:
+	
+		- List displays on "home" screen of the app
+            ##Passed
+		- List shows headline, and thumbnail image for each story
+            ##Passed
+		- Clicking a bookmark button for a story will toggle the bookmark status of a story
+            ##Bookmarks not incorporated
+		- List indicates if the story has been bookmarked
+            ##Again, bookmarks are not a feature
+            
+	User Stories:
+	
+		- As a user I can see a list of top headlines when I open the app
+            ##The app pulls the latest news stories and tweets on a FIFO (First In First Out) basis, but there is no 'Top Headlines' category per se - Half-passed.
+		- As a user I can view top headlines in multiple different categories by clicking on their tabs
+            ##Categories were not an included feature.
+		- As a user I can click the bookmark button on a story to save it for later
+            ##No bookmark feature inclusion.
+		- As a user I can see a small thumbnail associated with the the story and a bookmark if I've bookmarked that story
+            ##We were unable to find a way to pull an article image into the small ImageView on the news cards - Failed.
+		
+		## Testing Notes: The app meets the majority of conditions and user stories to a 'T'. News stories and headlines are pulled in using the Google News RSS ans SUMMRY API's, and each story is displayed as it comes in. A given news card will have a headline, an image (if applicable), and a brief summary of the article's content. We have chosen not to include a bookmark feature due to time constraints and database restrictions. 
+
+Display a summary of an article and a link to the full article
+
+	Conditions:
+	
+		- On a cardview in a separate activity, display a summary of a story along with a photo
+            ##Passed - each news card displays an article summary, which allows the user to view some of an article's contents prior and determine their level of interest. 
+		- List indicates if the story has been bookmarked by the user
+            ##No bookmarks included
+		- Offer a link to the full article on the cardview
+            ##Passed - the articles to not open via link, but rather, the card itself acts as a link to the full article, which is displayed inside a webView container.
+		- Clicking the bookmark button will toggle the bookmark status of a story
+            ##No bookmark feature included
+		- Said link will open in a webview without leaving the app
+            ##Passed - again, there's no hyperlink for the story being displayed, but clicking on the associated card will open the article inside of a webView.
+		
+	User Stories:
+	
+		- As a user I can view a little summary of an article without having to open it
+            ##Passed
+		- As a user I can click on the article's link to read the whole story
+            ##Passed
+		- As a user I can click the bookmark button to bookmark this story
+            ##No bookmark feature
+		- As a user I can see whether I've bookmarked this story or not
+            ##No bookmark feature
+		
+		##Testing Notes: We met the main challenge - making each card "actionable" via click - by wrapping each news article inside its own webView, so the user doesn't have to leave the app to read the full content. This is being done in order to create a more immersive UX. While the bookmark feature is one we would have liked to include, we ended up feeling like it would not being central to the overall user experience.
+
+Display social media posts relevent to a news story
+
+	Conditions:
+	
+		- List shows all top relevent social media posts for this story
+            ##Failed - we simply did not have the resources (time or ability) to write the algorithms to make this feature (linking article and social media keywords together and manipulating card contents accordingly) a reality.
+		- Each cardview item holds a social media logo, user information, and interaction buttons (ex. "retweet")
+            ##Passed - Each news card has a "share" icon, which allows the user to share the article to Twitter, and each Twitter card has "reply" and "retweet" icons, which allow the user to interact with the content in the corresponding fashion.
+		
+	User Stories:
+	
+		- As a user I can scroll through a list of social media chatter about the story I've selected
+            ##Failed - as previously mentioned, we did not have the resources to make this feature happen.
+		- As a user I can interact with these posts. With Twitter posts, I can retweet a post
+            ##Passed
+            
+		##Testing Notes: Unfortunately, we didn't quite "get there" with the 'linking social media and news content keywords' feature, mainly due to the fact that we didn't have the time nor the means to design an algorithm to suit these needs. We have however, included a fairly full-featured implementation of Twitter in the app, which allows the user to log-in, view their Twitter feed, retweet, reply, and share both Twitter and news content with their followers.
+
+Bookmark a news story - ##Failed - bookmarks feature not included... Applies to all bookmark-related content.
+
+
+	Conditions:
+	
+		- For each story, displays a clickable button to toggle the bookmark status of that story
+		- Clicking said button saves the story to a list of bookmarked stories
+		- In separate Activity, List displays all bookmarked stories
+		
+	User Stories:
+	
+		- As a user I can click the bookmark button to save a story for later
+		- As a user I can click an already bookmarked story to remove the bookmark
+		- As a user I can view and scroll through a list off all my bookmarked stories
+		
+		##Testing Notes: As previously mentioned, we opted against including the bookmark feature due to resource constraints.
+
+Sign into a twitter account
+
+	Conditions:
+	
+		- Fragment displays a twitter login screen
+            ##Passed
+		- Logging in saves the user's bearer token for future sessions
+            ##Passed
+            
+	User Stories:
+	
+		- as a user I can log into my twitter account
+            #Passed
+		
+		##Testing Notes: This test has been passed. Log-in is simple and seamless and allows the user to interact with tweets in a way they would expect. Each tweet is opened inside its own fragment, and the user's login info (as well as their bearer token) is retained across application sessions.
+    
+
+Interact with a tweet/some other social media post
+
+	Conditions:
+	
+		- Clicking the social media interaction buttons will post request to that network's api
+            ##Passed - both the retweet and reply buttons perform as the user would expect.
+		- Interacting with media posts will provide the user with confirmation feedback
+            ##Passed - the user is notified via a toast message, that their interaction has been successful.
+		
+	User Stories:
+	
+		- As a user I can retweet tweets (Or some other social media interaction) that I find tied to a story
+            ##Passed
+		- As a user I can see feedback once I attemp to interact with a social media post
+            ##Passed
+
+Display content in both portrait and landscape orientations
+
+	Conditions:
+	
+		- Rotating the phone does not interrupt background threads or services
+            ##Passed
+		- Instance states are saved to preseve the user's current screen when the phone is rotated
+            ##Passed
+		- Rotating the phone provides the user with an alternative layout
+            ##Failed - no separate layaout included.
+		
+	User Stories:
+	
+		- As a user I can rotate my phone and view a horizontally-friendly version of the app
+            ##The app displays perfectly fine in lndscape, but there is no specific landscape layout included.
+		- As a user I don't notice any interruptions in my experience when I rotate the phone
+            ##Passed
+		
+		##Testing Notes: This has been quite challenging, but this test has been passed as well. When rotating the screen, the content is retained and the services not interrupted. We have not included any additional layouts however, as the main feed of the app only displays 27 items at a time. This limited our ability to create a second layout, as we simply don't have a large amount of content to display at one time. The app does display and function normally in landscape mode though, so usability is not an issue.
+
+    
