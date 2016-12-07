@@ -152,9 +152,6 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                         .putString("isDenied", "error")
                         .apply();
 
-                if(mRefreshLayout.isRefreshing()) {
-                    mRefreshLayout.setRefreshing(false);
-                }
                 mListener.redrawFragment();
             }
         };
