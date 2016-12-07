@@ -152,7 +152,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                         .putString("isDenied", "error")
                         .apply();
 
-                mListener.redrawFragment();
+//                mListener.redrawFragment();
             }
         };
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("weather service"));
