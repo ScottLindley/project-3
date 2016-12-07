@@ -1,0 +1,224 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.scottlindley.Bundle.DetailView.SettingsFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/update_interval_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/update_interval_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Update Interval"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_margin="18dp"/>
+
+            <TextView
+                android:id="@+id/in_hours_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(hours)"
+                android:textSize="16dp"
+                android:layout_marginTop="18dp"
+                android:layout_toRightOf="@id/update_interval_text"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Manual"
+                android:layout_below="@id/update_interval_text"
+                android:layout_marginLeft="18dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:layout_below="@id/update_interval_text"
+                android:layout_marginLeft="115dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3"
+                android:layout_below="@id/update_interval_text"
+                android:layout_marginLeft="230dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6"
+                android:layout_below="@id/update_interval_text"
+                android:layout_marginLeft="345dp"/>
+
+            <!-- Not sure if the SeekBar is the right thing to use here...
+            Will continue to look into it.-->
+            <SeekBar
+                android:id="@+id/update_interval_increment_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/update_interval_text"
+                android:layout_marginTop="10dp"
+                android:layout_margin="18dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/offline_reading_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/offline_reading_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Offline Reading"
+                android:layout_marginTop="50dp"
+                android:layout_margin="18dp"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/enable_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enable offline reading mode?"
+                android:layout_below="@id/offline_reading_text"
+                android:layout_marginLeft="18dp"
+                android:layout_marginTop="18dp"
+                android:textSize="16dp"/>
+
+            <Switch
+                android:id="@+id/offline_reading_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="18dp"
+                android:layout_marginTop="15dp"
+                android:layout_below="@id/offline_reading_text" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/bookmarks_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/bookmarks_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bookmarks"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_margin="18dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(to keep in memory)"
+                android:layout_margin="21dp"
+                android:layout_toRightOf="@id/bookmarks_text"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:layout_below="@id/bookmarks_text"
+                android:layout_marginLeft="30dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10"
+                android:layout_below="@id/bookmarks_text"
+                android:layout_marginLeft="100dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20"
+                android:layout_below="@id/bookmarks_text"
+                android:layout_marginLeft="175dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30"
+                android:layout_below="@id/bookmarks_text"
+                android:layout_marginLeft="250dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="40"
+                android:layout_below="@id/bookmarks_text"
+                android:layout_marginLeft="325dp"/>
+
+            <!--the number of bookmarks that the user wants kept
+             before the oldest is removed (eg. 10, 20, 30, 40 -->
+            <SeekBar
+                android:id="@+id/bookmarks_quantity_slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="18dp"
+                android:layout_below="@id/bookmarks_text"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/theme_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/theme_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Theme"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_margin="18dp"/>
+
+            <TextView
+                android:id="@+id/light_theme_switch_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Light"
+                android:layout_below="@id/theme_text"
+                android:layout_margin="18dp"/>
+
+            <TextView
+                android:id="@+id/dark_theme_switch_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dark"
+                android:layout_below="@id/theme_text"
+                android:layout_margin="18dp"
+                android:layout_toRightOf="@id/light_theme_switch_text"/>
+
+            <Switch
+                android:id="@+id/theme_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="45dp"
+                android:layout_below="@id/light_theme_switch_text" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
+
+<!-- xml layout for the Settings fragment. There are 18 TextViews,
+2 seekBars, and 2 switches to handle all of the preferences -->
