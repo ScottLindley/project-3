@@ -5,7 +5,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.scottlindley.Bundle.NetworkConnectionDetector;
@@ -55,6 +57,8 @@ public class ExpandedNewsFragment extends Fragment {
         //Only attempt to load the url in the webView if there is a network connection
         NetworkConnectionDetector detector = new NetworkConnectionDetector(getContext());
         if(detector.isConnected()){
+            mWebView.setWebChromeClient(new WebChromeClient());
+            mWebView.setWebViewClient(new WebViewClient());
             mWebView.loadUrl(mURL);
         } else {
             Toast.makeText(getContext(), "No Network Detected", Toast.LENGTH_SHORT).show();
