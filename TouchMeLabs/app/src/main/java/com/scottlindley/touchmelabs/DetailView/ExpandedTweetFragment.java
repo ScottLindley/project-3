@@ -12,20 +12,16 @@ import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.NetworkConnectionDetector;
 import com.scottlindley.touchmelabs.R;
-import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.Tweet;
-import com.twitter.sdk.android.tweetui.TweetUi;
 import com.twitter.sdk.android.tweetui.TweetView;
 
 import java.util.List;
 
-import io.fabric.sdk.android.Fabric;
 import retrofit2.Call;
 
 
@@ -55,6 +51,7 @@ public class ExpandedTweetFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            //Check that we've received a valid tweet id
             long longID = getArguments().getLong(ARG_ID);
             if(longID != -1){
                 mID = longID;
@@ -72,13 +69,10 @@ public class ExpandedTweetFragment extends Fragment {
         return rootView;
     }
 
-
+    //
     @Override
     public void onAttach(final Context context) {
         super.onAttach(getContext());
-
-        TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
-        Fabric.with(getContext(), new Twitter(authConfig),new TweetUi());
 
         NetworkConnectionDetector detector = new NetworkConnectionDetector(context);
         if(detector.isConnected()){
