@@ -1,5 +1,10 @@
 <resources>
-    <string name="app_name">Touch Me Labs</string>
+    <string name="app_name">Bundle</string>
+
+    <string name="jon_summary">Jon is basically a giant asshole who should never be trusted.
+    You've been warned.</string>
+    <string name="jay_summary">It is rumored that Jay predates the discovery of electricity.</string>
+    <string name="scott_summary">Scott has the ability to kill a yak from 50 yards away, with real bullets.</string>
 
     <string name="title_activity_detail">Detail Activity</string>
 

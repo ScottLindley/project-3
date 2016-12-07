@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        tools:context="com.scottlindley.touchmelabs.DetailView.DetailActivity">
+        tools:context="com.scottlindley.Bundle.DetailView.DetailActivity">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:context="com.scottlindley.touchmelabs.DetailView.DetailActivity">
+            tools:context="com.scottlindley.Bundle.DetailView.DetailActivity">
 
                 <FrameLayout
                     android:id="@+id/detail_fragment_container"

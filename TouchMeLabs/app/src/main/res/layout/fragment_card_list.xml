@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/cardview_dark_background"
-    tools:context="com.scottlindley.touchmelabs.MainView.CardListFragment">
+    tools:context="com.scottlindley.Bundle.MainView.CardListFragment">
 
 
     <android.support.v4.widget.SwipeRefreshLayout

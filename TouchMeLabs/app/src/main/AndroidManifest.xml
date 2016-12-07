@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.scottlindley.touchmelabs">
+          package="com.scottlindley.Bundle">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.scottlindley.Bundle.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SplashScreen.SplashScreen">
+        <activity android:name="com.scottlindley.Bundle.SplashScreen.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +30,7 @@
         </activity>
 
         <activity
-            android:name=".DetailView.DetailActivity"
+            android:name="com.scottlindley.Bundle.DetailView.DetailActivity"
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
@@ -40,13 +40,13 @@
             android:value="eb75ce0e71340377645da165307d5f87d140c917" />
 
 
-        <service android:name=".Services.TwitterService"
+        <service android:name="com.scottlindley.Bundle.Services.TwitterService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
 
-        <service android:name=".Services.NewsService"
+        <service android:name="com.scottlindley.Bundle.Services.NewsService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
 
-        <service android:name=".Services.WeatherService"
+        <service android:name="com.scottlindley.Bundle.Services.WeatherService"
                  android:permission="android.permission.BIND_JOB_SERVICE"/>
 
     </application>
