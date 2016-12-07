@@ -14,7 +14,7 @@
     android:id="@+id/news_dark">
 
     <RelativeLayout
-        android:id="@+id/weather_card_dark"
+        android:id="@+id/weather_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -51,6 +51,24 @@
             android:layout_toLeftOf="@id/temperature_dark"
             android:layout_centerVertical="true"
             android:layout_marginRight="6dp"/>
+        <Button
+            android:id="@+id/find_location_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/find_zip_code_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"/>
+
+        <EditText
+            android:id="@+id/zip_code_entry"
+            android:hint="enter zip code"
+            android:textColor="#ffffff"
+            android:inputType="numberDecimal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
     </RelativeLayout>
 

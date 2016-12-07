@@ -1,26 +1,36 @@
 package com.scottlindley.touchmelabs.RecyclerViewComponents;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.DetailView.DetailActivity;
+import com.scottlindley.touchmelabs.MainActivity;
 import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherNoData;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherPermissionDenied;
 import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
 import com.scottlindley.touchmelabs.ModelObjects.TweetInfo;
 import com.scottlindley.touchmelabs.R;
 
 import java.util.List;
 
+import static android.content.ContentValues.TAG;
 import static com.scottlindley.touchmelabs.R.layout.news_card_light_layout;
 import static com.scottlindley.touchmelabs.R.layout.twitter_card_light_layout;
-import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
+import static com.scottlindley.touchmelabs.R.layout.weather_card_data_added;
+import static com.scottlindley.touchmelabs.R.layout.weather_card_no_data;
+import static com.scottlindley.touchmelabs.R.layout.weather_card_no_permission;
+import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
 
 /**
  * Created by jonlieblich on 12/1/16.
@@ -28,14 +38,15 @@ import static com.scottlindley.touchmelabs.R.layout.weather_card_light_layout;
 
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
     private List<CardContent> mCardList;
-    private int positionForWeather;
-    private OnShareContentListener mListener;
+    private CommunicateWithFragmentListener mListener;
 
     private static final int TWEET_VIEW_TYPE = twitter_card_light_layout;
     private static final int NEWS_VIEW_TYPE = news_card_light_layout;
-    private static final int WEATHER_VIEW_TYPE = weather_card_light_layout;
+    private static final int WEATHER_VIEW_TYPE = weather_card_data_added;
+    private static final int WEATHER_VIEW_NO_DATA = weather_card_no_data;
+    private static final int WEATHER_VIEW_PERMISSION_DENIED = weather_card_no_permission;
 
-    public CardRecyclerViewAdapter(List<CardContent> list, OnShareContentListener listener) {
+    public CardRecyclerViewAdapter(List<CardContent> list, CommunicateWithFragmentListener listener) {
         mCardList = list;
         mListener = listener;
     }
@@ -48,17 +59,22 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                 return new TweetInfoViewHolder(inflater.inflate(twitter_card_light_layout, parent, false));
             case news_card_light_layout:
                 return new NewsStoryViewHolder(inflater.inflate(news_card_light_layout, parent, false));
-            case weather_card_light_layout:
-                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_light_layout, parent, false));
+            case weather_card_no_data:
+                return new CurrentWeatherNoDataViewHolder(inflater.inflate(weather_card_no_data, parent, false));
+            case weather_card_no_permission:
+                return new CurrentWeatherPermissionDeniedViewHolder(inflater.inflate(weather_card_no_permission, parent, false));
+            case weather_card_data_added:
+                return new CurrentWeatherViewHolder(inflater.inflate(weather_card_data_added, parent, false));
             default:
                 return null;
         }
     }
 
+
+
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         int type = getItemViewType(position);
-        positionForWeather = position;
         switch(type) {
             case twitter_card_light_layout:
                 ((TweetInfoViewHolder)holder).bindDataToView((TweetInfo) mCardList.get(position));
@@ -101,7 +117,9 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     }
                 });
                 break;
-            case weather_card_light_layout:
+
+            //Job service will update with given location info every 10 min
+            case weather_card_data_added:
                 SharedPreferences sp = holder.itemView.getContext()
                         .getSharedPreferences("weather", Context.MODE_PRIVATE);
                 if(sp.contains("city name")) {
@@ -110,12 +128,35 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
                     String desc = sp.getString("description", null);
 
                     ((CurrentWeatherViewHolder)holder).mCityName.setText(name);
-                    ((CurrentWeatherViewHolder)holder).mTemperature.setText(temp);
+                    ((CurrentWeatherViewHolder)holder).mTemperature.setText(temp+"\u2109");
                     ((CurrentWeatherViewHolder)holder).mDescription.setText(desc);
-                } else {
-                    ((CurrentWeatherViewHolder) holder).bindDataToViews((CurrentWeather) mCardList.get(position),
-                            holder.itemView.getContext());
                 }
+                break;
+
+            //Request location permission and launch weather service with lat/long
+            case weather_card_no_data:
+                ((CurrentWeatherNoDataViewHolder)holder).mSetLocation.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ActivityCompat.requestPermissions((MainActivity)((CurrentWeatherNoDataViewHolder)holder).mSetLocation
+                        .getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                PERMISSION_LOCATION_REQUEST_CODE);
+                    }
+                });
+                break;
+
+            //After user denies location permission, show this, then launch weather service with zip code
+            case weather_card_no_permission:
+                ((CurrentWeatherPermissionDeniedViewHolder)holder).mSetZipCode.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String zip = ((CurrentWeatherPermissionDeniedViewHolder)holder).mZipCode.getText().toString();
+                        if(zip.length()==5) {
+                            mListener.requestUpdatedWeatherZip(zip);
+                        }else
+                            Log.d(TAG, "onClick: WE DONE FUCKED UP");
+                    }
+                });
                 break;
             default:
                 Toast.makeText(holder.itemView.getContext(), "Whoops!", Toast.LENGTH_SHORT).show();
@@ -157,20 +198,26 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter{
 
     @Override
     public int getItemViewType(int position) {
+
         if(mCardList.get(position) instanceof CurrentWeather){
             return WEATHER_VIEW_TYPE;
         } else if (mCardList.get(position) instanceof NewsStory){
             return NEWS_VIEW_TYPE;
         } else if (mCardList.get(position) instanceof TweetInfo){
             return TWEET_VIEW_TYPE;
+        } else if (mCardList.get(position) instanceof CurrentWeatherNoData){
+            return WEATHER_VIEW_NO_DATA;
+        } else if (mCardList.get(position) instanceof CurrentWeatherPermissionDenied) {
+            return WEATHER_VIEW_PERMISSION_DENIED;
         } else {
             return -1;
         }
     }
 
-    public interface OnShareContentListener{
+    public interface CommunicateWithFragmentListener {
         void shareNews(String headline, String URL);
         void replyTweet(String handle);
         void retweet(long id, int position);
+        void requestUpdatedWeatherZip(String zip);
     }
 }

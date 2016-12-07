@@ -32,7 +32,8 @@
         <activity
             android:name=".DetailView.DetailActivity"
             android:label="@string/title_activity_detail"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
 
         <meta-data

@@ -1,9 +1,15 @@
 package com.scottlindley.touchmelabs;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -19,12 +25,13 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.scottlindley.touchmelabs.DetailView.AboutUsFragment;
-import com.scottlindley.touchmelabs.DetailView.ExpandedTweetFragment;
 import com.scottlindley.touchmelabs.DetailView.SettingsFragment;
 import com.scottlindley.touchmelabs.MainView.CardListFragment;
 import com.scottlindley.touchmelabs.Services.TwitterAppInfo;
+import com.scottlindley.touchmelabs.Services.WeatherService;
 import com.scottlindley.touchmelabs.Setup.DBAssetHelper;
 import com.squareup.picasso.Picasso;
 import com.twitter.sdk.android.Twitter;
@@ -40,77 +47,68 @@ import com.twitter.sdk.android.tweetui.TweetUi;
 import io.fabric.sdk.android.Fabric;
 import retrofit2.Call;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        ExpandedTweetFragment.OnFragmentInteractionListener, SettingsFragment.OnFragmentInteractionListener,
-        AboutUsFragment.OnFragmentInteractionListener {
+import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.PERMISSION_LOCATION_REQUEST_CODE;
+import static com.scottlindley.touchmelabs.RecyclerViewComponents.CurrentWeatherViewHolder.WEATHER_JOB_SERVICE_ID;
 
-    // setting parameters for the dark theme to be switched
-    private static final String PREFS_NAME = "prefs";
-    private static final String PREF_DARK_THEME = "dark theme";
+public class MainActivity extends AppCompatActivity implements CardListFragment.WeatherUpdateListener,
+        NavigationView.OnNavigationItemSelectedListener,  CardListFragment.LoggedInListener{
 
-    // setting the intent for the switch toggle to change the theme from light to dark
-    private void toggleTheme(boolean darkTheme) {
-        SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-        editor.putBoolean(PREF_DARK_THEME, darkTheme);
-        editor.apply();
 
-        Intent intent = getIntent();
-        finish();
+    @Override
+    protected void onCreate (Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //Set up Fabric for all Twitter API calls
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY,TwitterAppInfo.CONSUMER_SECRET);
+        Fabric.with(this, new Twitter(authConfig),new TweetUi(), new TweetComposer());
 
-        startActivity(intent);
-    }
+        setContentView(R.layout.activity_main);
 
-        @Override
-        protected void onCreate (Bundle savedInstanceState) {
+        //Set up the local database file
+        DBAssetHelper dbSetup = new DBAssetHelper(MainActivity.this);
+        dbSetup.getReadableDatabase();
 
-            super.onCreate(savedInstanceState);
+        //Create shared preferences "weather"
+        SharedPreferences.Editor prefEditor = getSharedPreferences("weather", MODE_PRIVATE).edit();
+        prefEditor.apply();
 
-            TwitterAuthConfig authConfig = new TwitterAuthConfig(TwitterAppInfo.CONSUMER_KEY, TwitterAppInfo.CONSUMER_SECRET);
-            Fabric.with(this, new Twitter(authConfig), new TweetUi(), new TweetComposer());
+        //Create a cardlist fragment
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        CardListFragment cardFragment = CardListFragment.newInstance();
 
-            setContentView(R.layout.activity_main);
+        transaction.replace(R.id.main_fragment_container, cardFragment);
+        transaction.commit();
 
-            DBAssetHelper dbSetup = new DBAssetHelper(MainActivity.this);
-            dbSetup.getReadableDatabase();
+        //Set up the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-            FragmentManager manager = getSupportFragmentManager();
-            FragmentTransaction transaction = manager.beginTransaction();
-            CardListFragment cardFragment = CardListFragment.newInstance();
+        //Set up the drawer
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this,
+                drawer,
+                toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
 
-            transaction.replace(R.id.main_fragment_container, cardFragment);
-            transaction.commit();
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
 
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-
-            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-            ActionBarDrawerToggle ABtoggle = new ActionBarDrawerToggle(
-                    this,
-                    drawer,
-                    toolbar,
-                    R.string.navigation_drawer_open,
-                    R.string.navigation_drawer_close);
-
-            drawer.setDrawerListener(ABtoggle);
-            ABtoggle.syncState();
-
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            setUserNavInfo(navigationView);
-            navigationView.setNavigationItemSelectedListener(this);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        setUserNavInfo(navigationView);
+        navigationView.setNavigationItemSelectedListener(this);
         }
 
+        //Closes nav drawer if it is open
         @Override
         public void onBackPressed () {
-
-            //implementing the popBackstack method to remove fragments from
-            //backStack
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         android.app.FragmentManager fm = getFragmentManager();
 
-        if (fm.getBackStackEntryCount() > 0) {
+        if (fm.getBackStackEntryCount() >= 0) {
             Log.i("MainActivity", "popping backstack");
             fm.popBackStack();
 
@@ -130,33 +128,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+    //Loads navdrawer fragments when nav buttons are clicked
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         // Adding fragment navigation onItemSelected - click each item to navigate to the
-        // respective fragment, and adding it to the backStack
+        // respective fragment
         if (id == R.id.nav_home) {
-            CardListFragment cardListFragment = new CardListFragment();
+            CardListFragment cardListFragment = CardListFragment.newInstance();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, cardListFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_settings) {
-            SettingsFragment settingsFragment = new SettingsFragment();
+            SettingsFragment settingsFragment = SettingsFragment.newInstance();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, settingsFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_about_us) {
-            AboutUsFragment aboutUsFragment = new AboutUsFragment();
+            AboutUsFragment aboutUsFragment = AboutUsFragment.newInstance();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_fragment_container, aboutUsFragment);
-            // add onSavedInstanceState for each
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
@@ -167,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    //Sets the navdrawer header views to reflect User's Twitter profile
     private void setUserNavInfo(NavigationView navigationView){
         View headerView = navigationView.getHeaderView(0);
         final ImageView userPhoto = (ImageView) headerView.findViewById(R.id.twitter_profile_picture_drawer);
@@ -174,24 +172,86 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final TextView handleName =(TextView) headerView.findViewById(R.id.twitter_handle_drawer);
 
         TwitterSession session = Twitter.getSessionManager().getActiveSession();
-        Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(false, false);
-        userCall.enqueue(new Callback<User>() {
-            @Override
-            public void success(Result<User> result) {
-                User user = result.data;
-                Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
-                userName.setText(user.name);
-                handleName.setText("@"+user.screenName);
-            }
+        if(session!=null) {
+            Call<User> userCall = Twitter.getApiClient(session).getAccountService().verifyCredentials(false, false);
+            userCall.enqueue(new Callback<User>() {
+                @Override
+                public void success(Result<User> result) {
+                    User user = result.data;
+                    Picasso.with(MainActivity.this).load(user.profileImageUrl).into(userPhoto);
+                    userName.setText(user.name);
+                    handleName.setText("@" + user.screenName);
+                }
 
-            @Override
-            public void failure(TwitterException exception) {
-                exception.printStackTrace();
-            }
-        });
-
+                @Override
+                public void failure(TwitterException exception) {
+                    exception.printStackTrace();
+                }
+            });
+        }
     }
 
+    //Listener method to trigger setUserNavInfo() when the user has finished logging in
+    @Override
+    public void assignNavBarValues() {
+        setUserNavInfo((NavigationView) findViewById(R.id.nav_view));
+    }
+
+    /**
+     * Requests a weather data refresh using WeatherService. It is used only when the user
+     * has denied location permissions.
+     * @param zip
+     */
+    @Override
+    public void getUpdatedWeatherZip(String zip){
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putString("zip", zip);
+
+        JobScheduler scheduler = (JobScheduler)this
+                .getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobInfo weatherZip = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                new ComponentName(this, WeatherService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(600000)
+                .setExtras(bundle)
+                .build();
+        scheduler.schedule(weatherZip);
+
+        SharedPreferences preferences = getSharedPreferences("weather", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit()
+                .putString("permission", "denied")
+                .putString("zipcode", zip);
+        editor.commit();
+
+        redrawFragment();
+    }
+
+
+    /**
+     * Request a weather data refresh using the WeatherService. It is used only when the
+     * user has granted location permissions
+     */
+    @Override
+    public void getUpdatedWeatherLongLat(){
+        PersistableBundle pb = new PersistableBundle();
+        pb.putString("long lat", "lat long");
+
+        JobScheduler scheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
+        JobInfo locationInfo = new JobInfo.Builder(WEATHER_JOB_SERVICE_ID,
+                new ComponentName(this, WeatherService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(600000)
+                .setExtras(pb)
+                .build();
+        scheduler.schedule(locationInfo);
+
+        SharedPreferences preferences = getSharedPreferences("weather", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit()
+                .putString("permission", "granted");
+        editor.commit();
+
+        redrawFragment();
+    }
 
     /**
      * Necessary override to notify the login button a successful login occurred.
@@ -210,8 +270,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /**
+     * Is called immediately after the user responds to the location permissions request.
+     * First a weather data refresh is requested and then the permissions status is saved
+     * into shared preferences.
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull final int[] grantResults) {
+        switch(requestCode) {
+            case PERMISSION_LOCATION_REQUEST_CODE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getUpdatedWeatherLongLat();
+                    SharedPreferences preferences = getSharedPreferences("weather", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit()
+                            .putString("permission", "granted");
+                    editor.commit();
+                } else {
+                    CardListFragment fragment = (CardListFragment)
+                            getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+                    fragment.handlePermissionDenied();
+                }
+                break;
+            default:
+                Toast.makeText(this, "Only location permission needed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Replaces the current fragment with a new instance of the same fragment
+     */
+    @Override
+    public void redrawFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        CardListFragment cardFragment = CardListFragment.newInstance();
+
+        transaction.replace(R.id.main_fragment_container, cardFragment);
+        transaction.commit();
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
 
     }
+
 }

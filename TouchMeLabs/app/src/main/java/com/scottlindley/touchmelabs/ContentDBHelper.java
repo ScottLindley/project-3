@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.scottlindley.touchmelabs.ModelObjects.CardContent;
-import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
 import com.scottlindley.touchmelabs.ModelObjects.NewsStory;
 import com.scottlindley.touchmelabs.ModelObjects.TweetInfo;
 import com.scottlindley.touchmelabs.Services.NewsService;
@@ -180,7 +179,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
      * @return a combined list of all tweet, news, and weather objects being
      * displayed
      */
-    public List<CardContent> getCardList(CurrentWeather weather) {
+    public List<CardContent> getCardList(CardContent weather) {
         List<CardContent> cards = new ArrayList<>();
         cards.add(weather);
         SQLiteDatabase db = getReadableDatabase();
@@ -281,7 +280,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
         values.put(COL_USERNAME, username);
         values.put(COL_TIME, time);
         values.put(COL_TWEET_ID, id);
-        return db.insertOrThrow(TABLE_TWEETS, null, values);
+        return db.insert(TABLE_TWEETS, null, values);
     }
 
     private long addNews(SQLiteDatabase db, String title, String summary, String link) {
@@ -289,7 +288,7 @@ public class ContentDBHelper extends SQLiteOpenHelper {
         values.put(COL_NAME, title);
         values.put(COL_CONTENT, summary);
         values.put(COL_URL, link);
-        return db.insertOrThrow(TABLE_NEWS, null, values);
+        return db.insert(TABLE_NEWS, null, values);
     }
 
     private List<CardContent> combineResults(List<CardContent> cards, Cursor tweetCursor, Cursor newsCursor) {

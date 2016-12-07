@@ -7,6 +7,8 @@ package com.scottlindley.touchmelabs.ModelObjects;
 public abstract class CardContent {
     public String mTitle, mContent;
 
+    public CardContent() {}
+
     public CardContent(String title, String content) {
         mTitle = title;
         mContent = content;

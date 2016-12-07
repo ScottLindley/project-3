@@ -48,6 +48,12 @@ dependencies {
     compile('com.twitter.sdk.android:twitter:2.2.0@aar') {
         transitive = true;
     }
+    compile('com.twitter.sdk.android:twitter:2.2.0@aar') {
+        transitive = true;
+    }
+    compile('com.twitter.sdk.android:tweet-composer:2.2.0@aar') {
+        transitive = true;
+    }
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
@@ -63,11 +69,5 @@ dependencies {
     compile 'org.twitter4j:twitter4j-core:4.0.2'
     compile 'com.android.support:support-v4:25.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile('com.twitter.sdk.android:twitter:2.2.0@aar') {
-        transitive = true;
-    }
-    compile('com.twitter.sdk.android:tweet-composer:2.2.0@aar') {
-        transitive = true;
-    }
     testCompile 'junit:junit:4.12'
 }

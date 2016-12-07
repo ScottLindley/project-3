@@ -14,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,8 @@ import android.widget.Toast;
 import com.scottlindley.touchmelabs.ContentDBHelper;
 import com.scottlindley.touchmelabs.ModelObjects.CardContent;
 import com.scottlindley.touchmelabs.ModelObjects.CurrentWeather;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherNoData;
+import com.scottlindley.touchmelabs.ModelObjects.CurrentWeatherPermissionDenied;
 import com.scottlindley.touchmelabs.NetworkConnectionDetector;
 import com.scottlindley.touchmelabs.R;
 import com.scottlindley.touchmelabs.RecyclerViewComponents.CardRecyclerViewAdapter;
@@ -44,14 +47,17 @@ import retrofit2.Call;
  * "Home screen" fragment. Main purpose is to display the RecyclerView of {@link CardContent} objects.
  */
 
-public class CardListFragment extends Fragment implements CardRecyclerViewAdapter.OnShareContentListener{
+public class CardListFragment extends Fragment implements CardRecyclerViewAdapter.CommunicateWithFragmentListener {
+    private static final String TAG = "CardListFragment";
 
     private TwitterLoginButton mLoginButton;
     private SwipeRefreshLayout mRefreshLayout;
     private NetworkConnectionDetector mNetworkDetector;
-    private CurrentWeather mWeather;
+    private CardContent mWeather;
     private CardRecyclerViewAdapter mAdapter;
     private List<CardContent> mCardList;
+    private LoggedInListener mLogInListener;
+    private WeatherUpdateListener mListener;
 
     //Required empty public constructor
     public CardListFragment() {}
@@ -90,12 +96,19 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
 
         checkForTwitterLogin();
 
-        SharedPreferences preferences = getContext().getSharedPreferences("mWeather", Context.MODE_PRIVATE);
+        SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
         String cityName = preferences.getString("city name", "error");
         String cityConditions = preferences.getString("city conditions", "error");
         String cityTemp = preferences.getString("city temp", "error");
+        String denied = preferences.getString("isDenied", "error");
 
-        mWeather = new CurrentWeather(cityName, cityConditions, cityTemp);
+        if(cityName.equals("error") && denied.equals("error")){
+            mWeather = new CurrentWeatherNoData();
+        } else if(denied.equals("error")){
+            mWeather = new CurrentWeather(cityName, cityConditions, cityTemp);
+        } else {
+            mWeather = new CurrentWeatherPermissionDenied();
+        }
 
         mCardList = ContentDBHelper.getInstance(getContext()).getCardList(mWeather);
 
@@ -107,8 +120,40 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
 
         setUpBroadcastReceiverForRecyclerView();
         setUpBroadCastReceiverForShareButtons();
+        setUpBroadcastReceiverForWeatherData();
     }
 
+
+    public void setUpBroadcastReceiverForWeatherData(){
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String cityName = intent.getStringExtra("city name");
+                String description = intent.getStringExtra("description");
+                String temp = intent.getStringExtra("temperature");
+
+                Log.d(TAG, "onReceive: "+cityName);
+                Log.d(TAG, "onReceive: "+description);
+                Log.d(TAG, "onReceive: "+temp);
+
+                mCardList.set(0, new CurrentWeather(cityName, description, temp));
+                Log.d(TAG, "onReceive: "+mCardList.get(0).getTitle());
+
+                SharedPreferences preferences = context.getSharedPreferences("weather", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+
+                editor.putString("city name", cityName)
+                        .putString("description", description)
+                        .putString("temperature", temp)
+                        .putString("isDenied", "error")
+                        .apply();
+
+                mRefreshLayout.setRefreshing(false);
+                mListener.redrawFragment();
+            }
+        };
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter("weather service"));
+    }
 
     public void setUpBroadcastReceiverForRecyclerView() {
         BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -164,6 +209,7 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                 public void success(Result<TwitterSession> result) {
                     requestDataRefresh(getContext());
                     dialog.dismiss();
+                    mLogInListener.assignNavBarValues();
                 }
 
                 @Override
@@ -178,22 +224,25 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     }
 
     public void setRefreshListener(){
-
-        /**
-         * TRYING TO THEME THE REFRESH SPINNER HERE...SERIOUSLY, WHAT.THE.FUCK?! -_-
-         * */
-        //mRefreshLayout.getResources().getColor(android.R.color.holo_purple);
-
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-
             @Override
             public void onRefresh() {
-
                 if(mNetworkDetector.isConnected()) {
                     //This prevents a refresh request if the user is not logged into Twitter
                     if(Twitter.getSessionManager().getActiveSession() != null) {
+                        SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
+                        String permission = preferences.getString("permission", "error");
+                        if(permission.equals("denied")){
+                            String zip = preferences.getString("zipcode", "error");
+                            if(zip!=null) {
+                                mListener.getUpdatedWeatherZip(zip);
+                            }
+                        }else if(permission.equals("granted")){
+                            mListener.getUpdatedWeatherLongLat();
+                        }else{
+                            Log.d(TAG, "onRefresh: GARBAGE");
+                        }
                         ContentDBHelper.getInstance(getContext()).refreshDB();
-
                     } else {
                         checkForTwitterLogin();
                         mRefreshLayout.setRefreshing(false);
@@ -203,10 +252,15 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
                 }
             }
         });
+    }
 
-        if(mNetworkDetector.isConnected()) {
-            checkForTwitterLogin();
-        }
+    public void handlePermissionDenied(){
+        SharedPreferences preferences = getContext().getSharedPreferences("weather", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("isDenied", "yes")
+                .putString("permission", "denied");
+        editor.commit();
+        mListener.redrawFragment();
     }
 
 
@@ -242,6 +296,23 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
         });
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (getContext() instanceof WeatherUpdateListener) {
+            mListener = (WeatherUpdateListener) getContext();
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement WeatherUpdateListener methods");
+        } if (getContext() instanceof CardListFragment.LoggedInListener) {
+            mLogInListener = (CardListFragment.LoggedInListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement LoggedInListener methods");
+        }
+    }
+
+
     /**
      * Necessary override to notify the login button a successful login occurred.
      *
@@ -253,5 +324,20 @@ public class CardListFragment extends Fragment implements CardRecyclerViewAdapte
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         mLoginButton.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void requestUpdatedWeatherZip(String zip) {
+        mListener.getUpdatedWeatherZip(zip);
+    }
+
+    public interface WeatherUpdateListener{
+        void redrawFragment();
+        void getUpdatedWeatherLongLat();
+        void getUpdatedWeatherZip(String zip);
+    }
+
+    public interface LoggedInListener{
+        void assignNavBarValues();
     }
 }
