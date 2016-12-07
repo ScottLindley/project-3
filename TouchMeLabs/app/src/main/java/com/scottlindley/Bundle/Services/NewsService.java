@@ -85,17 +85,20 @@ public class NewsService extends JobService implements NewsXmlParser.ParseFinish
             @Override
             public void onResponse(Call<GsonNewsStory> call, Response<GsonNewsStory> response) {
                 if(response.isSuccessful()) {
-                    //Takes the GsonStory response and adds it to mStories
+                    //Takes the GsonStory response and adds it to mStories)
                     GsonNewsStory gsonStory = (response.body());
-                    //Removes backslash special characters from the story's headline
-                    String title = gsonStory.getTitle().replace("\\", "");
 
-                    mGsonStories.add(gsonStory);
-                    mStories.add(new NewsStory(
-                            title,
-                            gsonStory.getContent(),
-                            link
-                    ));
+                    if(gsonStory!=null) {
+                        //Removes backslash special characters from the story's headline
+                        String title = gsonStory.getTitle().replace("\\", "");
+
+                        mGsonStories.add(gsonStory);
+                        mStories.add(new NewsStory(
+                                title,
+                                gsonStory.getContent(),
+                                link
+                        ));
+                    }
 
                     if(mStories.size()==8) {
                         convertStoryToStringArrays();

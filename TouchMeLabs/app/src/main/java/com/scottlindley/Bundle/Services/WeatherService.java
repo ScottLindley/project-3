@@ -26,7 +26,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class WeatherService extends JobService {
-    private static final String TAG = "WeatherService";
     private static final String WEATHER_BASE_URL = "http://api.openweathermap.org/";
     private static final String API_KEY = "8125261db99aefc2183578b967646acc";
     private static final String IMPERIAL_UNITS = "imperial";
@@ -34,7 +33,6 @@ public class WeatherService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        Log.d(TAG, "onStartJob: ");
         //Pulls the location from the jobParameters
         PersistableBundle bundle = jobParameters.getExtras();
         String zip = bundle.getString("zip");
@@ -52,7 +50,6 @@ public class WeatherService extends JobService {
         } else if (zip == null && latLong != null) {
             requestWithLongLat(latLong, jobParameters);
         } else {
-            Log.d(TAG, "onStartJob: BOTH NULL");
             jobFinished(jobParameters, false);
         }
         return false;
@@ -70,7 +67,6 @@ public class WeatherService extends JobService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        Log.d(TAG, "requestWithZip: ");
         OpenWeatherMapService service = retrofit.create(OpenWeatherMapService.class);
         //Make the api call using the provided zip code
         Call<GsonCurrentWeather> call = service.getWeatherByZip(zip, API_KEY, IMPERIAL_UNITS);
@@ -80,10 +76,8 @@ public class WeatherService extends JobService {
                 if (response.isSuccessful()) {
                     //See helper method
                     handleResponse(response);
-                    Log.d(TAG, "onResponse: ");
                     jobFinished(jobParameters, false);
                 }
-                Log.d(TAG, "onResponse: BAD RESPONSE");
             }
 
             @Override
@@ -100,13 +94,11 @@ public class WeatherService extends JobService {
     }
 
     public void requestWithLongLat(String latLong, final JobParameters jobParameters) {
-        Log.d(TAG, "requestWithLongLat: ");
         String latitude;
         String longitude;
 
         LocationManager manager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         if (latLong.equals("lat long")) {
-            Log.d(TAG, "requestWithLongLat: in the IF");
             Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             latitude = Double.toString(location.getLatitude());
             longitude = Double.toString(location.getLongitude());
@@ -119,19 +111,16 @@ public class WeatherService extends JobService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        Log.d(TAG, "requestWithLongLat: BUILT REQUEST");
         OpenWeatherMapService service = retrofit.create(OpenWeatherMapService.class);
         Call<GsonCurrentWeather> call = service.getWeatherByLongLat(latitude, longitude, API_KEY, IMPERIAL_UNITS);
         call.enqueue(new Callback<GsonCurrentWeather>() {
             @Override
             public void onResponse(Call<GsonCurrentWeather> call, Response<GsonCurrentWeather> response) {
                 if(response.isSuccessful()) {
-                    Log.d(TAG, "onResponse: WEATHER SERVICE");
                     //see helper method
                     handleResponse(response);
                     jobFinished(jobParameters, false);
                 }else {
-                    Log.d(TAG, "onResponse: RESPONSE IS GARBAGE "+response.code());
                 }
             }
 
@@ -141,7 +130,6 @@ public class WeatherService extends JobService {
                 //Send a name of 'failure' that will trigger the default case in the BroadcastReceiver
                 Intent intent = new Intent("service intent");
                 intent.putExtra("service name", "failure");
-                Log.d(TAG, "onFailure: ");
 
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 jobFinished(jobParameters, false);
@@ -153,7 +141,6 @@ public class WeatherService extends JobService {
         /*Regardless of the api call (zip or longitude/latitude), the pieces we need in the JSON respose
         are identical. Therefore we can use this block of code for both responses.
         */
-        Log.d(TAG, "handleResponse: ");
 
         GsonCurrentWeather gsonWeather = response.body();
         String cityName = gsonWeather.getName();
@@ -172,7 +159,6 @@ public class WeatherService extends JobService {
     }
 
     public void showPersistentWeatherNotification(String cityName, String temperature) {
-        Log.d(TAG, "showPersistentWeatherNotification: ");
         String cityInNotification = "Weather for "+cityName+":";
         String currentTempNotification = "Current temperature: "+ temperature +"\u2109";
 
